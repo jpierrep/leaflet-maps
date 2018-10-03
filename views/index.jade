@@ -22,11 +22,11 @@ html(lang='en')
                 option(value=opcion) Valor #{i}
 
         h1 HOLA #{variable}
-
+        p #{geoJSON}
     script(src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js')
 
     script.
- 
+            console.log("#{variable}")
             var mymap = L.map('mymap').setView([51.505, -0.09], 1);
              L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
              attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -65,8 +65,7 @@ html(lang='en')
             id: 'mapbox.streets',
             accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
             }).addTo(mymap);
-
-
+            /*
             var geojsonFeature = [{
             "type": "Feature",
             "properties": {
@@ -92,7 +91,9 @@ html(lang='en')
             "type": "Point",
             "coordinates": [41.69861,-72.724141]
             }
-            }];
+            }]; */
+
+            var geojsonFeature=JSON.parse('!{geoJSON}');
 
             // console.log(omnivore.csv('file:///C:/Users/jpierre/Documents/Leaflet-maps/leaflet-maps/views/data.csv', null, customLayer))
             //var csv='a,Trinity College,https://www.edx.org/sites/default/files/trinity1.jpg,"Not in the link <a href=""http://www.trincoll.edu"" target=""_blank"">view website</a> more not in the link","300 Summit St, Hartford CT 06106",0.0,0.0,"300 SUMMIT ST, HARTFORD, CT, 06106",Exact,US Census';
