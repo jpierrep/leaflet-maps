@@ -52,7 +52,16 @@ html(lang='en')
                 console.log(valor)
                 console.log("el valor");
 
-               
+               var customLayer = L.geoJson(null, {
+                pointToLayer : function(feature,latlng){
+                console.log("holaa")   
+                console.log(feature)
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+                },
+                filter:function(feature,layer){
+                return feature.properties.Group==valor;
+                }
+                });
 
   
              mymap.eachLayer(function (layer) {
@@ -65,57 +74,13 @@ html(lang='en')
             id: 'mapbox.streets',
             accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
             }).addTo(mymap);
-
-
-            var geojsonFeature = [{
-            "type": "Feature",
-            "properties": {
-            "name": "Coors Field",
-            "amenity": "Baseball Stadium",
-            "popupContent": "This is where the Rockies play!",
-            "Group":"a"
-            },
-            "geometry": {
-            "type": "Point",
-            "coordinates": [-71.99404, 39.75621]
-            }
-            },
-            {
-            "type": "Feature",
-            "properties": {
-            "name": "Coors Field",
-            "amenity": "Baseball Stadium",
-            "popupContent": "This is where the Rockies play!",
-            "Group":"a"
-            },
-            "geometry": {
-            "type": "Point",
-            "coordinates": [41.69861,-72.724141]
-            }
-            }];
-
             // console.log(omnivore.csv('file:///C:/Users/jpierre/Documents/Leaflet-maps/leaflet-maps/views/data.csv', null, customLayer))
-            //var csv='a,Trinity College,https://www.edx.org/sites/default/files/trinity1.jpg,"Not in the link <a href=""http://www.trincoll.edu"" target=""_blank"">view website</a> more not in the link","300 Summit St, Hartford CT 06106",0.0,0.0,"300 SUMMIT ST, HARTFORD, CT, 06106",Exact,US Census';
+            var csv='a,Trinity College,https://www.edx.org/sites/default/files/trinity1.jpg,"Not in the link <a href=""http://www.trincoll.edu"" target=""_blank"">view website</a> more not in the link","300 Summit St, Hartford CT 06106",0.0,0.0,"300 SUMMIT ST, HARTFORD, CT, 06106",Exact,US Census';
             
-            var customLayer = L.geoJson(geojsonFeature, {
-                pointToLayer : function(feature,latlng){
-                console.log("holaa")   
-                console.log(feature)
-                return L.circleMarker(latlng, geojsonMarkerOptions);
-                },
-                filter:function(feature,layer){
-                return feature.properties.Group==valor;
-                }
-                }).addTo(mymap);
-
-            mymap.fitBounds(customLayer.getBounds());
-             
-             
-             /*var runLayer = omnivore.csv(csv, null, customLayer)
+             var runLayer = omnivore.csv(csv, null, customLayer)
             .on('ready', function() {
             // http://leafletjs.com/reference.html#map-fitbounds
             mymap.fitBounds(runLayer.getBounds());
             }).addTo(mymap);
-            console.log("Listo");*/
-            
+            console.log("Listo");
             }
