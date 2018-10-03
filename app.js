@@ -24,10 +24,17 @@ app.get("/",function(req,res){
     var plantas=getPlantas().then(result=>{
     //console.log(result);
   var geoJSON= JSON.stringify(createGeoJSON(result));
+ 
+  var  cenco1=  result.map(value=>{
+    return value.cenco1_desc;
+  });
+  var distinctCenco1=getUnique(cenco1);
+  console.log(distinctCenco1);
+
    //var geoJSON=createGeoJSON(result);
 
 
-    res.render("index",{variable:variable,opciones:options,geoJSON:geoJSON});
+    res.render("index",{variable:variable,opciones:options,geoJSON:geoJSON,distinctCenco1:distinctCenco1});
 
     });
    
@@ -36,6 +43,14 @@ app.get("/",function(req,res){
 
 });
 
+
+ function getUnique(data){
+    let unique = (value, index, self) => {
+        return self.indexOf(value) == index;
+    }
+    return data.filter(unique); 
+
+ }
 
 function getPlantas(){
     let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_DESC as cenco1_desc
@@ -59,7 +74,7 @@ function getPlantas(){
 }
 
 function createGeoJSON(data){
-
+    //plantilla
     var geojsonFeature = [{
         "type": "Feature",
         "properties": {
@@ -93,7 +108,7 @@ function createGeoJSON(data){
         "type": "Point",
         "coordinates": [element.longitude,element.latitude]
         }
-        ,"properties": {"Group":"a","name": "Coors Field"}
+        ,"properties": {"Group":"a","name": "Coors Field","cenco1_desc":element.cenco1_desc}
        };
 
     });
