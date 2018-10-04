@@ -23,18 +23,28 @@ app.get("/",function(req,res){
     var options=["a","b","c","d"];
     var plantas=getPlantas().then(result=>{
     //console.log(result);
+  var dataResult=JSON.stringify(result);
   var geoJSON= JSON.stringify(createGeoJSON(result));
  
   var  cenco1=  result.map(value=>{
     return value.cenco1_desc;
   });
+
+  var  supervisores=  result.map(value=>{
+    return value.administrativo_nombre;
+  });
+
   var distinctCenco1=getUnique(cenco1);
   console.log(distinctCenco1);
+
+  var distinctSupervisores=getUnique(supervisores);
+  console.log(distinctSupervisores)
 
    //var geoJSON=createGeoJSON(result);
 
 
-    res.render("index",{variable:variable,opciones:options,geoJSON:geoJSON,distinctCenco1:distinctCenco1});
+    res.render("index",{variable:variable,opciones:options,dataResult:dataResult
+   ,geoJSON:geoJSON,distinctCenco1:distinctCenco1,distinctSupervisores:distinctSupervisores});
 
     });
    
@@ -48,18 +58,24 @@ app.get("/",function(req,res){
     let unique = (value, index, self) => {
         return self.indexOf(value) == index;
     }
-    return data.filter(unique); 
+    return data.filter(unique).sort(); 
 
  }
 
 function getPlantas(){
-    let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_DESC as cenco1_desc
-    FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
-    on p.centro_costos_id=cc.id
-    left join Inteligencias.dbo.CENTROS_COSTO as ci
-    
-    on ci.CENCO2_CODI=cc.cencos_codigo collate SQL_Latin1_General_CP1_CI_AI  and ci.EMP_CODI=cc.empresa_id
-    where cc.deleted_at is null`;
+    let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
+    ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
+        FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
+        on p.centro_costos_id=cc.id
+        left join Inteligencias.dbo.VIEW_CENTROS_COSTO as ci
+        left join Inteligencias.dbo.VIEW_SIST_CENTRAL_ESTR_ORGANIZACION as estr
+        on estr.cencos_codigo=ci.CENCO2_CODI and estr.empresa_id=ci.EMP_CODI
+        on ci.CENCO2_CODI=cc.cencos_codigo and ci.EMP_CODI=cc.empresa_id
+      left join [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] as dot
+       on dot.CENCO2_CODI=ci.CENCO2_CODI and dot.EMP_CODI=ci.EMP_CODI and dot.ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
+        where cc.deleted_at is null 
+        order by ci.CENCO1_DESC asc
+    `;
     
     return new Promise(resolve=>{
 
@@ -108,8 +124,11 @@ function createGeoJSON(data){
         "type": "Point",
         "coordinates": [element.longitude,element.latitude]
         }
-        ,"properties": {"Group":"a","name": "Coors Field","cenco1_desc":element.cenco1_desc}
-       };
+        ,"properties": {"Group":"a","name":element.nombre,"cenco1_desc":element.cenco1_desc
+        ,"administrativo_nombre":element.administrativo_nombre,"dotacion_vendida":element.cotiza_dot_vendida
+        ,"dotacion_asignada":element.cotiza_dot_asignada,"dotacion_vigente":element.cotiza_dot_vigente_erp
+        }
+        };
 
     });
     return nuevoData;

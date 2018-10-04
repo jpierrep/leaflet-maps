@@ -13,14 +13,21 @@ html(lang='en')
    crossorigin="")
 
         style.
-         #mymap{width:1000px;height:600px}
+         #mymap{width:1400px;height:700px}
 
     body
         #mymap
-        select(id='supervisor_select' onchange="cambia()" )
+        select(id='cenco1_select' onchange="cambia('cenco1')" )
+            option(value="all") TODOS
             each opcion, i in distinctCenco1
                 option(value=opcion)  #{opcion}
                // option(value=opcion) Valor #{i}
+       
+        select(id='supervisor_select' onchange="cambia('supervisor')" )
+            option(value="all") TODOS
+            each opcion, i in distinctSupervisores
+                option(value=opcion)  #{opcion}
+               // option(value=opcion) Valor #{i}        
                 
 
        // h1 HOLA #{variable}
@@ -37,20 +44,94 @@ html(lang='en')
              accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
             }).addTo(mymap); 
 
-            var geojsonMarkerOptions = {
-            radius: 8,
-            fillColor: "#ff7800",
-            color: "#000",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-            };
+
             
             var valor;
              
-            function cambia(){
+            function cambia(tipo){
+
+                var cantDotVigenteTotal=0;
+                var cantDotVigenteParcial=0;
+                var cantPlantas=0;
+
+
+
+                /*var sum = [1, 2, 3].reduce((a, b) => a + b, 0);
+                console.log(sum); // 6
+
+                var arr = [{x:1},{x:2},{x:4}];
+
+                arr.reduce(function (a, b) {
+                return {x: a.x + b.x};
+                });*/
                 
-                var valor = document.getElementById("supervisor_select").value;
+                var dataResult=JSON.parse('!{dataResult}');
+                //cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        
+                         //a trae el valor acumulado y b trae el objeto actual
+                //    return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
+                //});
+
+                //funcionando trae suma de un objeto
+                //var sum= dataResult.reduce((a,b)=>{
+                //    return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp}
+                //});
+                //console.log(sum);
+                //console.log(dataResult);
+                var valor;
+                if (tipo=='supervisor'){
+                     valor = document.getElementById("supervisor_select").value;
+                     document.getElementById("cenco1_select").value="all"
+
+                    //si es distinto all se obtiene la cantidad de personal en base al filtro, pero si es all se debe sumar todo                  
+                     if(valor!='all'){
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        
+                         //a trae el valor acumulado y b trae el objeto actual
+                        if( b.administrativo_nombre && b.administrativo_nombre==valor )
+                            return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
+                        else 
+                            return{cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp};
+                        });
+
+                     }else{
+                    //funcionando trae suma de un objeto
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp}
+                        });
+                     }
+
+
+                    
+                    
+                 }
+                if(tipo=='cenco1'){
+                     valor = document.getElementById("cenco1_select").value;
+                      document.getElementById("supervisor_select").value="all"
+                                          //si es distinto all se obtiene la cantidad de personal en base al filtro, pero si es all se debe sumar todo                  
+                     if(valor!='all'){
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        
+                         //a trae el valor acumulado y b trae el objeto actual
+                        if( b.cenco1_desc && b.cenco1_desc==valor )
+                            return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
+                        else 
+                            return{cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp};
+                        });
+
+                     }else{
+                    //funcionando trae suma de un objeto
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp}
+                        });
+                     }
+
+                      
+                }
+                console.log(tipo);
+                console.log(valor);
+
+                
                 console.log(valor)
                 console.log("el valor");
 
@@ -104,10 +185,46 @@ html(lang='en')
                 pointToLayer : function(feature,latlng){
                 console.log("holaa")   
                 console.log(feature)
+
+                let featureDotacion=0;
+                //si tiene dotacion vigente se captura el dato para luego hacer la funcion 
+                // de calculo del radio en base al valor total
+                if (feature.properties && feature.properties.dotacion_vigente) 
+                    featureDotacion=feature.properties.dotacion_vigente;
+                let valorRadio=0;
+                //para no obtener 0/0 y nos de error
+                if  (featureDotacion!=0&&cantDotVigenteTotal.cotiza_dot_vigente_erp!=0)
+                    valorRadio=featureDotacion/cantDotVigenteTotal.cotiza_dot_vigente_erp
+
+                console.log(featureDotacion)
+                console.log(cantDotVigenteTotal.cotiza_dot_vigente_erp)
+                let geojsonMarkerOptions = {
+                radius: 8+(20*(valorRadio)),
+                fillColor: "#ff7800",
+                color: "#000",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+                };
+
                 return L.circleMarker(latlng, geojsonMarkerOptions);
                 },
                 filter:function(feature,layer){
+                if(valor!='all' &&tipo=='cenco1'){
+                    
                 return feature.properties.cenco1_desc==valor;
+
+                }else if(valor!='all' &&tipo=='supervisor'){
+                    
+                return feature.properties.administrativo_nombre==valor;                
+                
+                }else{
+                    return true;
+                }
+                },onEachFeature:function(feature,layer){
+                if (feature.properties && feature.properties.name) {
+                layer.bindPopup(feature.properties.name).openPopup();
+                }   
                 }
                 }).addTo(mymap);
 
