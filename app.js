@@ -16,6 +16,7 @@ var config = {
 };
 
 app.set("view engine","jade");
+app.use(express.static('public'));
 
 app.get("/",function(req,res){
  
@@ -65,6 +66,7 @@ app.get("/",function(req,res){
 function getPlantas(){
     let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
     ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
+    ,ci.CENCO2_CODI as cenco2_codi
         FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
         on p.centro_costos_id=cc.id
         left join Inteligencias.dbo.VIEW_CENTROS_COSTO as ci
@@ -124,7 +126,7 @@ function createGeoJSON(data){
         "type": "Point",
         "coordinates": [element.longitude,element.latitude]
         }
-        ,"properties": {"Group":"a","name":element.nombre,"cenco1_desc":element.cenco1_desc
+        ,"properties": {"Group":"a","name":element.nombre,"cenco1_desc":element.cenco1_desc,"cenco2_codi":element.cenco2_codi
         ,"administrativo_nombre":element.administrativo_nombre,"dotacion_vendida":element.cotiza_dot_vendida
         ,"dotacion_asignada":element.cotiza_dot_asignada,"dotacion_vigente":element.cotiza_dot_vigente_erp
         }
