@@ -75,7 +75,7 @@ function getPlantas(){
         on ci.CENCO2_CODI=cc.cencos_codigo and ci.EMP_CODI=cc.empresa_id
       left join [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] as dot
        on dot.CENCO2_CODI=ci.CENCO2_CODI and dot.EMP_CODI=ci.EMP_CODI and dot.ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
-        where cc.deleted_at is null 
+        where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0
         order by ci.CENCO1_DESC asc
     `;
     

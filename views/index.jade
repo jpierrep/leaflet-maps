@@ -31,18 +31,16 @@ html(lang='en')
 
   
         style.
-         #mymap{width:1600px;height:500px}
+         #mymap{width:1600px;height:800px}
 
     body
         #mymap
 
         select(id="select_filter_cenco1" multiple="multiple")
-            option(value="") Selecciona un cliente...
             option(value="all") TODOS
             each opcion, i in distinctCenco1
                 option(value=opcion)  #{opcion} 
         select(id="select_filter_supervisor" multiple="multiple")
-            option(value="") Selecciona un supervisor...
             option(value="all") TODOS
             each opcion, i in distinctSupervisores
                 option(value=opcion)  #{opcion}           
@@ -84,6 +82,7 @@ html(lang='en')
             var valor;
             var valores;
 
+            //Actions Selector Cenco 1
             $(document).ready(function() {
             $('#select_filter_cenco1').multiselect({
 
@@ -94,6 +93,13 @@ html(lang='en')
 
                valores=valores.toArray();
                console.log(valores);
+
+                //reset selector de cenco1 
+                $('#select_filter_supervisor option:selected').each(function() {
+                $(this).prop('selected', false);
+                });
+                $('#select_filter_supervisor').multiselect('refresh');
+
                 cambia2('cenco1')
             },filterPlaceholder: 'Busqueda...'
             ,enableFiltering: true,
@@ -101,6 +107,7 @@ html(lang='en')
             maxHeight: 400
             });
 
+            //Actions Selector Supervisor
             $('#select_filter_supervisor').multiselect({
 
             onChange: function(option, checked, select) {
@@ -110,6 +117,14 @@ html(lang='en')
 
                valores=valores.toArray();
                console.log(valores);
+                //reset selector de cenco1 
+                $('#select_filter_cenco1 option:selected').each(function() {
+                $(this).prop('selected', false);
+                });
+                $('#select_filter_cenco1').multiselect('refresh');
+
+
+                //pinta datos en el mapa
                 cambia2('supervisor')
             },filterPlaceholder: 'Busqueda...'
             ,enableFiltering: true,
@@ -191,11 +206,11 @@ html(lang='en')
 
                    //   document.getElementById("supervisor_select").value="all"
                                           //si es distinto all se obtiene la cantidad de personal en base al filtro, pero si es all se debe sumar todo                  
-                     if(valor!='all'){
+                     if(!valores.includes('all')){
                         cantDotVigenteTotal= dataResult.reduce((a,b)=>{
                         
                          //a trae el valor acumulado y b trae el objeto actual
-                        if( b.cenco1_desc && b.cenco1_desc==valor )
+                        if( b.cenco1_desc && valores.includes(b.cenco1_desc))
                             return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
                         else 
                             return{cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp};
@@ -272,13 +287,20 @@ html(lang='en')
                     valorRadio=featureDotacion/cantDotVigenteTotal.cotiza_dot_vigente_erp
                 //para evitar que se escalen demasiado los circulos //no es posible ya que se deben considerar la cantidad de plantas no de personas
                 if(cantDotVigenteTotal.cotiza_dot_vigente_erp==1)
-                    valorRadio=0;              
+                    valorRadio=0; 
+
+                let colorRadio="#ff7800";
+                if(featureDotacion==0)
+                    colorRadio="#C83414";
+
+                     
+
 
                 console.log(featureDotacion)
                 console.log(cantDotVigenteTotal.cotiza_dot_vigente_erp)
                 let geojsonMarkerOptions = {
                 radius: 8+(20*(valorRadio)),
-                fillColor: "#ff7800",
+                fillColor: colorRadio,
                 color: "#000",
                 weight: 1,
                 opacity: 1,
@@ -316,9 +338,10 @@ html(lang='en')
                 }   
                 }
                 }).addTo(mymap);
-
+            if(!valores.length==0){
+                console.log(valores);
             mymap.fitBounds(customLayer.getBounds());
-             
+            }
 
             }
 
