@@ -45,7 +45,19 @@ html(lang='en')
             each opcion, i in distinctSupervisores
                 option(value=opcion)  #{opcion}    
         
+        
+        
+        
         div
+            p
+            p
+            p
+            p(align="center") Resumen Supervisor
+    
+        
+        div(align="center")
+
+
             table
                 thead
                     tr
@@ -65,12 +77,14 @@ html(lang='en')
                             td= post.DOT_ASIGNADA
                             td= post.DOT_REAL
                             td(style="background-color:"+post.COLOR)
-                        
-                     
-                            
-                            
-                    
-                                
+        
+       
+        
+ 
+
+           
+                 
+         
 
         
         //select(id='cenco1_select' onchange="cambia('cenco1')"  )
