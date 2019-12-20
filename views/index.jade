@@ -43,7 +43,26 @@ html(lang='en')
         select(id="select_filter_supervisor" multiple="multiple")
             option(value="all") TODOS
             each opcion, i in distinctSupervisores
-                option(value=opcion)  #{opcion}           
+                option(value=opcion)  #{opcion}    
+        
+        div
+            table
+                thead
+                    tr
+                        th title...
+                        th title2...
+                tbody
+                    each post in resumenSupervisor
+                        tr
+                           
+                            td= post.administrativo_id
+                            td= post.color
+                        
+                     
+                            
+                            
+                    
+                                
 
         
         //select(id='cenco1_select' onchange="cambia('cenco1')"  )
@@ -77,8 +96,12 @@ html(lang='en')
              accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
             }).addTo(mymap); 
 
+             
+            var supervisoresColor=JSON.parse('!{supervisoresColor}');
+          
+            console.log("supervisores Color",supervisoresColor)
+        
 
-            
             var valor;
             var valores;
 
@@ -92,7 +115,7 @@ html(lang='en')
                 valores=$('#select_filter_cenco1 option:selected').map(function(a, item){return item.value;});
 
                valores=valores.toArray();
-               console.log(valores);
+               console.log('Valores',valores);
 
                 //reset selector de cenco1 
                 $('#select_filter_supervisor option:selected').each(function() {
@@ -137,7 +160,8 @@ html(lang='en')
             });
 
             function cambia2(tipo){
-
+        
+                console.log("supervisores Color",supervisoresColor);
                 var cantDotVigenteTotal=0;
                 var cantDotVigenteParcial=0;
                 var cantPlantas=0;
@@ -300,7 +324,8 @@ html(lang='en')
                 console.log(cantDotVigenteTotal.cotiza_dot_vigente_erp)
                 let geojsonMarkerOptions = {
                 radius: 8+(20*(valorRadio)),
-                fillColor: colorRadio,
+             //   fillColor: colorRadio,
+                  fillColor:supervisoresColor.find(x=>x.administrativo_id==feature.properties.administrativo_id)['color'],
                 color: "#000",
                 weight: 1,
                 opacity: 1,
@@ -333,7 +358,7 @@ html(lang='en')
                     if(feature.properties.dotacion_vigente)
                         dot_vigente=feature.properties.dotacion_vigente
 
-                    var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> Dotación vendida: `+dot_vendida+`<br>  Dotación asignada: `+dot_asignada+`<br>  Dotación vigente: `+dot_vigente+`</p>`
+                    var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> Dotación vendida: `+dot_vendida+`<br>  Dotación asignada: `+dot_asignada+`<br>  Dotación vigente: `+dot_vigente+`<br> Supervisor: `   +feature.properties.administrativo_nombre+`</p>`
                 layer.bindPopup(label).openPopup();
                 }   
                 }
@@ -348,7 +373,7 @@ html(lang='en')
 
              
             function cambia(tipo){
-
+                console.log("supervisores Color",supervisoresColor);
                 var cantDotVigenteTotal=0;
                 var cantDotVigenteParcial=0;
                 var cantPlantas=0;
@@ -502,7 +527,8 @@ html(lang='en')
                 console.log(cantDotVigenteTotal.cotiza_dot_vigente_erp)
                 let geojsonMarkerOptions = {
                 radius: 8+(20*(valorRadio)),
-                fillColor: "#ff7800",
+              //  fillColor: "#ff7800",
+               fillColor:supervisoresColor.find(x=>x.administrativo_id==feature.properties.administrativo_id)['color'],
                 color: "#000",
                 weight: 1,
                 opacity: 1,
@@ -535,7 +561,7 @@ html(lang='en')
                     if(feature.properties.dotacion_vigente)
                         dot_vigente=feature.properties.dotacion_vigente
 
-                    var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> Dotación vendida: `+dot_vendida+`<br>  Dotación asignada: `+dot_asignada+`<br>  Dotación vigente: `+dot_vigente+`</p>`
+                    var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> Dotación vendida: `+dot_vendida+`<br>  Dotación asignada: `+dot_asignada+`<br>  Dotación vigente: `+dot_vigente+`<br> Supervisor: `   +feature.properties.administrativo_nombre+`</p>`
                 layer.bindPopup(label).openPopup();
                 }   
                 }
