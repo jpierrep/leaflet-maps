@@ -22,6 +22,8 @@ app.get("/",function(req,res){
  
     var variable="variableeeee";
     var options=["a","b","c","d"];
+
+
     var plantas=getPlantas().then(result=>{
     //console.log(result);
   var dataResult=JSON.stringify(result);
@@ -56,10 +58,26 @@ let unique = (value, index, self) => {
    var supervisoresColor=distinctSupervisoresId.map((supervisor,index)=>{return {administrativo_id:supervisor,color:colorArray[index]}})
    console.log("sup coloooorr",supervisoresColor)
 
+  
+   getResumenSupervisor().then(resultSupervisor=>{
+
+
+     resultSupervisor.map(supervisor=>{
+     supervisor.COLOR=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID).color
+     //supervisor.DOT_VENDIDA= supervisor.DOT_VENDIDA.toFixed(2)
+        return  supervisor
+
+     })
+     console.log(resultSupervisor)
 
     res.render("index",{variable:variable,opciones:options,dataResult:dataResult
-   ,geoJSON:geoJSON,distinctCenco1:distinctCenco1,distinctSupervisores:distinctSupervisores,supervisoresColor:JSON.stringify(supervisoresColor)
-  ,resumenSupervisor:supervisoresColor});
+        ,geoJSON:geoJSON,distinctCenco1:distinctCenco1,distinctSupervisores:distinctSupervisores,supervisoresColor:JSON.stringify(supervisoresColor)
+       ,resumenSupervisor:supervisoresColor,resultSupervisor:resultSupervisor});
+
+   })
+
+
+
 
     });
    
@@ -92,6 +110,32 @@ function getPlantas(){
         where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0 
         and dot.PERSONAL_VIGENTE_ERP>0
         order by ci.CENCO1_DESC asc
+    `;
+    
+    return new Promise(resolve=>{
+
+        entrega_resultDB(query).then(result=>{
+      
+          resolve(result);
+
+        });
+
+    });
+
+}
+
+
+function getResumenSupervisor(){
+    let query=`  select estr.ADMINISTRATIVO_ID,estr.ADMINISTRATIVO_NOMBRE,convert(decimal(6,2),sum(DOT_VENDIDA_COTIZA)) as DOT_VENDIDA,convert(decimal(6,2),sum(DOT_ASIG_COTIZA)) as DOT_ASIGNADA,sum(PERSONAL_VIGENTE_ERP) as DOT_REAL from
+    [SISTEMA_CENTRAL].[dbo].[bi_dotaciones]  as dot
+     left join Inteligencias.dbo.VIEW_SIST_CENTRAL_ESTR_ORGANIZACION as estr
+     on estr.cencos_codigo=dot.CENCO2_CODI and dot.EMP_CODI=estr.empresa_id
+     where EMP_CODI=0
+     and 
+ 
+   ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
+   and administrativo_nombre is not null
+   group by estr.administrativo_id,estr.administrativo_nombre
     `;
     
     return new Promise(resolve=>{

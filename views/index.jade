@@ -49,14 +49,22 @@ html(lang='en')
             table
                 thead
                     tr
-                        th title...
-                        th title2...
+                       
+                        th NOMBRE
+                        th DOT_VENDIDA
+                        th DOT_ASIGNADA
+                        th DOT_REAL
+                        th COLOR
                 tbody
-                    each post in resumenSupervisor
+                    each post in resultSupervisor
                         tr
                            
-                            td= post.administrativo_id
-                            td= post.color
+                            
+                            td= post.ADMINISTRATIVO_NOMBRE
+                            td= post.DOT_VENDIDA
+                            td= post.DOT_ASIGNADA
+                            td= post.DOT_REAL
+                            td(style="background-color:"+post.COLOR)
                         
                      
                             
