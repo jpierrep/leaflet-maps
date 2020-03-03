@@ -35,11 +35,13 @@ html(lang='en')
 
     body
         #mymap
-
+        |Cliente: 
         select(id="select_filter_cenco1" multiple="multiple")
             option(value="all") TODOS
             each opcion, i in distinctCenco1
-                option(value=opcion)  #{opcion} 
+                option(value=opcion)  #{opcion}
+        
+        |Supervisor: 
         select(id="select_filter_supervisor" multiple="multiple")
             option(value="all") TODOS
             each opcion, i in distinctSupervisores

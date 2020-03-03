@@ -23,6 +23,8 @@ app.get("/",function(req,res){
     var variable="variableeeee";
     var options=["a","b","c","d"];
 
+    
+
 
     var plantas=getPlantas().then(result=>{
     //console.log(result);
@@ -115,6 +117,31 @@ function getPlantas(){
     return new Promise(resolve=>{
 
         entrega_resultDB(query).then(result=>{
+
+            //result format
+            //nombre	longitude	latitude	cenco1_desc	administrativo_id	administrativo_nombre	cotiza_dot_asignada	cotiza_dot_vendida	cotiza_dot_vigente_erp	cenco2_codi
+//ACADEMIA JUDICIAL	-70,656802	-33,4383449	ACADEMIA JUDICIAL	6504661	Barria   Jorge	2	2	2	129-001
+//Testing Proposal	-71,5381272	-33,0291251	ADMINISTRACION	16750473	Aldunate Allegro Ricardo	NULL	NULL	5	001-001
+
+  //añade info especial para fiscalias
+
+  let fiscalias=[{"Inmueble":"Fiscalia Nacion","Nombre":"Fiscalia Nacional","Direccion":"Catedral 1437","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4379906","Longitud":"-70.6596724"},{"Inmueble":"Fiscalia Nacion","Nombre":"Oficinas Auxiliares","Direccion":"Agustinas 1070","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4409564","Longitud":"-70.6539155"},{"Inmueble":"Fiscalia Nacion","Nombre":"Centro de Justicia de Santiago","Direccion":"Av. Pedro Montt 1606","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4742969","Longitud":"-70.658164"},{"Inmueble":"Fiscalia Regional Metropolitana Centro Norte","Nombre":"Fiscalia Local de Chacabuco","Direccion":"Carretera General San Martín 785","Ciudad":"Colina","Observacion":null,"Latitud":"-33.1970402","Longitud":"-70.6725855"},{"Inmueble":"Fiscalia Regional Metropolitana Centro Norte","Nombre":"Fiscalia Regional y locales del Centro Just Santiago","Direccion":"Av.  Pedro Montt 1608","Ciudad":"Santiago","Observacion":"direccion es 1606, pero se sobrepondría en mapa","Latitud":"-33.4733033","Longitud":"-70.6580416"},{"Inmueble":"Fiscalia Regional Metropolitana Oriente","Nombre":"Fiscalia Regional Metropolitana Oriente y Fiscalia Local de las Condes","Direccion":"Los Militares 5550","Ciudad":"Las Contes","Observacion":null,"Latitud":"-33.4065347","Longitud":"-70.5756499"},{"Inmueble":"Fiscalia Regional Metropolitana Oriente","Nombre":"Fiscalia Local de Ñuñoa","Direccion":"San Jorge 57","Ciudad":"Ñuñoa","Observacion":null,"Latitud":"-33.4549022","Longitud":"-70.5802279"},{"Inmueble":"Fiscalia Regional Metropolitana Oriente","Nombre":"Fiscalias Locales de La Florida, Peñalolen-Macul y de Delitos Flagrantes y Primeras Diligencias","Direccion":"Av. Americo Vespucio 6800","Ciudad":"La Florida","Observacion":null,"Latitud":"-33.5170109","Longitud":"-70.5957858"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional y Fiscalias Locales (Edificio Copper)","Direccion":"Gran Avenida José Miguel Carrega 3814","Ciudad":"San Miguel","Observacion":null,"Latitud":"-33.4891833","Longitud":"-70.6529686"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional (Unidad Especializada)","Direccion":"Gran Avenida José Miguel Carrega 3840","Ciudad":"San Miguel","Observacion":null,"Latitud":"-33.4894214","Longitud":"-70.6528432"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional y Fiscalias Locales (Edificio Pirámide)","Direccion":"Piramide 1076","Ciudad":"San MIguel","Observacion":"Edificio Piramide","Latitud":"-33.5013517","Longitud":"-70.6551632"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional y Fiscalias Locales (Edificio Pirámide)","Direccion":"Piramide 1078","Ciudad":"San MIguel","Observacion":"Edificio Piramide","Latitud":"-33.500977","Longitud":"-70.6559623"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Local de Puente Alto","Direccion":"Jose Manuel Irarrazabla 283","Ciudad":"Puente Alto","Observacion":null,"Latitud":"-33.6076587","Longitud":"-70.5745448"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalias Locales de Pudahuel y Maipu","Direccion":"Bandera 655","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4357097","Longitud":"-70.6547868"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de San Bernardo","Direccion":"San Jose 840","Ciudad":"San Bernardo","Observacion":null,"Latitud":"-33.595604","Longitud":"-70.7120688"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de Talagante","Direccion":"Bernardo O'Higgins 2160","Ciudad":"Talagante","Observacion":null,"Latitud":"-33.6696344","Longitud":"-70.9414006"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de Melipilla","Direccion":"Serrano 891","Ciudad":"Melipilla","Observacion":null,"Latitud":"-33.6912934","Longitud":"-71.2163442"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de Curacavi","Direccion":"Presbitero Moraga Sur 100","Ciudad":"Curacavi","Observacion":null,"Latitud":"-33.4035899","Longitud":"-71.1307991"}]
+
+  fiscalias.forEach(instalacion=>{
+let template=JSON.parse(JSON.stringify(result[0]))
+template["nombre"]=instalacion['Nombre']
+template["longitude"]=parseFloat(instalacion['Longitud'])
+template["latitude"]=parseFloat(instalacion['Latitud'])
+template["cenco1_desc"]="FISCALIA STGO. TEST"
+template["administrativo_id"]=instalacion['00000']
+template["administrativo_nombre"]=instalacion['FISCALIAS NO ASIGNADAS']
+template["cotiza_dot_asignada"]=0
+template["cotiza_dot_vendida"]=0
+template["cotiza_dot_vigente_erp"]=0
+template["cenco2_codi"]='000-000'
+result.push(template)
+
+  })
       
           resolve(result);
 
