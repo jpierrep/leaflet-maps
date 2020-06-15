@@ -63,14 +63,14 @@ let unique = (value, index, self) => {
   
    getResumenSupervisor().then(resultSupervisor=>{
 
-
-     resultSupervisor.map(supervisor=>{
+   
+     resultSupervisor.filter(x=>x.administrativo_id).map(supervisor=>{
      supervisor.COLOR=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID).color
      //supervisor.DOT_VENDIDA= supervisor.DOT_VENDIDA.toFixed(2)
         return  supervisor
 
      })
-     console.log(resultSupervisor)
+     console.log('resSUp',resultSupervisor)
 
     res.render("index",{variable:variable,opciones:options,dataResult:dataResult
         ,geoJSON:geoJSON,distinctCenco1:distinctCenco1,distinctSupervisores:distinctSupervisores,supervisoresColor:JSON.stringify(supervisoresColor)
