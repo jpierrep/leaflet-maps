@@ -64,7 +64,7 @@ let unique = (value, index, self) => {
    getResumenSupervisor().then(resultSupervisor=>{
 
 
-     resultSupervisor.map(supervisor=>{
+     resultSupervisor.filter(x=>x.administrativo_id).map(supervisor=>{
      supervisor.COLOR=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID).color
      //supervisor.DOT_VENDIDA= supervisor.DOT_VENDIDA.toFixed(2)
         return  supervisor
