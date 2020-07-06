@@ -10,8 +10,8 @@ var stringify = require('json-stringify');
 // config for your database
 var config = {
     user: 'targit',
-    password: 'targit2015*',
-    server: '192.168.100.14', 
+    password: 'targit2020*',
+    server: '192.168.100.112', 
     database: 'Inteligencias' 
 };
 
@@ -27,8 +27,9 @@ app.get("/",function(req,res){
 
 
     var plantas=getPlantas().then(result=>{
-    //console.log(result);
+   // console.log(result);
   var dataResult=JSON.stringify(result);
+  console.log(dataResult)
   var geoJSON= JSON.stringify(createGeoJSON(result));
  
   var  cenco1=  result.map(value=>{
@@ -60,7 +61,9 @@ let unique = (value, index, self) => {
    var supervisoresColor=distinctSupervisoresId.map((supervisor,index)=>{return {administrativo_id:supervisor,color:colorArray[index]}})
    console.log("sup coloooorr",supervisoresColor)
 
-  
+
+ 
+   
    getResumenSupervisor().then(resultSupervisor=>{
 
    
@@ -72,11 +75,13 @@ let unique = (value, index, self) => {
      })
      console.log('resSUp',resultSupervisor)
 
-    res.render("index",{variable:variable,opciones:options,dataResult:dataResult
+    res.render("index",{variable:variable,opciones:options,dataResult:dataResult 
         ,geoJSON:geoJSON,distinctCenco1:distinctCenco1,distinctSupervisores:distinctSupervisores,supervisoresColor:JSON.stringify(supervisoresColor)
        ,resumenSupervisor:supervisoresColor,resultSupervisor:resultSupervisor});
 
    })
+
+  
 
 
 
@@ -97,52 +102,60 @@ let unique = (value, index, self) => {
 
  }
 
+
 function getPlantas(){
-    let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
-    ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
-    ,ci.CENCO2_CODI as cenco2_codi
-        FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
-        on p.centro_costos_id=cc.id
-        left join Inteligencias.dbo.VIEW_CENTROS_COSTO as ci
-        left join Inteligencias.dbo.VIEW_SIST_CENTRAL_ESTR_ORGANIZACION as estr
-        on estr.cencos_codigo=ci.CENCO2_CODI and estr.empresa_id=ci.EMP_CODI
-        on ci.CENCO2_CODI=cc.cencos_codigo and ci.EMP_CODI=cc.empresa_id
-      left join [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] as dot
-       on dot.CENCO2_CODI=ci.CENCO2_CODI and dot.EMP_CODI=ci.EMP_CODI and dot.ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
-        where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0 
-        and dot.PERSONAL_VIGENTE_ERP>0
-        order by ci.CENCO1_DESC asc
+   
+   /*
+    let query=`SELECT 
+    accountNumber as Cuenta,replace(name,'"','') as cenco1_desc,replace(name,'"','') as nombre,
+   convert(float, JSON_VALUE(convert(nvarchar(max),gmap), '$.geometry.location.lat')) AS latitude
+    ,convert(float,JSON_VALUE(convert(nvarchar(max),gmap), '$.geometry.location.lng')) as longitude
+    ,1 as administrativo_id,'' as administrativo_nombre
+      FROM [MI-K1].[SISTEMA_CENTRAL].[dbo].[bi_salesforce_cuentas]
+    
+      where gmap is not null 
+      and JSON_VALUE(convert(nvarchar(max),gmap), '$.geometry.location.lat') is not null
+      and JSON_VALUE(convert(nvarchar(max),gmap), '$.geometry.location.lng') is not null
+     --and  convert(float,JSON_VALUE(convert(nvarchar(max),gmap), '$.geometry.location.lng')) >33
+     and accountNumber<>'6171'
+      
     `;
+
+    */
+
+   let query=`
+
+SELECT cue_ncuenta as Cuenta, rtrim(ltrim(cue_ncuenta))+' - '+replace(cue_cnombre,'"','') as cenco1_desc,+replace(cue_cnombre,'"','') as nombre, cue_sf.latitude,cue_sf.longitude
+    ,1 as administrativo_id,'' as administrativo_nombre
+  FROM [Inteligencias].[dbo].[SG_CUENTAS]  as cue_sg 
+  left join
+  (
+  SELECT 
+       convert(int,accountNumber) as cuenta_int,replace(name,'"','')  as cenco1_desc,Name as nombre,
+      convert(float, JSON_VALUE(convert(nvarchar(max),gmap), '$.geometry.location.lat')) AS latitude
+       ,convert(float,JSON_VALUE(convert(nvarchar(max),gmap), '$.geometry.location.lng')) as longitude
+       ,1 as administrativo_id,'' as administrativo_nombre
+         FROM [MI-K1].[SISTEMA_CENTRAL].[dbo].[bi_salesforce_cuentas]
+       
+         where 
+		  ISNUMERIC(accountNumber)=1 and
+		 gmap is not null 
+		-- and JSON_VALUE(convert(nvarchar(max),gmap), '$.geometry.location.lat') is not null
+		-- and JSON_VALUE(convert(nvarchar(max),gmap), '$.geometry.location.lng') is not null
+		)cue_sf
+
+		on cue_sf.cuenta_int= convert(int,cue_ncuenta)
+
+		where 
+		 cue_Estado_Desc='ACTIVA'  and ISNUMERIC(cue_ncuenta)=1 and convert(int,cue_sg.cue_ncuenta)>1
+		 and latitude is not null and longitude is not null
+     
+   `;
     
     return new Promise(resolve=>{
 
         entrega_resultDB(query).then(result=>{
 
-            //result format
-            //nombre	longitude	latitude	cenco1_desc	administrativo_id	administrativo_nombre	cotiza_dot_asignada	cotiza_dot_vendida	cotiza_dot_vigente_erp	cenco2_codi
-//ACADEMIA JUDICIAL	-70,656802	-33,4383449	ACADEMIA JUDICIAL	6504661	Barria   Jorge	2	2	2	129-001
-//Testing Proposal	-71,5381272	-33,0291251	ADMINISTRACION	16750473	Aldunate Allegro Ricardo	NULL	NULL	5	001-001
-
-  //añade info especial para fiscalias
-
-  let fiscalias=[{"Inmueble":"Fiscalia Nacion","Nombre":"Fiscalia Nacional","Direccion":"Catedral 1437","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4379906","Longitud":"-70.6596724"},{"Inmueble":"Fiscalia Nacion","Nombre":"Oficinas Auxiliares","Direccion":"Agustinas 1070","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4409564","Longitud":"-70.6539155"},{"Inmueble":"Fiscalia Nacion","Nombre":"Centro de Justicia de Santiago","Direccion":"Av. Pedro Montt 1606","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4742969","Longitud":"-70.658164"},{"Inmueble":"Fiscalia Regional Metropolitana Centro Norte","Nombre":"Fiscalia Local de Chacabuco","Direccion":"Carretera General San Martín 785","Ciudad":"Colina","Observacion":null,"Latitud":"-33.1970402","Longitud":"-70.6725855"},{"Inmueble":"Fiscalia Regional Metropolitana Centro Norte","Nombre":"Fiscalia Regional y locales del Centro Just Santiago","Direccion":"Av.  Pedro Montt 1608","Ciudad":"Santiago","Observacion":"direccion es 1606, pero se sobrepondría en mapa","Latitud":"-33.4733033","Longitud":"-70.6580416"},{"Inmueble":"Fiscalia Regional Metropolitana Oriente","Nombre":"Fiscalia Regional Metropolitana Oriente y Fiscalia Local de las Condes","Direccion":"Los Militares 5550","Ciudad":"Las Contes","Observacion":null,"Latitud":"-33.4065347","Longitud":"-70.5756499"},{"Inmueble":"Fiscalia Regional Metropolitana Oriente","Nombre":"Fiscalia Local de Ñuñoa","Direccion":"San Jorge 57","Ciudad":"Ñuñoa","Observacion":null,"Latitud":"-33.4549022","Longitud":"-70.5802279"},{"Inmueble":"Fiscalia Regional Metropolitana Oriente","Nombre":"Fiscalias Locales de La Florida, Peñalolen-Macul y de Delitos Flagrantes y Primeras Diligencias","Direccion":"Av. Americo Vespucio 6800","Ciudad":"La Florida","Observacion":null,"Latitud":"-33.5170109","Longitud":"-70.5957858"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional y Fiscalias Locales (Edificio Copper)","Direccion":"Gran Avenida José Miguel Carrega 3814","Ciudad":"San Miguel","Observacion":null,"Latitud":"-33.4891833","Longitud":"-70.6529686"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional (Unidad Especializada)","Direccion":"Gran Avenida José Miguel Carrega 3840","Ciudad":"San Miguel","Observacion":null,"Latitud":"-33.4894214","Longitud":"-70.6528432"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional y Fiscalias Locales (Edificio Pirámide)","Direccion":"Piramide 1076","Ciudad":"San MIguel","Observacion":"Edificio Piramide","Latitud":"-33.5013517","Longitud":"-70.6551632"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional y Fiscalias Locales (Edificio Pirámide)","Direccion":"Piramide 1078","Ciudad":"San MIguel","Observacion":"Edificio Piramide","Latitud":"-33.500977","Longitud":"-70.6559623"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Local de Puente Alto","Direccion":"Jose Manuel Irarrazabla 283","Ciudad":"Puente Alto","Observacion":null,"Latitud":"-33.6076587","Longitud":"-70.5745448"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalias Locales de Pudahuel y Maipu","Direccion":"Bandera 655","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4357097","Longitud":"-70.6547868"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de San Bernardo","Direccion":"San Jose 840","Ciudad":"San Bernardo","Observacion":null,"Latitud":"-33.595604","Longitud":"-70.7120688"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de Talagante","Direccion":"Bernardo O'Higgins 2160","Ciudad":"Talagante","Observacion":null,"Latitud":"-33.6696344","Longitud":"-70.9414006"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de Melipilla","Direccion":"Serrano 891","Ciudad":"Melipilla","Observacion":null,"Latitud":"-33.6912934","Longitud":"-71.2163442"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de Curacavi","Direccion":"Presbitero Moraga Sur 100","Ciudad":"Curacavi","Observacion":null,"Latitud":"-33.4035899","Longitud":"-71.1307991"}]
-
-  fiscalias.forEach(instalacion=>{
-let template=JSON.parse(JSON.stringify(result[0]))
-template["nombre"]=instalacion['Nombre']
-template["longitude"]=parseFloat(instalacion['Longitud'])
-template["latitude"]=parseFloat(instalacion['Latitud'])
-template["cenco1_desc"]="FISCALIA STGO. TEST"
-template["administrativo_id"]=instalacion['00000']
-template["administrativo_nombre"]=instalacion['FISCALIAS NO ASIGNADAS']
-template["cotiza_dot_asignada"]=0
-template["cotiza_dot_vendida"]=0
-template["cotiza_dot_vigente_erp"]=0
-template["cenco2_codi"]='000-000'
-result.push(template)
-
-  })
-      
           resolve(result);
 
         });
@@ -154,13 +167,13 @@ result.push(template)
 
 function getResumenSupervisor(){
     let query=`  select estr.ADMINISTRATIVO_ID,estr.ADMINISTRATIVO_NOMBRE,convert(decimal(6,2),sum(DOT_VENDIDA_COTIZA)) as DOT_VENDIDA,convert(decimal(6,2),sum(DOT_ASIG_COTIZA)) as DOT_ASIGNADA,sum(PERSONAL_VIGENTE_ERP) as DOT_REAL from
-    [SISTEMA_CENTRAL].[dbo].[bi_dotaciones]  as dot
+    [MI-K1].[SISTEMA_CENTRAL].[dbo].[bi_dotaciones]  as dot
      left join Inteligencias.dbo.VIEW_SIST_CENTRAL_ESTR_ORGANIZACION as estr
      on estr.cencos_codigo=dot.CENCO2_CODI and dot.EMP_CODI=estr.empresa_id
      where EMP_CODI=0
      and 
  
-   ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
+   ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [MI-K1].[SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
    and administrativo_nombre is not null
    group by estr.administrativo_id,estr.administrativo_nombre
     `;
@@ -176,6 +189,7 @@ function getResumenSupervisor(){
     });
 
 }
+
 
 function createGeoJSON(data){
 
@@ -229,6 +243,7 @@ function createGeoJSON(data){
         };
 
     });
+   
     return nuevoData;
 
 }
