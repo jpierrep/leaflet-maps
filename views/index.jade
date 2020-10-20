@@ -356,6 +356,14 @@ html(lang='en')
                 fillOpacity: 0.8
                 };
 
+                //COLOR DE FISCALIAS
+                if (feature.properties.cenco1_desc=='COCA-COLA TEST'){
+                    geojsonMarkerOptions.fillColor='#FF0000'
+               // return L.circleMarker(latlng, geojsonMarkerOptions);
+               //se añade un marcador para destacar y mostrar diferencias
+                 return L.marker(latlng, null);
+                }
+
                 return L.circleMarker(latlng, geojsonMarkerOptions);
                 },
                 filter:function(feature,layer){

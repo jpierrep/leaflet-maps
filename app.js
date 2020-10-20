@@ -64,13 +64,14 @@ let unique = (value, index, self) => {
    getResumenSupervisor().then(resultSupervisor=>{
 
 
-     resultSupervisor.filter(x=>x.administrativo_id).map(supervisor=>{
+     resultSupervisor.filter(x=>x.ADMINISTRATIVO_ID).map(supervisor=>{
      supervisor.COLOR=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID).color
+     //supervisor.COLOR='#FF0000'
      //supervisor.DOT_VENDIDA= supervisor.DOT_VENDIDA.toFixed(2)
         return  supervisor
 
      })
-     console.log(resultSupervisor)
+     console.log("el sup",resultSupervisor[0])
 
     res.render("index",{variable:variable,opciones:options,dataResult:dataResult
         ,geoJSON:geoJSON,distinctCenco1:distinctCenco1,distinctSupervisores:distinctSupervisores,supervisoresColor:JSON.stringify(supervisoresColor)
@@ -139,9 +140,86 @@ template["cotiza_dot_asignada"]=0
 template["cotiza_dot_vendida"]=0
 template["cotiza_dot_vigente_erp"]=0
 template["cenco2_codi"]='000-000'
-result.push(template)
+//Se dejan desactivadas -fiscalias ya es cliente vigente
+//result.push(template)
 
   })
+
+  //para coca cola
+
+  let cocacola=[
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Planta de Concón ",
+      "Direccion": "Camino Internacional Nº13255",
+      "Ciudad": "Concón",
+      "Observacion": "",
+      "Latitud": -32.9324278,
+      "Longitud": -71.4698747
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal San Felipe",
+      "Direccion": "Carretera General San Martin, Km14,Curimón",
+      "Ciudad": "San Felipe",
+      "Observacion": "",
+      "Latitud": -32.7811871,
+      "Longitud": -70.7047369
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal San Fernando",
+      "Direccion": "Camino a Roma 1707",
+      "Ciudad": "San Fernando",
+      "Observacion": "",
+      "Latitud": -34.5983512,
+      "Longitud": -70.9628744
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Planta de Talca",
+      "Direccion": "Ruta 5 sur km 247",
+      "Ciudad": "Talca",
+      "Observacion": "",
+      "Latitud": -35.4397646,
+      "Longitud": -71.6421143
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal Chillán ",
+      "Direccion": "Longitudinal Sur Nº 4000",
+      "Ciudad": "Chillan",
+      "Observacion": "",
+      "Latitud": -36.5641963,
+      "Longitud": -72.0981741
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal Linares",
+      "Direccion": "Camino Real S/N",
+      "Ciudad": "Linares",
+      "Observacion": "",
+      "Latitud": -35.8367145,
+      "Longitud": -71.6272458
+    }
+   ]
+
+   cocacola.forEach(instalacion=>{
+    let template=JSON.parse(JSON.stringify(result[0]))
+    template["nombre"]=instalacion['Nombre']
+    template["longitude"]=parseFloat(instalacion['Longitud'])
+    template["latitude"]=parseFloat(instalacion['Latitud'])
+    template["cenco1_desc"]="COCA-COLA TEST"
+    template["administrativo_id"]=instalacion['00000']
+    template["administrativo_nombre"]=instalacion['COCA-COLA NO ASIGNADAS']
+    template["cotiza_dot_asignada"]=0
+    template["cotiza_dot_vendida"]=0
+    template["cotiza_dot_vigente_erp"]=0
+    template["cenco2_codi"]='000-000'
+    result.push(template)
+    
+      })
+
       
           resolve(result);
 
@@ -161,7 +239,7 @@ function getResumenSupervisor(){
      and 
  
    ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
-   and administrativo_nombre is not null
+   and administrativo_nombre is not null and estr.cencos_codigo not like '001-%'
    group by estr.administrativo_id,estr.administrativo_nombre
     `;
     
