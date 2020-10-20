@@ -27,7 +27,7 @@ html(lang='en')
         
         script(type="text/javascript" src='/js/bootstrap-multiselect.js')
         link(rel="stylesheet" href="/css/bootstrap-multiselect.css")
-
+        link(rel="stylesheet" href="/css/mapa.css")
         
         link(href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css")
 
@@ -35,6 +35,7 @@ html(lang='en')
   
         style.
          #mymap{width:1600px;height:800px}
+
 
     body
         #mymap
@@ -123,7 +124,43 @@ html(lang='en')
              maxZoom: 18,
              id: 'mapbox/streets-v11',
              accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
-            }).addTo(mymap); 
+            }).addTo(mymap);
+            
+            var resultSupervisor=JSON.parse('!{JSON.stringify(resultSupervisor)}' );
+            /*Legend specific*/
+            var legend = L.control({ position: "bottomleft" });
+
+            legend.onAdd = function(mymap) {
+                var div = L.DomUtil.create("div", "legend");
+                div.innerHTML += "<h4>Supervisores</h4>";
+                  /*
+                 resultSupervisor.forEach(supervisor=>{
+                    div.innerHTML += ` <tr>
+                    <td style="background-color:`+supervisor.COLOR+`"> &nbsp</td>
+                    <td>` +supervisor.ADMINISTRATIVO_NOMBRE+`</td>
+                    <td>` +supervisor.DOT_VENDIDA+`</td>
+                    <td>` +supervisor.DOT_ASIGNADA+`</td>
+                    <td>` +supervisor.DOT_REAL+`</td> 
+                    </tr>`;
+                })
+                    div.innerHTML += "</table>";
+                  */
+               /* div.innerHTML += '<i style="background: #477AC2"></i><span>Water</span><br>';
+                div.innerHTML += '<i style="background: #448D40"></i><span>Forest</span><br>';
+                div.innerHTML += '<i class="icon" style="background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/194515-200.png);background-repeat: no-repeat;"></i><span>Grænse</span><br>';
+                */
+                console.log("resultSupervisor",resultSupervisor)
+              resultSupervisor.forEach(supervisor=>{
+                    div.innerHTML += '<i style="background:'+supervisor.COLOR+' "></i><span>'+supervisor.ADMINISTRATIVO_NOMBRE+'</span><br>';
+                })
+              
+            
+
+                return div;
+            };
+
+            legend.addTo(mymap);
+ 
 
              
             var supervisoresColor=JSON.parse('!{supervisoresColor}');
