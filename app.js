@@ -201,6 +201,78 @@ template["cenco2_codi"]='000-000'
       "Observacion": "",
       "Latitud": -35.8367145,
       "Longitud": -71.6272458
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal San Pedro",
+      "Direccion": "Camino a Coronel Km 10 Nº 5580, Modulo 9H, Megacentro",
+      "Ciudad": "San Pedro",
+      "Observacion": "",
+      "Latitud": -36.87086,
+      "Longitud": -73.137463
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal Talcahuano",
+      "Direccion": "Gran Bretaña Nº 5690",
+      "Ciudad": "Talcahuano",
+      "Observacion": "",
+      "Latitud": -36.7758617,
+      "Longitud": -73.1166831
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Planta de Temuco",
+      "Direccion": "Manuel Recabarren 2850",
+      "Ciudad": "Temuco",
+      "Observacion": "",
+      "Latitud": -38.756937,
+      "Longitud": -72.6474079
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal Villarica",
+      "Direccion": "KM 4 Camino Villarica Lican Ray",
+      "Ciudad": "Villarica",
+      "Observacion": "",
+      "Latitud": -39.3196999,
+      "Longitud": -72.2289628
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal Los Angeles",
+      "Direccion": "Av. Las Industrias Nº 7190-A",
+      "Ciudad": "Los Angeles",
+      "Observacion": "",
+      "Latitud": -37.4488449,
+      "Longitud": -72.3278692
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal Puerto Montt",
+      "Direccion": "Ruta 5 sur km 1029, SN",
+      "Ciudad": "Puerto Montt",
+      "Observacion": "",
+      "Latitud": -41.4300805,
+      "Longitud": -72.9557124
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal Osorno",
+      "Direccion": "Ruta 5 sur km 915, Pilauco ",
+      "Ciudad": "Osorno",
+      "Observacion": "",
+      "Latitud": -40.5491922,
+      "Longitud": -73.0917275
+    },
+    {
+      "Inmueble": "Coca-Cola",
+      "Nombre": "Sucursal Castro",
+      "Direccion": "Ruta 5 Sur Km 1176, Sector Piruquina",
+      "Ciudad": "Castro",
+      "Observacion": "",
+      "Latitud": -42.3891631,
+      "Longitud": -73.8061669
     }
    ]
 
