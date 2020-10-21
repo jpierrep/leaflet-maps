@@ -38,7 +38,7 @@ html(lang='en')
 
 
     body
-        #mymap
+        
         |Cliente: 
         select(id="select_filter_cenco1" multiple="multiple")
             option(value="all") TODOS
@@ -50,21 +50,22 @@ html(lang='en')
             option(value="all") TODOS
             each opcion, i in distinctSupervisores
                 option(value=opcion)  #{opcion}    
+        #mymap
         
-        
-        
-        
-        div
+        // queda invalidado pues la tabla se generará in map dentro de leyenda
+      
+        //div
             p
             p
             p
             p(align="center") Resumen Supervisor
     
         
+        //tiene que ir este div ya que acá va el filtro
         div(align="center")
 
 
-            table
+            //table
                 thead
                     tr
                        
@@ -86,7 +87,7 @@ html(lang='en')
         
        
         
- 
+
 
            
                  
@@ -133,26 +134,42 @@ html(lang='en')
             legend.onAdd = function(mymap) {
                 var div = L.DomUtil.create("div", "legend");
                 div.innerHTML += "<h4>Supervisores</h4>";
-                  /*
+                
+                
+                let HTML= "<table  width=100%><tr>"   
+                  HTML +=    ` <tr>
+                    <td > </td>
+                     <td>Nombre</td> 
+                    <td>Vendida</td>
+                    <td> Asignada</td>
+                    <td>Real</td>
+                    </tr>`;
+                //resultSupervisor.forEach(supervisor=>{
+                //    div.innerHTML += ' <tr> <td style="background-color:'+supervisor.COLOR+'"> &nbsp</td>  <td>' +supervisor.ADMINISTRATIVO_NOMBRE+'</td> <td>' +supervisor.DOT_VENDIDA+'</td> <td>' +supervisor.DOT_ASIGNADA+'</td>  <td>' +supervisor.DOT_REAL+'</td>  </tr>';
+                //})
+
+                //Iterar esto con una variable aparte de texto luego añadir al div, pues la tabla no se podría mostrar correctamente, referencia https://stackoverflow.com/questions/13775519/html-draw-table-using-innerhtml
                  resultSupervisor.forEach(supervisor=>{
-                    div.innerHTML += ` <tr>
-                    <td style="background-color:`+supervisor.COLOR+`"> &nbsp</td>
+                    HTML += ` <tr>
+                    <td > <i style="background:`+supervisor.COLOR+` "></i></td>
                     <td>` +supervisor.ADMINISTRATIVO_NOMBRE+`</td>
                     <td>` +supervisor.DOT_VENDIDA+`</td>
                     <td>` +supervisor.DOT_ASIGNADA+`</td>
                     <td>` +supervisor.DOT_REAL+`</td> 
                     </tr>`;
                 })
-                    div.innerHTML += "</table>";
-                  */
+                    HTML += "</table>";
+                    
+                    div.innerHTML +=HTML 
+                  
                /* div.innerHTML += '<i style="background: #477AC2"></i><span>Water</span><br>';
                 div.innerHTML += '<i style="background: #448D40"></i><span>Forest</span><br>';
                 div.innerHTML += '<i class="icon" style="background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/194515-200.png);background-repeat: no-repeat;"></i><span>Grænse</span><br>';
                 */
                 console.log("resultSupervisor",resultSupervisor)
-              resultSupervisor.forEach(supervisor=>{
-                    div.innerHTML += '<i style="background:'+supervisor.COLOR+' "></i><span>'+supervisor.ADMINISTRATIVO_NOMBRE+'</span><br>';
-                })
+             //   resultSupervisor.forEach(supervisor=>{
+               //     div.innerHTML += '<i style="background:'+supervisor.COLOR+' "></i><span>'+supervisor.ADMINISTRATIVO_NOMBRE+'</span><br>';
+               // })
               
             
 
