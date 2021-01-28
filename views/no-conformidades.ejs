@@ -34,12 +34,13 @@ crossorigin=""></script>
      <style>
          #mymap{width:1600px;height:800px}
     </style>
+    
 </head>
 <body>
 
 <h1>This is a Heading</h1>
 <p>This is a paragraph.</p>
-<p><%= geoJSON[0]['type'] %></p>
+<p><%= JSON.stringify(geoJSON[0]) %></p>
 <div id="mymap"></div>
 </body>
 
@@ -49,10 +50,22 @@ crossorigin=""></script>
 
 <script >
 "use strict";
+
+
+
+var getTest =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assigned to getTest which will only work on browsers
+           console.log(getTest);  // successfully prints 101 on browser
             console.log("test")
             var mymap = L.map('mymap'
             ,{fullscreenControl: true}
             ).setView([51.505, -0.09], 13);
+
+
+
+            mymap.eachLayer(function (layer) {
+            mymap.removeLayer(layer)
+            }) ; 
+ 
 
              L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
              attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
@@ -61,6 +74,8 @@ crossorigin=""></script>
              accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
             }).addTo(mymap);
 
+
+            /*
             var marker = L.marker([51.5, -0.09]).addTo(mymap);
             var circle = L.circle([51.508, -0.11], {
     color: 'red',
@@ -75,6 +90,35 @@ crossorigin=""></script>
     fillOpacity: 0.5,
     radius: 100
 }).addTo(mymap);
+
+
+*/
+
+
+
+var customLayer = L.geoJson(getTest, {
+                pointToLayer : function(feature,latlng){
+                    console.log("hii") 
+                let geojsonMarkerOptions = {
+                radius: 8,
+             //   fillColor: colorRadio,
+                  fillColor:"#000",
+                color:  'red',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+                };
+
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+                }
+                ,onEachFeature:function(feature,layer){
+                    console.log("holaa")  
+                    var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> <br> Supervisor: `   +feature.properties.administrativo_nombre+`</p>`
+                layer.bindPopup(label).openPopup(); 
+                }
+                
+                }).addTo(mymap);
+                mymap.fitBounds(customLayer.getBounds());
 
 </script>
 </html>
