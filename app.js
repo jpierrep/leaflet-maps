@@ -18,6 +18,30 @@ var config = {
 app.set("view engine","jade");
 app.use(express.static('public'));
 
+
+app.get("/testView", function (req, res) {
+  console.log("he")
+
+
+
+  res.render("test.ejs", { hola: "hola" });
+})
+
+app.get("/supervisor/:id",async  function (req, res) {
+  console.log("he")
+  console.log("id",req.params.id)
+let dataMap=await getDataNCSupervisor('11478045')
+//console.log(dataMap)
+var geoJSON= createGeoJSON(dataMap);
+console.log(geoJSON)
+
+  res.render("no-conformidades.ejs", { geoJSON:geoJSON });
+})
+
+
+
+
+
 app.get("/",function(req,res){
  
     var variable="variableeeee";
@@ -329,39 +353,110 @@ function getResumenSupervisor(){
 
 }
 
+ function getDataNCSupervisor(idSupervisor){
+  let query=`  
+  select 
+  cc.empresa_id,cc.cencos_codigo,cc.cencos_nombre,p.nombre as planta_nombre,latitude,longitude,administrativo_id,administrativo_nombre
+  ,ISNULL(auditorias.cant_auditorias,0) as CANT_AUDITORIAS,ISNULL(nc_pendientes.cant_nc_pendientes,0) as CANT_NC_PENDIENTES
+  ,ISNULL(nc_ult_meses.cant_nc_ult_meses,0) as CANT_NC_ULT_MESES,ISNULL(nc_res_ult_meses.cant_nc_res_ult_meses,0) as CANT_NC_RES_ULT_MESES
+  
+  from
+  SISTEMA_CENTRAL.dbo.centros_costos as cc
+  left join [BI-SERVER-01].Inteligencias.dbo.SIST_CENTRAL_ESTR_ORGANIZACION as estr
+  on cc.cencos_codigo=estr.cencos_codigo and cc.empresa_id=estr.empresa_id
+  left join SISTEMA_CENTRAL.dbo.plantas as p on p.centro_costos_id=cc.id
+  
+  left join (
+  --auditorias ultimos 30 dias
+  SELECT 
+  CENCO2_CODI,count(*) as cant_auditorias
+    FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_VISITAS]
+    where ESTADO='completada'
+    and INICIO between dateadd(dd,-30,GETDATE()) and  getdate()
+    group by  CENCO2_CODI) as auditorias
+    on auditorias.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI=cc.cencos_codigo 
+  
+  left join (
+  
+  --nc pendientes
+  SELECT CENCO2_CODI,count (distinct id_nc) as cant_nc_pendientes
+    FROM  [BI-SERVER-01].[Inteligencias].[dbo].[NC_NOCONFORMIDADES]
+  
+    where NC_ESTADO='pendiente'
+    group by CENCO2_CODI) as nc_pendientes
+    on nc_pendientes.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI=cc.cencos_codigo 
+  
+    left join (
+  
+    --nc ingresadas ultimos 60 dias
+    SELECT CENCO2_CODI,count (distinct id_nc) as cant_nc_ult_meses
+    FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_NOCONFORMIDADES]
+    where accion='pendiente'
+    and FECHA_NC_HISTORIAL between dateadd(dd,-60,GETDATE()) and  getdate()
+      group by CENCO2_CODI) as nc_ult_meses
+    on nc_ult_meses.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI=cc.cencos_codigo 
+  
+      left join (
+  
+      select CENCO2_CODI,count (distinct id_nc) as cant_nc_res_ult_meses
+  
+    FROM [Inteligencias].[dbo].[NC_NOCONFORMIDADES]
+    where  FECHA_NC_HISTORIAL between dateadd(dd,-60,GETDATE()) and  getdate()
+    and accion in ('Validada en terreno','Validada por jefatura','validada')
+     group by CENCO2_CODI) as nc_res_ult_meses
+    on nc_res_ult_meses.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI=cc.cencos_codigo 
+  
+  
+  where cc.deleted_at is null and p.deleted_at is null
+  and cc.empresa_id=0
+  and administrativo_nombre is not null
+  --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
+  and p.nombre is not null
+  and latitude is not null
+  and administrativo_id=11478045
+  
+  `;
+  
+  return new Promise(resolve=>{
+
+      entrega_resultDB(query).then(result=>{
+    
+        resolve(result);
+
+      });
+
+  });
+
+}
+
+
+function createGeoJSON_NC(data){
+
+
+  let nuevoData=  data.map(element=>{
+     return {"type":"Feature",
+ 
+     "geometry": {
+     "type": "Point",
+     "coordinates": [element.longitude,element.latitude],
+ 
+   
+     }
+     ,"properties": {
+    
+         "Group":"a","name":element.nombre,"cenco1_desc":element.cenco1_desc,"cenco2_codi":element.cenco2_codi
+     ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id,"dotacion_vendida":element.cotiza_dot_vendida
+     ,"dotacion_asignada":element.cotiza_dot_asignada,"dotacion_vigente":element.cotiza_dot_vigente_erp
+     }
+     };
+
+ });
+ return nuevoData;
+
+}
+
 function createGeoJSON(data){
 
-
-
-   
-   
-   //plantilla
-    var geojsonFeature = [{
-        "type": "Feature",
-        "properties": {
-        "name": "Coors Field",
-        "amenity": "Baseball Stadium",
-        "popupContent": "This is where the Rockies play!",
-        "Group":"a"
-        },
-        "geometry": {
-        "type": "Point",
-        "coordinates": [-71.99404, 39.75621]
-        }
-        },
-        {
-        "type": "Feature",
-        "properties": {
-        "name": "Coors Field",
-        "amenity": "Baseball Stadium",
-        "popupContent": "This is where the Rockies play!",
-        "Group":"a"
-        },
-        "geometry": {
-        "type": "Point",
-        "coordinates": [41.69861,-72.724141]
-        }
-        }];
 
      let nuevoData=  data.map(element=>{
         return {"type":"Feature",
@@ -374,9 +469,8 @@ function createGeoJSON(data){
         }
         ,"properties": {
        
-            "Group":"a","name":element.nombre,"cenco1_desc":element.cenco1_desc,"cenco2_codi":element.cenco2_codi
-        ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id,"dotacion_vendida":element.cotiza_dot_vendida
-        ,"dotacion_asignada":element.cotiza_dot_asignada,"dotacion_vigente":element.cotiza_dot_vigente_erp
+            "Group":"a","name":element.planta_nombre,"cenco2_codi":element.cencos_codigo
+        ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id
         }
         };
 
