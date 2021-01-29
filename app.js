@@ -413,7 +413,7 @@ function getResumenSupervisor(){
   --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
   and p.nombre is not null
   and latitude is not null
-  and administrativo_id=11478045
+  and administrativo_id=14195250
   
   `;
   
@@ -471,7 +471,9 @@ function createGeoJSON(data){
        
             "Group":"a","name":element.planta_nombre,"cenco2_codi":element.cencos_codigo
         ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id
-        }
+        ,"CANT_AUDITORIAS":element.CANT_AUDITORIAS,"CANT_NC_PENDIENTES":element.CANT_NC_PENDIENTES  
+        ,"CANT_NC_ULT_MESES":element.CANT_NC_ULT_MESES,"CANT_NC_RES_ULT_MESES":element.CANT_NC_RES_ULT_MESES  
+      }
         };
 
     });

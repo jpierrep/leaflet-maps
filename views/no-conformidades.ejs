@@ -94,13 +94,50 @@ var getTest =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assi
 
 */
 
+var baseRadius=8
 
 
-var customLayer = L.geoJson(getTest, {
+
+
+
+
+var customLayerVolumen = L.geoJson(getTest, {
                 pointToLayer : function(feature,latlng){
                     console.log("hii") 
                 let geojsonMarkerOptions = {
-                radius: 8,
+                radius: baseRadius+7,
+             //   fillColor: colorRadio,
+                  fillColor:"green",
+                color:  'red',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.4
+                };
+
+               // if (feature.properties.CANT_NC_PENDIENTES>5)
+               //     geojsonMarkerOptions.fillColor='red'
+
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+                }
+                ,onEachFeature:function(feature,layer){
+                   
+                },
+                
+                filter:function(feature,layer){
+ 
+                    
+                return feature.properties.CANT_NC_PENDIENTES>5           
+            }
+                
+                
+                }).addTo(mymap);
+
+
+                var customLayer = L.geoJson(getTest, {
+                pointToLayer : function(feature,latlng){
+                    console.log("hii") 
+                let geojsonMarkerOptions = {
+                radius: baseRadius,
              //   fillColor: colorRadio,
                   fillColor:"#000",
                 color:  'red',
@@ -108,6 +145,9 @@ var customLayer = L.geoJson(getTest, {
                 opacity: 1,
                 fillOpacity: 0.8
                 };
+
+                if (feature.properties.CANT_AUDITORIAS==0)
+                    geojsonMarkerOptions.fillColor='red'
 
                 return L.circleMarker(latlng, geojsonMarkerOptions);
                 }
