@@ -6,6 +6,7 @@ var app=express();
 var path=require('path');
 var sql = require("mssql");
 var stringify = require('json-stringify');
+const plantilla_websites = require('./controllers/template-endopoints');
 
 // config for your database
 var config = {
@@ -28,14 +29,34 @@ app.get("/testView", function (req, res) {
 })
 
 app.get("/supervisor/:id",async  function (req, res) {
+ 
   console.log("he")
   console.log("id",req.params.id)
-let dataMap=await getDataNCSupervisor('11478045')
+let dataMap=await getDataNCSupervisor(req.params.id)
+
+let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
+let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
+let supervisor_id=req.params.id
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id}
+
 //console.log(dataMap)
 var geoJSON= createGeoJSON(dataMap);
 console.log(geoJSON)
 
-  res.render("no-conformidades.ejs", { geoJSON:geoJSON });
+  res.render("no-conformidades.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
+})
+
+
+app.get("/plantilla_websites",async  function (req, res) {
+
+  let plantas= await getPlantas()
+  var  id_supervisores=  plantas.map(value=>{
+    return value.administrativo_id;
+  });
+  var distinctSupervisores=getUnique(id_supervisores);
+  console.log(distinctSupervisores)
+  let plantilla=plantilla_websites.getTemplateEndpoints(distinctSupervisores)
+res.status(200).send(plantilla);
 })
 
 
@@ -122,7 +143,20 @@ let unique = (value, index, self) => {
 
  }
 
-function getPlantas(){
+ function getUniqueProp(data,prop){
+
+  data=data.map(value=>{
+    return value[prop];
+  });
+
+  let unique = (value, index, self) => {
+      return self.indexOf(value) == index;
+  }
+  return data.filter(unique).sort(); 
+
+}
+
+async function getPlantas(){
     let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
     ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
     ,ci.CENCO2_CODI as cenco2_codi
@@ -136,6 +170,7 @@ function getPlantas(){
        on dot.CENCO2_CODI=ci.CENCO2_CODI and dot.EMP_CODI=ci.EMP_CODI and dot.ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
         where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0 
         and dot.PERSONAL_VIGENTE_ERP>0 and administrativo_id is not null
+        and administrativo_id not in (16750473,6757887) --excluye patricio peñaloza y zona testing
         order by ci.CENCO1_DESC asc
     `;
     
@@ -143,185 +178,43 @@ function getPlantas(){
 
         entrega_resultDB(query).then(result=>{
 
-            //result format
-            //nombre	longitude	latitude	cenco1_desc	administrativo_id	administrativo_nombre	cotiza_dot_asignada	cotiza_dot_vendida	cotiza_dot_vigente_erp	cenco2_codi
-//ACADEMIA JUDICIAL	-70,656802	-33,4383449	ACADEMIA JUDICIAL	6504661	Barria   Jorge	2	2	2	129-001
-//Testing Proposal	-71,5381272	-33,0291251	ADMINISTRACION	16750473	Aldunate Allegro Ricardo	NULL	NULL	5	001-001
-
-  //añade info especial para fiscalias
-
-  let fiscalias=[{"Inmueble":"Fiscalia Nacion","Nombre":"Fiscalia Nacional","Direccion":"Catedral 1437","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4379906","Longitud":"-70.6596724"},{"Inmueble":"Fiscalia Nacion","Nombre":"Oficinas Auxiliares","Direccion":"Agustinas 1070","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4409564","Longitud":"-70.6539155"},{"Inmueble":"Fiscalia Nacion","Nombre":"Centro de Justicia de Santiago","Direccion":"Av. Pedro Montt 1606","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4742969","Longitud":"-70.658164"},{"Inmueble":"Fiscalia Regional Metropolitana Centro Norte","Nombre":"Fiscalia Local de Chacabuco","Direccion":"Carretera General San Martín 785","Ciudad":"Colina","Observacion":null,"Latitud":"-33.1970402","Longitud":"-70.6725855"},{"Inmueble":"Fiscalia Regional Metropolitana Centro Norte","Nombre":"Fiscalia Regional y locales del Centro Just Santiago","Direccion":"Av.  Pedro Montt 1608","Ciudad":"Santiago","Observacion":"direccion es 1606, pero se sobrepondría en mapa","Latitud":"-33.4733033","Longitud":"-70.6580416"},{"Inmueble":"Fiscalia Regional Metropolitana Oriente","Nombre":"Fiscalia Regional Metropolitana Oriente y Fiscalia Local de las Condes","Direccion":"Los Militares 5550","Ciudad":"Las Contes","Observacion":null,"Latitud":"-33.4065347","Longitud":"-70.5756499"},{"Inmueble":"Fiscalia Regional Metropolitana Oriente","Nombre":"Fiscalia Local de Ñuñoa","Direccion":"San Jorge 57","Ciudad":"Ñuñoa","Observacion":null,"Latitud":"-33.4549022","Longitud":"-70.5802279"},{"Inmueble":"Fiscalia Regional Metropolitana Oriente","Nombre":"Fiscalias Locales de La Florida, Peñalolen-Macul y de Delitos Flagrantes y Primeras Diligencias","Direccion":"Av. Americo Vespucio 6800","Ciudad":"La Florida","Observacion":null,"Latitud":"-33.5170109","Longitud":"-70.5957858"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional y Fiscalias Locales (Edificio Copper)","Direccion":"Gran Avenida José Miguel Carrega 3814","Ciudad":"San Miguel","Observacion":null,"Latitud":"-33.4891833","Longitud":"-70.6529686"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional (Unidad Especializada)","Direccion":"Gran Avenida José Miguel Carrega 3840","Ciudad":"San Miguel","Observacion":null,"Latitud":"-33.4894214","Longitud":"-70.6528432"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional y Fiscalias Locales (Edificio Pirámide)","Direccion":"Piramide 1076","Ciudad":"San MIguel","Observacion":"Edificio Piramide","Latitud":"-33.5013517","Longitud":"-70.6551632"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Regional y Fiscalias Locales (Edificio Pirámide)","Direccion":"Piramide 1078","Ciudad":"San MIguel","Observacion":"Edificio Piramide","Latitud":"-33.500977","Longitud":"-70.6559623"},{"Inmueble":"Fiscalia Regional Metropolitana Sur","Nombre":"Fiscalia Local de Puente Alto","Direccion":"Jose Manuel Irarrazabla 283","Ciudad":"Puente Alto","Observacion":null,"Latitud":"-33.6076587","Longitud":"-70.5745448"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalias Locales de Pudahuel y Maipu","Direccion":"Bandera 655","Ciudad":"Santiago","Observacion":null,"Latitud":"-33.4357097","Longitud":"-70.6547868"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de San Bernardo","Direccion":"San Jose 840","Ciudad":"San Bernardo","Observacion":null,"Latitud":"-33.595604","Longitud":"-70.7120688"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de Talagante","Direccion":"Bernardo O'Higgins 2160","Ciudad":"Talagante","Observacion":null,"Latitud":"-33.6696344","Longitud":"-70.9414006"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de Melipilla","Direccion":"Serrano 891","Ciudad":"Melipilla","Observacion":null,"Latitud":"-33.6912934","Longitud":"-71.2163442"},{"Inmueble":"Fiscalia Regional Metropolitanta Occidente","Nombre":"Fiscalia Local de Curacavi","Direccion":"Presbitero Moraga Sur 100","Ciudad":"Curacavi","Observacion":null,"Latitud":"-33.4035899","Longitud":"-71.1307991"}]
-
-  fiscalias.forEach(instalacion=>{
-let template=JSON.parse(JSON.stringify(result[0]))
-template["nombre"]=instalacion['Nombre']
-template["longitude"]=parseFloat(instalacion['Longitud'])
-template["latitude"]=parseFloat(instalacion['Latitud'])
-template["cenco1_desc"]="FISCALIA STGO. TEST"
-template["administrativo_id"]=instalacion['00000']
-template["administrativo_nombre"]=instalacion['FISCALIAS NO ASIGNADAS']
-template["cotiza_dot_asignada"]=0
-template["cotiza_dot_vendida"]=0
-template["cotiza_dot_vigente_erp"]=0
-template["cenco2_codi"]='000-000'
-//Se dejan desactivadas -fiscalias ya es cliente vigente
-//result.push(template)
-
-  })
-
-  //para coca cola
-
-  let cocacola=[
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Planta de Concón ",
-      "Direccion": "Camino Internacional Nº13255",
-      "Ciudad": "Concón",
-      "Observacion": "",
-      "Latitud": -32.9324278,
-      "Longitud": -71.4698747
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal San Felipe",
-      "Direccion": "Carretera General San Martin, Km14,Curimón",
-      "Ciudad": "San Felipe",
-      "Observacion": "",
-      "Latitud": -32.7811871,
-      "Longitud": -70.7047369
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal San Fernando",
-      "Direccion": "Camino a Roma 1707",
-      "Ciudad": "San Fernando",
-      "Observacion": "",
-      "Latitud": -34.5983512,
-      "Longitud": -70.9628744
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Planta de Talca",
-      "Direccion": "Ruta 5 sur km 247",
-      "Ciudad": "Talca",
-      "Observacion": "",
-      "Latitud": -35.4397646,
-      "Longitud": -71.6421143
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal Chillán ",
-      "Direccion": "Longitudinal Sur Nº 4000",
-      "Ciudad": "Chillan",
-      "Observacion": "",
-      "Latitud": -36.5641963,
-      "Longitud": -72.0981741
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal Linares",
-      "Direccion": "Camino Real S/N",
-      "Ciudad": "Linares",
-      "Observacion": "",
-      "Latitud": -35.8367145,
-      "Longitud": -71.6272458
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal San Pedro",
-      "Direccion": "Camino a Coronel Km 10 Nº 5580, Modulo 9H, Megacentro",
-      "Ciudad": "San Pedro",
-      "Observacion": "",
-      "Latitud": -36.87086,
-      "Longitud": -73.137463
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal Talcahuano",
-      "Direccion": "Gran Bretaña Nº 5690",
-      "Ciudad": "Talcahuano",
-      "Observacion": "",
-      "Latitud": -36.7758617,
-      "Longitud": -73.1166831
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Planta de Temuco",
-      "Direccion": "Manuel Recabarren 2850",
-      "Ciudad": "Temuco",
-      "Observacion": "",
-      "Latitud": -38.756937,
-      "Longitud": -72.6474079
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal Villarica",
-      "Direccion": "KM 4 Camino Villarica Lican Ray",
-      "Ciudad": "Villarica",
-      "Observacion": "",
-      "Latitud": -39.3196999,
-      "Longitud": -72.2289628
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal Los Angeles",
-      "Direccion": "Av. Las Industrias Nº 7190-A",
-      "Ciudad": "Los Angeles",
-      "Observacion": "",
-      "Latitud": -37.4488449,
-      "Longitud": -72.3278692
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal Puerto Montt",
-      "Direccion": "Ruta 5 sur km 1029, SN",
-      "Ciudad": "Puerto Montt",
-      "Observacion": "",
-      "Latitud": -41.4300805,
-      "Longitud": -72.9557124
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal Osorno",
-      "Direccion": "Ruta 5 sur km 915, Pilauco ",
-      "Ciudad": "Osorno",
-      "Observacion": "",
-      "Latitud": -40.5491922,
-      "Longitud": -73.0917275
-    },
-    {
-      "Inmueble": "Coca-Cola",
-      "Nombre": "Sucursal Castro",
-      "Direccion": "Ruta 5 Sur Km 1176, Sector Piruquina",
-      "Ciudad": "Castro",
-      "Observacion": "",
-      "Latitud": -42.3891631,
-      "Longitud": -73.8061669
-    }
-   ]
-
-   cocacola.forEach(instalacion=>{
-    let template=JSON.parse(JSON.stringify(result[0]))
-    template["nombre"]=instalacion['Nombre']
-    template["longitude"]=parseFloat(instalacion['Longitud'])
-    template["latitude"]=parseFloat(instalacion['Latitud'])
-    template["cenco1_desc"]="COCA-COLA TEST"
-    template["administrativo_id"]=instalacion['00000']
-    template["administrativo_nombre"]=instalacion['COCA-COLA NO ASIGNADAS']
-    template["cotiza_dot_asignada"]=0
-    template["cotiza_dot_vendida"]=0
-    template["cotiza_dot_vigente_erp"]=0
-    template["cenco2_codi"]='000-000'
-    result.push(template)
-    
-      })
-
       
           resolve(result);
 
         });
 
     });
+
+}
+
+async function getPlantasSupervisor(idSupervisor){
+  let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
+  ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
+  ,ci.CENCO2_CODI as cenco2_codi
+      FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
+      on p.centro_costos_id=cc.id
+      left join [BI-SERVER-01].Inteligencias.dbo.VIEW_CENTROS_COSTO as ci
+      left join [BI-SERVER-01].Inteligencias.dbo.VIEW_SIST_CENTRAL_ESTR_ORGANIZACION as estr
+      on estr.cencos_codigo=ci.CENCO2_CODI and estr.empresa_id=ci.EMP_CODI
+      on ci.CENCO2_CODI=cc.cencos_codigo and ci.EMP_CODI=cc.empresa_id
+    left join [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] as dot
+     on dot.CENCO2_CODI=ci.CENCO2_CODI and dot.EMP_CODI=ci.EMP_CODI and dot.ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
+      where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0 
+      and dot.PERSONAL_VIGENTE_ERP>0 and administrativo_id is not null
+      and estr.administrativo_id=`+idSupervisor+`
+      order by ci.CENCO1_DESC asc
+  `;
+  
+  return new Promise(resolve=>{
+
+      entrega_resultDB(query).then(result=>{
+
+    
+        resolve(result);
+
+      });
+
+  });
 
 }
 
@@ -359,7 +252,7 @@ function getResumenSupervisor(){
   cc.empresa_id,cc.cencos_codigo,cc.cencos_nombre,p.nombre as planta_nombre,latitude,longitude,administrativo_id,administrativo_nombre
   ,ISNULL(auditorias.cant_auditorias,0) as CANT_AUDITORIAS,ISNULL(nc_pendientes.cant_nc_pendientes,0) as CANT_NC_PENDIENTES
   ,ISNULL(nc_ult_meses.cant_nc_ult_meses,0) as CANT_NC_ULT_MESES,ISNULL(nc_res_ult_meses.cant_nc_res_ult_meses,0) as CANT_NC_RES_ULT_MESES
-  
+  ,zona_nombre
   from
   SISTEMA_CENTRAL.dbo.centros_costos as cc
   left join [BI-SERVER-01].Inteligencias.dbo.SIST_CENTRAL_ESTR_ORGANIZACION as estr
@@ -382,7 +275,7 @@ function getResumenSupervisor(){
   SELECT CENCO2_CODI,count (distinct id_nc) as cant_nc_pendientes
     FROM  [BI-SERVER-01].[Inteligencias].[dbo].[NC_NOCONFORMIDADES]
   
-    where NC_ESTADO='pendiente'
+    where NC_ESTADO in ('pendiente','ejecutada')
     group by CENCO2_CODI) as nc_pendientes
     on nc_pendientes.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI=cc.cencos_codigo 
   
@@ -413,9 +306,9 @@ function getResumenSupervisor(){
   --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
   and p.nombre is not null
   and latitude is not null
-  and administrativo_id=14195250
+  and administrativo_id=`+idSupervisor
   
-  `;
+  ;
   
   return new Promise(resolve=>{
 
@@ -428,6 +321,8 @@ function getResumenSupervisor(){
   });
 
 }
+
+
 
 
 function createGeoJSON_NC(data){

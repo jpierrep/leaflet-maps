@@ -32,15 +32,32 @@ crossorigin=""></script>
      <link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css"/>
 
      <style>
-         #mymap{width:1600px;height:800px}
+         html,
+body {
+  height: 100%;
+}
+ /*#mymap{width:1600px;height:800px} */
+ #mymap{
+ display: flex;
+  height: 100%;
+  width: 100%;
+
+}
+
+
+      
     </style>
     
 </head>
 <body>
-
+<!--
 <h1>This is a Heading</h1>
 <p>This is a paragraph.</p>
 <p><%= JSON.stringify(geoJSON[0]) %></p>
+<p><%= infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona'] %></p>
+-->
+<h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
+
 <div id="mymap"></div>
 </body>
 
@@ -50,6 +67,9 @@ crossorigin=""></script>
 
 <script >
 "use strict";
+
+
+
 
 
 
@@ -94,6 +114,23 @@ var getTest =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assi
 
 */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var baseRadius=8
 
 
@@ -103,15 +140,18 @@ var baseRadius=8
 
 var customLayerVolumen = L.geoJson(getTest, {
                 pointToLayer : function(feature,latlng){
+                
                     console.log("hii") 
                 let geojsonMarkerOptions = {
-                radius: baseRadius+7,
+                    stroke:false,
+                radius: baseRadius+feature.properties.CANT_NC_PENDIENTES*1.8,
              //   fillColor: colorRadio,
-                  fillColor:"green",
-                color:  'red',
-                weight: 1,
-                opacity: 1,
+                fillColor:"green",
+                color:  'black',
+                weight: baseRadius,
+                opacity: 0.4,
                 fillOpacity: 0.4
+              
                 };
 
                // if (feature.properties.CANT_NC_PENDIENTES>5)
@@ -126,7 +166,7 @@ var customLayerVolumen = L.geoJson(getTest, {
                 filter:function(feature,layer){
  
                     
-                return feature.properties.CANT_NC_PENDIENTES>5           
+                return feature.properties.CANT_NC_PENDIENTES>2         
             }
                 
                 
@@ -139,7 +179,7 @@ var customLayerVolumen = L.geoJson(getTest, {
                 let geojsonMarkerOptions = {
                 radius: baseRadius,
              //   fillColor: colorRadio,
-                  fillColor:"#000",
+                  fillColor:'blue',
                 color:  'red',
                 weight: 1,
                 opacity: 1,
