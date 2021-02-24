@@ -47,6 +47,20 @@ body {
 
       
     </style>
+
+<link rel="stylesheet" href="/label/libs/leaflet/leaflet.css" />
+<!--[if lte IE 8]><link rel="stylesheet" href="../libs/leaflet/leaflet.ie.css" /><![endif]-->
+<link rel="stylesheet" href="/label/dist/leaflet.label.css" />
+
+<script src="/label/libs/leaflet/leaflet-src.js"></script>
+
+<script src="/label/src/Label.js"></script>
+<script src="/label/src/BaseMarkerMethods.js"></script>
+<script src="/label/src/Marker.Label.js"></script>
+<script src="/label/src/CircleMarker.Label.js"></script>
+<script src="/label/src/Path.Label.js"></script>
+<script src="/label/src/Map.Label.js"></script>
+<script src="/label/src/FeatureGroup.Label.js"></script>
     
 </head>
 <body>
@@ -95,26 +109,18 @@ var getTest =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assi
             }).addTo(mymap);
 
 
-            /*
+            
             var marker = L.marker([51.5, -0.09]).addTo(mymap);
-            var circle = L.circle([51.508, -0.11], {
-    color: 'red',
-    fillColor: '#f03',
-    fillOpacity: 0.5,
-    radius: 400
-}).addTo(mymap);
-
-            var circle2 = L.circle([51.508, -0.11], {
-    color: 'black',
-    fillColor: '#ffff',
-    fillOpacity: 0.5,
-    radius: 100
-}).addTo(mymap);
 
 
-*/
 
 
+
+L.marker([51.5, -0.09]).addTo(mymap);
+                
+                L.marker([-37.785, 175.263])
+    .bindLabel('A sweet static label!', { noHide: true })
+    .addTo(mymap);
 
 
 
@@ -194,11 +200,17 @@ var customLayerVolumen = L.geoJson(getTest, {
                 ,onEachFeature:function(feature,layer){
                     console.log("holaa")  
                     var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> <br> Supervisor: `   +feature.properties.administrativo_nombre+`</p>`
-                layer.bindPopup(label).openPopup(); 
+                //layer.bindPopup(label).openPopup(); 
+                layer.bindLabel(feature.properties.cenco2_codi, { noHide: true }) 
+
                 }
                 
                 }).addTo(mymap);
                 mymap.fitBounds(customLayer.getBounds());
+
+
+                
+  
 
 </script>
 </html>
