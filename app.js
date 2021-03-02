@@ -28,7 +28,7 @@ app.get("/testView", function (req, res) {
   res.render("test.ejs", { hola: "hola" });
 })
 
-app.get("/supervisor/:id",async  function (req, res) {
+app.get("/no-conformidades/supervisor/:id",async  function (req, res) {
  
   console.log("he")
   console.log("id",req.params.id)
@@ -47,15 +47,54 @@ console.log(geoJSON)
 })
 
 
-app.get("/plantilla_websites",async  function (req, res) {
+app.get("/tiempo-planta/supervisor/:id",async  function (req, res) {
+ 
+  console.log("he")
+  console.log("id",req.params.id)
+let dataMap=await getDataTiempoPlantaSupervisor(req.params.id)
 
+let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
+let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
+let supervisor_id=req.params.id
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id}
+
+//console.log(dataMap)
+//var geoJSON= createGeoJSON(dataMap);
+
+let geoJSON= dataMap.map(element=>{
+  return {"type":"Feature",
+
+  "geometry": {
+  "type": "Point",
+  "coordinates": [element.longitude,element.latitude],
+
+
+  }
+  ,"properties": {
+ 
+      "Group":"a","name":element.planta_nombre,"cenco2_codi":element.cencos_codigo
+  ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id
+  ,"DURACION":element.DURACION,"CANT_AUDITORIAS":element.CANT_AUDITORIAS ,"CANT_VISITAS":element.CANT_VISITAS 
+}
+  };
+
+});
+console.log(geoJSON)
+
+  res.render("tiempo-planta.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
+})
+
+
+app.get("/plantilla-websites/:tipo",async  function (req, res) {
+
+  let tipoMapa=req.params.tipo
   let plantas= await getPlantas()
   var  id_supervisores=  plantas.map(value=>{
     return value.administrativo_id;
   });
   var distinctSupervisores=getUnique(id_supervisores);
   console.log(distinctSupervisores)
-  let plantilla=plantilla_websites.getTemplateEndpoints(distinctSupervisores)
+  let plantilla=plantilla_websites.getTemplateEndpoints(tipoMapa,distinctSupervisores)
 res.status(200).send(plantilla);
 })
 
@@ -321,6 +360,72 @@ function getResumenSupervisor(){
   });
 
 }
+
+
+function getDataTiempoPlantaSupervisor(idSupervisor){
+
+  let query=`  
+
+  select 
+  cc.empresa_id,cc.cencos_codigo,cc.cencos_nombre,p.nombre as planta_nombre,latitude,longitude,administrativo_id,administrativo_nombre
+  ,zona_nombre
+  ,isnull(tiempo_planta.DURACION,0) as DURACION
+  ,isnull(auditorias.CANT_AUDITORIAS,0) as CANT_AUDITORIAS
+  ,isnull(tiempo_planta.CANT_VISITAS,0) as CANT_VISITAS
+  from
+  SISTEMA_CENTRAL.dbo.centros_costos as cc
+  left join [BI-SERVER-01].Inteligencias.dbo.SIST_CENTRAL_ESTR_ORGANIZACION as estr
+  on cc.cencos_codigo=estr.cencos_codigo and cc.empresa_id=estr.empresa_id
+  left join SISTEMA_CENTRAL.dbo.plantas as p on p.centro_costos_id=cc.id
+  
+    left join (
+  --auditorias ultimos 30 dias
+  SELECT 
+  ID_PLANTA,count(*) as cant_auditorias
+    FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_VISITAS]
+    where ESTADO='completada'
+    and INICIO between dateadd(dd,-30,GETDATE()) and  getdate()
+    group by  ID_PLANTA) as auditorias
+    on auditorias.ID_PLANTA=p.id
+	
+  
+
+
+  left join (
+SELECT ID_SUP,ID_PLANTA, SUM(DURACION) as DURACION,count(*) as CANT_VISITAS
+  FROM [BI-SERVER-01].[Inteligencias].[dbo].NC_PRESENCIA_SUP_VISITAS
+  where
+   DIA_VISITA between dateadd(dd,-30,GETDATE()) and  getdate()
+  -- DATEADD(MONTH, DATEDIFF(MONTH, 0, DIA_VISITA), 0)=  DATEADD(MONTH, DATEDIFF(MONTH, 0, getdate()), 0)
+  group by ID_SUP,ID_PLANTA
+
+) as tiempo_planta
+    on tiempo_planta.ID_PLANTA=p.id
+	and ID_SUP=estr.administrativo_id
+  
+  
+  where cc.deleted_at is null and p.deleted_at is null
+  and cc.empresa_id=0
+  and administrativo_nombre is not null
+  --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
+  and p.nombre is not null
+  and latitude is not null
+  and administrativo_id=`+idSupervisor
+  
+  ;
+  
+  return new Promise(resolve=>{
+
+      entrega_resultDB(query).then(result=>{
+    
+        resolve(result);
+
+      });
+
+  });
+
+}
+
 
 
 

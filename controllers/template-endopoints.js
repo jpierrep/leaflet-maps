@@ -13,12 +13,12 @@ let plantilla={
   ]
 }
 
-let urlBase="http://192.168.0.158:8000/supervisor/"
+let urlBase="http://192.168.0.158:8000"
 
 
 
 
-function getTemplateEndpoints(listadoSupervisores){
+function getTemplateEndpoints(tipo,listadoSupervisores){
   // listadoSupervisores=["14195250","14195250","14195250","14195250","14195250"];
 
    let plantilla_endpoints=JSON.parse(JSON.stringify(plantilla))
@@ -28,7 +28,7 @@ function getTemplateEndpoints(listadoSupervisores){
    let websites=[]
    listadoSupervisores.forEach(supervisor => {
     let website=JSON.parse(JSON.stringify(plantilla_websites))
-    website["url"]=urlBase+supervisor
+    website["url"]=urlBase+"/"+tipo+"/supervisor/"+supervisor
     websites.push(website)
    
 });
@@ -38,7 +38,7 @@ function getTemplateEndpoints(listadoSupervisores){
 
   console.log(plantilla_endpoints)
 
-  //http://192.168.0.158:8000/plantilla_websites
+  //http://192.168.0.158:8000/plantilla-websites/tiempo-planta
 
   return plantilla_endpoints
 

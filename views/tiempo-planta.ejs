@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+crossorigin=""/>
+
+<script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+crossorigin=""></script>
+
+    
+     
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+
+     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+     <script  src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+     <link rel="stylesheet" href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' />
+
+     <script  src="/js/bootstrap-3.3.2.min.js"></script>
+
+
+     
+     <script type="text/javascript" src='/js/bootstrap-multiselect.js'></script>
+     <link  rel="stylesheet" href="/css/bootstrap-multiselect.css"/>
+     <link  rel="stylesheet" href="/css/mapa.css"/>
+     
+     <link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css"/>
+
+     <style>
+         html,
+body {
+  height: 100%;
+}
+ /*#mymap{width:1600px;height:800px} */
+ #mymap{
+ display: flex;
+  height: 100%;
+  width: 100%;
+
+}
+
+
+      
+    </style>
+    
+</head>
+<body>
+<!--
+<h1>This is a Heading</h1>
+<p>This is a paragraph.</p>
+<p><%= JSON.stringify(geoJSON[0]) %></p>
+<p><%= infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona'] %></p>
+-->
+<h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
+
+<div id="mymap"></div>
+</body>
+
+
+<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js'></script>
+
+
+<script >
+"use strict";
+
+
+
+
+
+
+var getTest =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assigned to getTest which will only work on browsers
+           console.log(getTest);  // successfully prints 101 on browser
+            console.log("test")
+            var mymap = L.map('mymap'
+            ,{fullscreenControl: true}
+            ).setView([51.505, -0.09], 13);
+
+
+
+            mymap.eachLayer(function (layer) {
+            mymap.removeLayer(layer)
+            }) ; 
+ 
+
+             L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+             attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+             maxZoom: 18,
+             id: 'mapbox/streets-v11',
+             accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
+            }).addTo(mymap);
+
+
+            /*
+            var marker = L.marker([51.5, -0.09]).addTo(mymap);
+            var circle = L.circle([51.508, -0.11], {
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.5,
+    radius: 400
+}).addTo(mymap);
+
+            var circle2 = L.circle([51.508, -0.11], {
+    color: 'black',
+    fillColor: '#ffff',
+    fillOpacity: 0.5,
+    radius: 100
+}).addTo(mymap);
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var baseRadius=8
+
+
+
+
+
+
+var customLayerVolumen = L.geoJson(getTest, {
+                pointToLayer : function(feature,latlng){
+                
+                    console.log("hii")
+                    //duracion tiene valor 0,121 ej 
+                    let duracion_ajust=feature.properties.DURACION
+                    if (duracion_ajust>0 &&duracion_ajust<1)
+                    duracion_ajust=1
+                let geojsonMarkerOptions = {
+                    stroke:false,
+                radius: baseRadius+duracion_ajust*1.8,
+             //   fillColor: colorRadio,
+                fillColor:"green",
+                color:  'black',
+                weight: baseRadius,
+                opacity: 0.4,
+                fillOpacity: 0.4
+              
+                };
+
+               // if (feature.properties.CANT_NC_PENDIENTES>5)
+               //     geojsonMarkerOptions.fillColor='red'
+
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+                }
+                //  ,onEachFeature:function(feature,layer){
+                   
+                 // },
+                
+               // filter:function(feature,layer){
+            //}
+                
+                
+                }).addTo(mymap);
+
+
+                var customLayer = L.geoJson(getTest, {
+                pointToLayer : function(feature,latlng){
+                    console.log("hii") 
+                let geojsonMarkerOptions = {
+                radius: baseRadius,
+             //   fillColor: colorRadio,
+                  fillColor:'blue',
+                color:  'red',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+                };
+
+                if (feature.properties.CANT_AUDITORIAS==0){
+                    if (feature.properties.CANT_VISITAS>0){
+                    geojsonMarkerOptions.fillColor='yellow'
+                }else{
+                    geojsonMarkerOptions.fillColor='red'
+                }
+                }
+
+                   
+
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+                }
+                ,onEachFeature:function(feature,layer){
+                    console.log("holaa")  
+                    var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> <br> Supervisor: `   +feature.properties.administrativo_nombre+`</p>`
+                layer.bindPopup(label).openPopup(); 
+                }
+                
+                }).addTo(mymap);
+                mymap.fitBounds(customLayer.getBounds());
+
+</script>
+</html>
