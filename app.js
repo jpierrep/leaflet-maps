@@ -37,7 +37,7 @@ let dataMap=await getDataNCSupervisor(req.params.id)
 let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
 let supervisor_id=req.params.id
-let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id}
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap}
 
 //console.log(dataMap)
 var geoJSON= createGeoJSON(dataMap);
@@ -56,7 +56,7 @@ let dataMap=await getDataTiempoPlantaSupervisor(req.params.id)
 let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
 let supervisor_id=req.params.id
-let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id}
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap}
 
 //console.log(dataMap)
 //var geoJSON= createGeoJSON(dataMap);

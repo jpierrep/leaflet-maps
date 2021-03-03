@@ -30,21 +30,39 @@ crossorigin=""></script>
      <link  rel="stylesheet" href="/css/mapa.css"/>
      
      <link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css"/>
-
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
      <style>
          html,
 body {
-  height: 100%;
+    height: 100%;
 }
  /*#mymap{width:1600px;height:800px} */
  #mymap{
- display: flex;
+ display: inline-block;
   height: 100%;
   width: 100%;
 
 }
+.column {
+  display: inline;
+  padding: 10px;
+  height: 100%;
 
 
+}
+
+.left {
+  width: 25%;
+}
+
+.right {
+  width: 75%;
+}
+
+#yellow {
+  height: 100%; 
+ background: yellow;
+}
       
     </style>
     
@@ -58,7 +76,60 @@ body {
 -->
 <h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
 
-<div id="mymap"></div>
+<div class="container-fluid h-100">
+    <div class="row justify-content-center h-100">
+      <div class="col-4 hidden-md-down" id="yellow">
+        <!--<div class="col-4 hidden-md-down" >  -->
+        XXXX
+        <div>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">CODIGO</th>
+                    <th scope="col">INSTALACION</th>
+                    <th scope="col">DURACION</th>
+                    <th scope="col">AUDITORIAS</th>
+                    <th scope="col">VISITAS</th>
+             
+                  </tr>
+                </thead>
+                <tbody>
+                 
+                  <% for (var x = 0;x < infoSupervisor['data_instalaciones'].length;x++){ %>
+                    <tr>
+                        <td><%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%></td>
+                        <td><%=infoSupervisor['data_instalaciones'][x]['cencos_nombre']%></td>
+                        <td><%=(parseFloat(infoSupervisor['data_instalaciones'][x]['DURACION'])).toFixed(1)%></td>
+                        <td><%=infoSupervisor['data_instalaciones'][x]['CANT_AUDITORIAS']%></td>
+                        <td><%=infoSupervisor['data_instalaciones'][x]['CANT_VISITAS']%></td>
+                     
+                     
+                      </tr>
+                    <% }  %>  
+                </tbody>
+              </table>
+            
+            </div>
+      </div>
+      <div class="col-10 col-sm-10 col-md-10 col-lg-8 col-xl-8">
+        Form Goes Here
+        <div id="mymap"></div>
+      </div>
+    </div>
+  </div>
+
+   
+
+
+
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </body>
 
 
