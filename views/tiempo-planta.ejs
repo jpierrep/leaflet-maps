@@ -15,7 +15,8 @@ crossorigin=""></script>
      
      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
 
-     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+     
      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 
      <script  src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
@@ -24,7 +25,6 @@ crossorigin=""></script>
      <script  src="/js/bootstrap-3.3.2.min.js"></script>
 
 
-     
      <script type="text/javascript" src='/js/bootstrap-multiselect.js'></script>
      <link  rel="stylesheet" href="/css/bootstrap-multiselect.css"/>
      <link  rel="stylesheet" href="/css/mapa.css"/>
@@ -61,10 +61,25 @@ body {
 
 #yellow {
   height: 100%; 
- background: yellow;
+ /*background: yellow; */
+
 }
+
+.table-responsive{
+  height:180px; width:50%;
+  overflow-y: auto;
+  border:2px solid #444;
+}.table-responsive:hover{border-color:red;}
+
+table{width:100%;}
+td{padding:24px; background:#eee;}
       
     </style>
+
+
+
+
+     
     
 </head>
 <body>
@@ -78,39 +93,43 @@ body {
 
 <div class="container-fluid h-100">
     <div class="row justify-content-center h-100">
-      <div class="col-4 hidden-md-down" id="yellow">
-        <!--<div class="col-4 hidden-md-down" >  -->
-        XXXX
-        <div>
-            <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">CODIGO</th>
-                    <th scope="col">INSTALACION</th>
-                    <th scope="col">DURACION</th>
-                    <th scope="col">AUDITORIAS</th>
-                    <th scope="col">VISITAS</th>
-             
-                  </tr>
-                </thead>
-                <tbody>
-                 
-                  <% for (var x = 0;x < infoSupervisor['data_instalaciones'].length;x++){ %>
-                    <tr>
-                        <td><%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%></td>
-                        <td><%=infoSupervisor['data_instalaciones'][x]['cencos_nombre']%></td>
-                        <td><%=(parseFloat(infoSupervisor['data_instalaciones'][x]['DURACION'])).toFixed(1)%></td>
-                        <td><%=infoSupervisor['data_instalaciones'][x]['CANT_AUDITORIAS']%></td>
-                        <td><%=infoSupervisor['data_instalaciones'][x]['CANT_VISITAS']%></td>
-                     
-                     
+        <div class="col-4 hidden-md-down table-responsive" style="overflow-y:auto;" id="yellow">
+            <!--<div class="col-4 hidden-md-down" >  -->
+            XXXX
+            <div >
+                <table class="table table-bordered table-hover" >
+                    <thead>
+                      <tr>
+                        <th scope="col">CODIGO</th>
+                        <th scope="col">INSTALACION</th>
+                        <th scope="col">DURACION</th>
+                        <th scope="col">AUDITORIAS</th>
+                        <th scope="col">VISITAS</th>
+                        <th scope="col">-32.78534</th>
+                        <th scope="col"> -71.19008</th>
+                       
                       </tr>
-                    <% }  %>  
-                </tbody>
-              </table>
-            
-            </div>
-      </div>
+                    </thead>
+                    <tbody>
+                     
+                      <% for (var x = 0;x < infoSupervisor['data_instalaciones'].length;x++){ %>
+                        <tr>
+                            <td><%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%></td>
+                            <td><%=infoSupervisor['data_instalaciones'][x]['cencos_nombre']%></td>
+                            <td><%=(parseFloat(infoSupervisor['data_instalaciones'][x]['DURACION'])).toFixed(1)%></td>
+                            <td><%=infoSupervisor['data_instalaciones'][x]['CANT_AUDITORIAS']%></td>
+                            <td><%=infoSupervisor['data_instalaciones'][x]['CANT_VISITAS']%></td>
+                            <td><%=infoSupervisor['data_instalaciones'][x]['latitude']%></td>
+                            <td><%=infoSupervisor['data_instalaciones'][x]['longitude']%></td>
+
+                          </tr>
+                        <% }  %>  
+                    </tbody>
+                  </table>
+                
+                </div>
+          </div>
+
       <div class="col-10 col-sm-10 col-md-10 col-lg-8 col-xl-8">
         Form Goes Here
         <div id="mymap"></div>
@@ -127,7 +146,7 @@ body {
 
 
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </body>
@@ -140,6 +159,34 @@ body {
 "use strict";
 
 
+//animacion para por cada registro de la tabla, con un delay tomar una accion, cambiar de color y mostrarlo en el mapa
+//revisar animacion, para que sea en loop y no solo una vez
+
+//$("table tr").hide();
+$("table tr").each(function(index){
+    $(this).delay(index*500).css('background-color', 'red')
+	//$(this).delay(index*500).show(1000);
+    //console.log(this)
+});
+
+
+
+
+
+
+
+//animacion para mover los registros de la tabla
+var $el = $(".table-responsive");
+function anim() {
+  var st = $el.scrollTop();
+  var sb = $el.prop("scrollHeight")-$el.innerHeight();
+  $el.animate({scrollTop: st<sb/4 ? sb : 0}, 60000, anim);
+}
+function stop(){
+  $el.stop();
+}
+anim();
+$el.hover(stop, anim);
 
 
 
@@ -278,6 +325,47 @@ var customLayerVolumen = L.geoJson(getTest, {
                 
                 }).addTo(mymap);
                 mymap.fitBounds(customLayer.getBounds());
+
+
+
+
+
+
+//crea circulos de color
+
+var count=0
+                $("table tr").each(function(index,tr) {
+                    var location = new L.circleMarker();                    
+                  
+    setTimeout(function() {
+      
+        mymap.removeLayer(location);
+        $("table tr").eq(index-1).find("td").css('background-color','white')
+        $(tr).find("td").css('background-color','white')
+     //   $(".testBox").append('<p class="box">' + value + '</p>');
+     console.log(tr)
+   var longitude=  $(tr).find("td").eq(6).html()  
+   var latitude=$(tr).find("td").eq(5).html()  
+    //var myFeatureGroup = L.featureGroup().addTo(mymap);
+    //console.log(myFeatureGroup.getLayers())
+    //myFeatureGroup.clearLayers();
+   // mymap.removeLayer(myFeatureGroup) 
+    
+   // var circlemark = L.circleMarker([latitude,longitude], {radius: 50,color:'green'}).addTo(myFeatureGroup);
+
+   
+   location =new  L.circleMarker([latitude,longitude], {radius: 50,color:'green'});
+  mymap.addLayer(location);
+   console.log($(tr).find("td").eq(5).html())
+   $(tr).find("td").css('background-color','green')
+
+      }, count * 1000)
+     //esto se hace acá pues no es asincrono, la funcion se llama automaticamente con todos los tiempos como corresponden
+      count++;
+    console.log("hole")
+    
+  
+  });
 
 </script>
 </html>
