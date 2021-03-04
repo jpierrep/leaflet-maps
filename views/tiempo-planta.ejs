@@ -105,8 +105,8 @@ td{padding:24px; background:#eee;}
                         <th scope="col">DURACION</th>
                         <th scope="col">AUDITORIAS</th>
                         <th scope="col">VISITAS</th>
-                        <th scope="col">-32.78534</th>
-                        <th scope="col"> -71.19008</th>
+                        <th  style="display: none;"scope="col">Longitud</th>
+                        <th style="display: none;" scope="col"> Latitud</th>
                        
                       </tr>
                     </thead>
@@ -119,8 +119,8 @@ td{padding:24px; background:#eee;}
                             <td><%=(parseFloat(infoSupervisor['data_instalaciones'][x]['DURACION'])).toFixed(1)%></td>
                             <td><%=infoSupervisor['data_instalaciones'][x]['CANT_AUDITORIAS']%></td>
                             <td><%=infoSupervisor['data_instalaciones'][x]['CANT_VISITAS']%></td>
-                            <td><%=infoSupervisor['data_instalaciones'][x]['latitude']%></td>
-                            <td><%=infoSupervisor['data_instalaciones'][x]['longitude']%></td>
+                            <td style="display: none;"><%=infoSupervisor['data_instalaciones'][x]['latitude']%></td>
+                            <td style="display: none;"><%=infoSupervisor['data_instalaciones'][x]['longitude']%></td>
 
                           </tr>
                         <% }  %>  
@@ -328,24 +328,33 @@ var customLayerVolumen = L.geoJson(getTest, {
 
 
 
-
+loop();
 
 
 //crea circulos de color
-
+function loop() {
 var count=0
+var locations=[1]
                 $("table tr").each(function(index,tr) {
-                    var location = new L.circleMarker();                    
-                  
+ console.log("test")
+    
+    
     setTimeout(function() {
+        var longitude=  $(tr).find("td").eq(6).html()  
+   var latitude=$(tr).find("td").eq(5).html()          
+     var   location = L.circleMarker([latitude,longitude], {radius: 50,color:'green'});
+             location.addTo(mymap)
+             locations.push(location)
+             console.log(locations)
       
-        mymap.removeLayer(location);
+      mymap.removeLayer(locations[locations.length-2]);
+      // marker2.removeFrom(map)
+
         $("table tr").eq(index-1).find("td").css('background-color','white')
-        $(tr).find("td").css('background-color','white')
+      //  $(tr).find("td").css('background-color','white')
      //   $(".testBox").append('<p class="box">' + value + '</p>');
      console.log(tr)
-   var longitude=  $(tr).find("td").eq(6).html()  
-   var latitude=$(tr).find("td").eq(5).html()  
+ 
     //var myFeatureGroup = L.featureGroup().addTo(mymap);
     //console.log(myFeatureGroup.getLayers())
     //myFeatureGroup.clearLayers();
@@ -354,18 +363,27 @@ var count=0
    // var circlemark = L.circleMarker([latitude,longitude], {radius: 50,color:'green'}).addTo(myFeatureGroup);
 
    
-   location =new  L.circleMarker([latitude,longitude], {radius: 50,color:'green'});
-  mymap.addLayer(location);
-   console.log($(tr).find("td").eq(5).html())
+  
+
+
    $(tr).find("td").css('background-color','green')
 
-      }, count * 1000)
+if (index==$("table tr").length-1){
+    $("table tr").eq(index).find("td").css('background-color','white')
+    mymap.removeLayer(locations[locations.length-1]);
+    loop();
+}
+   
+
+      }, count * 2000)
      //esto se hace acá pues no es asincrono, la funcion se llama automaticamente con todos los tiempos como corresponden
       count++;
     console.log("hole")
     
   
   });
+}
+
 
 </script>
 </html>
