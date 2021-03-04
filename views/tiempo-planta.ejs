@@ -93,11 +93,11 @@ td{padding:24px; background:#eee;}
 
 <div class="container-fluid h-100">
     <div class="row justify-content-center h-100">
-        <div class="col-4 hidden-md-down table-responsive" style="overflow-y:auto;" id="yellow">
+        <div class="col-4 hidden-md-down " style="overflow-y:auto;" id="yellow">
             <!--<div class="col-4 hidden-md-down" >  -->
             XXXX
-            <div >
-                <table class="table table-bordered table-hover" >
+            <div id="tabla-instalaciones" style=" height: 600px; overflow: auto;" >
+                <table class="table table-hover" >
                     <thead>
                       <tr>
                         <th scope="col">CODIGO</th>
@@ -159,22 +159,13 @@ td{padding:24px; background:#eee;}
 "use strict";
 
 
-//animacion para por cada registro de la tabla, con un delay tomar una accion, cambiar de color y mostrarlo en el mapa
-//revisar animacion, para que sea en loop y no solo una vez
-
-//$("table tr").hide();
-$("table tr").each(function(index){
-    $(this).delay(index*500).css('background-color', 'red')
-	//$(this).delay(index*500).show(1000);
-    //console.log(this)
-});
 
 
 
 
 
 
-
+/*
 //animacion para mover los registros de la tabla
 var $el = $(".table-responsive");
 function anim() {
@@ -187,6 +178,8 @@ function stop(){
 }
 anim();
 $el.hover(stop, anim);
+
+*/
 
 
 
@@ -340,6 +333,7 @@ var locations=[1]
     
     
     setTimeout(function() {
+
         var longitude=  $(tr).find("td").eq(6).html()  
    var latitude=$(tr).find("td").eq(5).html()          
      var   location = L.circleMarker([latitude,longitude], {radius: 50,color:'green'});
@@ -354,7 +348,10 @@ var locations=[1]
       //  $(tr).find("td").css('background-color','white')
      //   $(".testBox").append('<p class="box">' + value + '</p>');
      console.log(tr)
- 
+     console.log("hole")
+    //var s = $("table tbody > tr:nth-child("+(index+2)+")").position();
+
+     
     //var myFeatureGroup = L.featureGroup().addTo(mymap);
     //console.log(myFeatureGroup.getLayers())
     //myFeatureGroup.clearLayers();
@@ -364,22 +361,35 @@ var locations=[1]
 
    
   
+  // var w = $(window);
+//w.scrollTop( $(tr).offset().top - (w.height()/3) );
+
 
 
    $(tr).find("td").css('background-color','green')
 
+
+   var s =$("table tr").eq(index-1).position();
+   // console.log("table tbody > tr:nth-child("+(index+2)+")",s)
+  
+if(s){
+$( '#tabla-instalaciones' ).scrollTop( s.top );
+}
+
 if (index==$("table tr").length-1){
     $("table tr").eq(index).find("td").css('background-color','white')
     mymap.removeLayer(locations[locations.length-1]);
+ 
+
+
     loop();
 }
-   
 
-      }, count * 2000)
+      }, count * 2500)
      //esto se hace acá pues no es asincrono, la funcion se llama automaticamente con todos los tiempos como corresponden
       count++;
-    console.log("hole")
-    
+
+
   
   });
 }
