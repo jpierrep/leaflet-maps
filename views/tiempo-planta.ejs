@@ -31,10 +31,28 @@ crossorigin=""></script>
      
      <link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css"/>
      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+     
+     
+     
+<link rel="stylesheet" href="/label/libs/leaflet/leaflet.css" />
+<!--[if lte IE 8]><link rel="stylesheet" href="../libs/leaflet/leaflet.ie.css" /><![endif]-->
+<link rel="stylesheet" href="/label/dist/leaflet.label.css" />
+
+<script src="/label/libs/leaflet/leaflet-src.js"></script>
+
+<script src="/label/src/Label.js"></script>
+<script src="/label/src/BaseMarkerMethods.js"></script>
+<script src="/label/src/Marker.Label.js"></script>
+<script src="/label/src/CircleMarker.Label.js"></script>
+<script src="/label/src/Path.Label.js"></script>
+<script src="/label/src/Map.Label.js"></script>
+<script src="/label/src/FeatureGroup.Label.js"></script>
+     
      <style>
          html,
 body {
     height: 100%;
+    font-size: medium;
 }
  /*#mymap{width:1600px;height:800px} */
  #mymap{
@@ -65,14 +83,16 @@ body {
 
 }
 
-.table-responsive{
-  height:180px; width:50%;
-  overflow-y: auto;
-  border:2px solid #444;
-}.table-responsive:hover{border-color:red;}
-
 table{width:100%;}
 td{padding:24px; background:#eee;}
+
+/*Para que el header de la tabla sea fijo*/
+thead tr:nth-child(1) th{
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
       
     </style>
 
@@ -95,7 +115,7 @@ td{padding:24px; background:#eee;}
     <div class="row justify-content-center h-100">
         <div class="col-4 hidden-md-down " style="overflow-y:auto;" id="yellow">
             <!--<div class="col-4 hidden-md-down" >  -->
-            XXXX
+          
             <div id="tabla-instalaciones" style=" height: 600px; overflow: auto;" >
                 <table class="table table-hover" >
                     <thead>
@@ -114,7 +134,7 @@ td{padding:24px; background:#eee;}
                      
                       <% for (var x = 0;x < infoSupervisor['data_instalaciones'].length;x++){ %>
                         <tr>
-                            <td><%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%></td>
+                            <td> <a href="http://192.168.100.141/TouchServer/embed.html##NewLink?arg1=<%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%>"><%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%></a> </td>
                             <td><%=infoSupervisor['data_instalaciones'][x]['cencos_nombre']%></td>
                             <td><%=(parseFloat(infoSupervisor['data_instalaciones'][x]['DURACION'])).toFixed(1)%></td>
                             <td><%=infoSupervisor['data_instalaciones'][x]['CANT_AUDITORIAS']%></td>
@@ -131,7 +151,7 @@ td{padding:24px; background:#eee;}
           </div>
 
       <div class="col-10 col-sm-10 col-md-10 col-lg-8 col-xl-8">
-        Form Goes Here
+      
         <div id="mymap"></div>
       </div>
     </div>
@@ -313,12 +333,22 @@ var customLayerVolumen = L.geoJson(getTest, {
                 ,onEachFeature:function(feature,layer){
                     console.log("holaa")  
                     var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> <br> Supervisor: `   +feature.properties.administrativo_nombre+`</p>`
-                layer.bindPopup(label).openPopup(); 
-                }
+               // layer.bindPopup(label).openPopup(); 
+               layer.bindLabel(feature.properties.cenco2_codi, { noHide: true })   
+              }
                 
                 }).addTo(mymap);
                 mymap.fitBounds(customLayer.getBounds());
 
+
+
+                let tabledata= []
+                $("table tr").each(function(index,tr) {
+                tabledata.push($("table tr").eq(index).position())
+                
+
+                })
+            
 
 
 loop();
@@ -344,7 +374,8 @@ var locations=[1]
       mymap.removeLayer(locations[locations.length-2]);
       // marker2.removeFrom(map)
 
-        $("table tr").eq(index-1).find("td").css('background-color','white')
+      $("table tr").eq(index-1).find("td").css('background-color','white')
+        $("table tr").eq(index-1).find("td").css('color','black')
       //  $(tr).find("td").css('background-color','white')
      //   $(".testBox").append('<p class="box">' + value + '</p>');
      console.log(tr)
@@ -367,21 +398,28 @@ var locations=[1]
 
 
    $(tr).find("td").css('background-color','green')
+   $(tr).find("td").css('color','white')
 
 
-   var s =$("table tr").eq(index-1).position();
+   //var s =$("table tr").eq(index+1).position();
+  // var s =$("table tr").eq(index+1).position();
+   var s=tabledata[index-1]
+
    // console.log("table tbody > tr:nth-child("+(index+2)+")",s)
-  
+   console.log("Index actual",index)
+   console.log("Index",$("table tr").eq(index).position())
+   console.log("table aa",$( '#tabla-instalaciones' ).prop("scrollHeight"))
+   console.log("tabledata",tabledata)
+   //debugger;
+  // $( '#tabla-instalaciones' ).scrollTop(300);
 if(s){
-$( '#tabla-instalaciones' ).scrollTop( s.top );
+$( '#tabla-instalaciones' ).scrollTop(s.top);
 }
 
 if (index==$("table tr").length-1){
     $("table tr").eq(index).find("td").css('background-color','white')
+    $("table tr").eq(index).find("td").css('color','black')
     mymap.removeLayer(locations[locations.length-1]);
- 
-
-
     loop();
 }
 
