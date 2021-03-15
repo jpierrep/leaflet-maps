@@ -205,6 +205,7 @@ $el.hover(stop, anim);
 
 
 var getTest =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assigned to getTest which will only work on browsers
+var infoSupervisor= JSON.parse('<%-JSON.stringify(infoSupervisor)%>') 
            console.log(getTest);  // successfully prints 101 on browser
             console.log("test")
             var mymap = L.map('mymap'
@@ -263,6 +264,7 @@ var getTest =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assi
 
 
 var baseRadius=8
+var maxRadius=30
 
 
 
@@ -279,7 +281,8 @@ var customLayerVolumen = L.geoJson(getTest, {
                     duracion_ajust=1
                 let geojsonMarkerOptions = {
                     stroke:false,
-                radius: baseRadius+duracion_ajust*1.8,
+               // radius: baseRadius+duracion_ajust*1.8,
+                radius:baseRadius+(baseRadius+(maxRadius-baseRadius)*(feature.properties.DURACION-0.25)/(infoSupervisor["max_duracion"]-0.25)),
              //   fillColor: colorRadio,
                 fillColor:"green",
                 color:  'black',
@@ -366,7 +369,7 @@ var locations=[1]
 
         var longitude=  $(tr).find("td").eq(6).html()  
    var latitude=$(tr).find("td").eq(5).html()          
-     var   location = L.circleMarker([latitude,longitude], {radius: 50,color:'green'});
+     var   location = L.circleMarker([latitude,longitude], {radius: 50,color:'black'});
              location.addTo(mymap)
              locations.push(location)
              console.log(locations)
@@ -397,7 +400,7 @@ var locations=[1]
 
 
 
-   $(tr).find("td").css('background-color','green')
+   $(tr).find("td").css('background-color','black')
    $(tr).find("td").css('color','white')
 
 

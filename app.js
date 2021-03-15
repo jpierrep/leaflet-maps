@@ -52,11 +52,12 @@ app.get("/tiempo-planta/supervisor/:id",async  function (req, res) {
   console.log("he")
   console.log("id",req.params.id)
 let dataMap=await getDataTiempoPlantaSupervisor(req.params.id)
+let max_duracion=Math.max(...dataMap.map(x=>parseFloat(x["DURACION"])))
 
 let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
 let supervisor_id=req.params.id
-let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap}
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,max_duracion:max_duracion}
 
 //console.log(dataMap)
 //var geoJSON= createGeoJSON(dataMap);
