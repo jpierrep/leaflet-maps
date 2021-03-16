@@ -273,7 +273,11 @@ var maxRadius=30
 
 var customLayerVolumen = L.geoJson(getTest, {
                 pointToLayer : function(feature,latlng){
-                
+                let radius=0
+                  if(feature.properties.DURACION>0){
+                    radius=baseRadius+(baseRadius+(maxRadius-baseRadius)*(feature.properties.DURACION-0.25)/(infoSupervisor["max_duracion"]-0.25))
+                }
+               
                     console.log("hii")
                     //duracion tiene valor 0,121 ej 
                     let duracion_ajust=feature.properties.DURACION
@@ -282,7 +286,7 @@ var customLayerVolumen = L.geoJson(getTest, {
                 let geojsonMarkerOptions = {
                     stroke:false,
                // radius: baseRadius+duracion_ajust*1.8,
-                radius:baseRadius+(baseRadius+(maxRadius-baseRadius)*(feature.properties.DURACION-0.25)/(infoSupervisor["max_duracion"]-0.25)),
+                radius:radius,
              //   fillColor: colorRadio,
                 fillColor:"green",
                 color:  'black',
