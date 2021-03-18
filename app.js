@@ -7,6 +7,7 @@ var path=require('path');
 var sql = require("mssql");
 var stringify = require('json-stringify');
 const plantilla_websites = require('./controllers/template-endopoints');
+const fs = require('fs');
 
 // config for your database
 var config = {
@@ -84,6 +85,91 @@ console.log(geoJSON)
 
   res.render("tiempo-planta.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
 })
+
+
+app.get("/nc-pendientes/supervisor/:id",async  function (req, res) {
+ 
+  console.log("he")
+  console.log("id",req.params.id)
+let dataMap=await getNCPendientes(req.params.id)
+
+let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
+let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
+let supervisor_id=req.params.id
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,}
+
+//console.log(dataMap)
+//var geoJSON= createGeoJSON(dataMap);
+
+let geoJSON= dataMap.map(element=>{
+  return {"type":"Feature",
+
+  "geometry": {
+  "type": "Point",
+  "coordinates": [element.longitude,element.latitude],
+
+
+  }
+  ,"properties": {
+ 
+      "Group":"a","name":element.planta_nombre,"cenco2_codi":element.cencos_codigo
+  ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id
+  ,"MAT_DESC":element.MAT_DESC,"FECHA_VISITA":element.FECHA_VISITA
+  ,"5055":element.FECHA_VISITA
+  ,"5065":element.MAT_ID //otro
+  ,"5074":element.MAT_ID //categoria
+}
+  };
+
+
+
+});
+console.log(geoJSON)
+
+
+let lookupCAtegory={
+  name:"materia_id"
+  ,lookup:{
+  
+   "7":	"Certificacion.",
+   "8":	"Laboral.",
+   "9":"Logistica.",
+   "10":	"Operaciones.",
+   "11":	"Prevención Riesgos.",
+   "12":	"Comercial.",
+  }
+
+ }
+
+ let lookupOtro={
+   name:"otro"
+   ,lookup:{
+   
+    "7":	"Certificacion.",
+    "8":	"Laboral.",
+    "9":"Logistica.",
+    "10":	"Operaciones.",
+    "11":	"Prevención Riesgos.",
+    "12":	"Comercial.",
+   }
+
+  }
+
+ geoJSON={type:"FeatureCollection",features:geoJSON}
+
+geoJSON["properties"]={"fields":{
+  "5055":{name:"Date"},
+  "5065":lookupOtro,
+  "5074":lookupCAtegory
+}
+}
+
+let data = JSON.stringify(geoJSON);
+//escribe para prueba del json
+fs.writeFileSync('testData.json', data);
+  res.render("nc-pendientes.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
+})
+
 
 
 app.get("/plantilla-websites/:tipo",async  function (req, res) {
@@ -411,6 +497,63 @@ SELECT ID_SUP,ID_PLANTA, SUM(DURACION) as DURACION,count(*) as CANT_VISITAS
   --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
   and p.nombre is not null
   and latitude is not null
+  and administrativo_id=`+idSupervisor
+  
+  ;
+  
+  return new Promise(resolve=>{
+
+      entrega_resultDB(query).then(result=>{
+    
+        resolve(result);
+
+      });
+
+  });
+
+}
+
+
+function getNCPendientes(idSupervisor){
+
+  let query=`  
+
+  select 
+  cc.empresa_id,cc.cencos_codigo,cc.cencos_nombre,p.nombre as planta_nombre,latitude,longitude,administrativo_id,administrativo_nombre
+  ,zona_nombre
+  ,nc.FECHA_VISITA
+  ,nc.MAT_DESC
+  ,nc.MAT_ID
+  from
+  SISTEMA_CENTRAL.dbo.centros_costos as cc
+  left join [BI-SERVER-01].Inteligencias.dbo.SIST_CENTRAL_ESTR_ORGANIZACION as estr
+  on cc.cencos_codigo=estr.cencos_codigo and cc.empresa_id=estr.empresa_id
+  left join SISTEMA_CENTRAL.dbo.plantas as p on p.centro_costos_id=cc.id
+  
+    left join (
+SELECT 
+    nc.ID_NC
+	,FECHA_VISITA
+     ,ID_PLANTA
+	 ,mat.MAT_DESC
+	 ,mat.MAT_ID
+  FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_NOCONFORMIDADES] as nc
+  left join NC_MATERIAS as mat
+  on mat.SUBMAT_ID=nc.SUBMAT_ID
+  where NC_ESTADO='pendiente'
+  and FECHA_VISITA>= DATEadd(dd,-30,getdate())
+  and mat.MAT_DESC like '%.%'
+) as nc
+    on nc.ID_PLANTA=p.id
+
+
+  where cc.deleted_at is null and p.deleted_at is null
+  and cc.empresa_id=0
+  and administrativo_nombre is not null
+  --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
+  and p.nombre is not null
+  and latitude is not null
+  and FECHA_VISITA is not null
   and administrativo_id=`+idSupervisor
   
   ;
