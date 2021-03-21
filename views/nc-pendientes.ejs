@@ -11,6 +11,8 @@
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js'></script>
 <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
+<h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
+
 <div id="container">
   <div id="map" />
 </div>
@@ -43,13 +45,15 @@
      // if (!error) {
          // geojson = data;
          geojson =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assigned to getTest which will only work on browsers
-          metadata = geojson.properties;
+      var   plantasGeoJSON =  JSON.parse('<%-JSON.stringify(plantasGeoJSON)%>')
+         
+         metadata = geojson.properties;
           var markers = L.geoJson(geojson, {
 			pointToLayer: defineFeature,
 			onEachFeature: defineFeaturePopup
           });
           markerclusters.addLayer(markers);
-          map.fitBounds(markers.getBounds());
+       //***********************   map.fitBounds(markers.getBounds());
           map.attributionControl.addAttribution(metadata.attribution);
           renderLegend();
      // } else {
@@ -183,8 +187,8 @@ function renderLegend() {
         
     var heading = legenddiv.append('div')
         .classed('legendheading', true)
-        .text(metadata.fields[categoryField].name);
-
+      //  .text(metadata.fields[categoryField].name);
+     .text('Materias');
     var legenditems = legenddiv.selectAll('.legenditem')
         .data(data);
         
@@ -205,5 +209,45 @@ function serializeXmlNode(xmlNode) {
     }
     return "";
 }
+
+
+//MARCADORES DE PLANTAS
+let baseRadius=8
+var customLayer = L.geoJson(plantasGeoJSON, {
+                pointToLayer : function(feature,latlng){
+                    console.log("hii") 
+                let geojsonMarkerOptions = {
+                radius: baseRadius,
+             //   fillColor: colorRadio,
+                  fillColor:'blue',
+                color:  'red',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+                };
+
+             /*   if (feature.properties.CANT_AUDITORIAS==0){
+                    if (feature.properties.CANT_VISITAS>0){
+                    geojsonMarkerOptions.fillColor='yellow'
+                }else{
+                    geojsonMarkerOptions.fillColor='red'
+                }
+                }
+*/
+                   
+
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+                }
+                ,onEachFeature:function(feature,layer){
+                    console.log("holaa")  
+                    var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> <br> Supervisor: `   +feature.properties.administrativo_nombre+`</p>`
+               // layer.bindPopup(label).openPopup(); 
+             //////////////////////////  layer.bindLabel(feature.properties.cenco2_codi, { noHide: true })   
+              }
+                
+                }).addTo(map);
+                map.fitBounds(customLayer.getBounds());
+
+
 
 </script>

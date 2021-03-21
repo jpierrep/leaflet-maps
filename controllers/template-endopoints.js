@@ -13,7 +13,7 @@ let plantilla={
   ]
 }
 
-let urlBase="http://192.168.0.158:8000"
+let urlBase="http://localhost:8000"
 
 
 

@@ -91,15 +91,38 @@ app.get("/nc-pendientes/supervisor/:id",async  function (req, res) {
  
   console.log("he")
   console.log("id",req.params.id)
+  let supervisor_id=req.params.id
 let dataMap=await getNCPendientes(req.params.id)
+let dataPlantas=(await getPlantas()).filter(x=>x["administrativo_id"]==supervisor_id)
 
-let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
-let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
-let supervisor_id=req.params.id
+let supervisor_nombre=getUniqueProp(dataPlantas,'administrativo_nombre')
+let supervisor_zona=getUniqueProp(dataPlantas,'zona_nombre').join(', ');
+console.log(supervisor_nombre,supervisor_zona)
+
 let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,}
 
 //console.log(dataMap)
 //var geoJSON= createGeoJSON(dataMap);
+//console.log(infoSupervisor)
+
+
+let plantasGeoJSON= dataPlantas.map(element=>{
+  return {"type":"Feature",
+
+  "geometry": {
+  "type": "Point",
+  "coordinates": [element.longitude,element.latitude],
+
+
+  }
+  ,"properties": {
+ 
+      "Group":"a","name":element.nombre,"cenco2_codi":element.cenco2_codi
+  ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id
+}
+  };
+
+});
 
 let geoJSON= dataMap.map(element=>{
   return {"type":"Feature",
@@ -124,7 +147,8 @@ let geoJSON= dataMap.map(element=>{
 
 
 });
-console.log(geoJSON)
+//console.log(geoJSON)
+
 
 
 let lookupCAtegory={
@@ -167,7 +191,7 @@ geoJSON["properties"]={"fields":{
 let data = JSON.stringify(geoJSON);
 //escribe para prueba del json
 fs.writeFileSync('testData.json', data);
-  res.render("nc-pendientes.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
+  res.render("nc-pendientes.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor,plantasGeoJSON:plantasGeoJSON});
 })
 
 
@@ -285,7 +309,7 @@ let unique = (value, index, self) => {
 async function getPlantas(){
     let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
     ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
-    ,ci.CENCO2_CODI as cenco2_codi
+    ,ci.CENCO2_CODI as cenco2_codi,estr.zona_nombre
         FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
         on p.centro_costos_id=cc.id
         left join [BI-SERVER-01].Inteligencias.dbo.VIEW_CENTROS_COSTO as ci
