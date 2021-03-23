@@ -13,9 +13,61 @@
 
 <h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
 
-<div id="container">
+
   <div id="map" />
+
+
+  
+<div class="container-fluid h-100">
+  <div class="row justify-content-center h-100">
+      <div class="col-4 hidden-md-down " style="overflow-y:auto;" id="yellow">
+          <!--<div class="col-4 hidden-md-down" >  -->
+        
+          <div id="tabla-instalaciones" style=" height: 600px; overflow: auto;" >
+              <table class="table table-hover" >
+                  <thead>
+                    <tr>
+                      <th scope="col">CODIGO</th>
+                      <th scope="col">INSTALACION</th>
+                      <th scope="col">DURACION</th>
+                      <th scope="col">AUDITORIAS</th>
+                      <th scope="col">VISITAS</th>
+                      <th  style="display: none;"scope="col">Longitud</th>
+                      <th style="display: none;" scope="col"> Latitud</th>
+                     
+                    </tr>
+                  </thead>
+                  <tbody>
+                   
+                    <% for (var x = 0;x < infoSupervisor['data_instalaciones'].length;x++){ %>
+                      <tr>
+                          <td> <a href="http://192.168.100.141/TouchServer/embed.html##NewLink?arg1=<%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%>"><%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%></a> </td>
+                          <td><%=infoSupervisor['data_instalaciones'][x]['cencos_nombre']%></td>
+                          <td><%=(parseFloat(infoSupervisor['data_instalaciones'][x]['DURACION'])).toFixed(1)%></td>
+                          <td><%=infoSupervisor['data_instalaciones'][x]['CANT_AUDITORIAS']%></td>
+                          <td><%=infoSupervisor['data_instalaciones'][x]['CANT_VISITAS']%></td>
+                          <td style="display: none;"><%=infoSupervisor['data_instalaciones'][x]['latitude']%></td>
+                          <td style="display: none;"><%=infoSupervisor['data_instalaciones'][x]['longitude']%></td>
+
+                        </tr>
+                      <% }  %>  
+                  </tbody>
+                </table>
+              
+              </div>
+        </div>
+
+    <div class="col-10 col-sm-10 col-md-10 col-lg-8 col-xl-8">
+    
+      <div id="mymap"></div>
+    </div>
+  </div>
 </div>
+
+
+
+
+
 <script>
   "use strict"
   var geojson,
