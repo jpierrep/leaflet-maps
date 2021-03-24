@@ -129,9 +129,9 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
                     <tr>
                       <th scope="col">CODIGO</th>
                       <th scope="col">INSTALACION</th>
-                      <th scope="col">DURACION</th>
-                      <th scope="col">AUDITORIAS</th>
-                      <th scope="col">VISITAS</th>
+                      <th scope="col">NC PEND.</th>
+                      <th scope="col">NC ULT. MES</th>
+                      <th scope="col">NC RES. ULT. MES</th>
                       <th  style="display: none;"scope="col">Longitud</th>
                       <th style="display: none;" scope="col"> Latitud</th>
                      
@@ -139,15 +139,15 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
                   </thead>
                   <tbody>
                    
-                    <% for (var x = 0;x < infoSupervisor['data_instalaciones'].length;x++){ %>
+                    <% for (var x = 0;x < infoSupervisor['dataNCSupervisor'].length;x++){ %>
                       <tr>
-                          <td> <a href="http://192.168.100.141/TouchServer/embed.html##NewLink?arg1=<%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%>"><%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%></a> </td>
-                          <td><%=infoSupervisor['data_instalaciones'][x]['cencos_nombre']%></td>
-                          <td><%=(parseFloat(infoSupervisor['data_instalaciones'][x]['DURACION'])).toFixed(1)%></td>
-                          <td><%=infoSupervisor['data_instalaciones'][x]['CANT_AUDITORIAS']%></td>
-                          <td><%=infoSupervisor['data_instalaciones'][x]['CANT_VISITAS']%></td>
-                          <td style="display: none;"><%=infoSupervisor['data_instalaciones'][x]['latitude']%></td>
-                          <td style="display: none;"><%=infoSupervisor['data_instalaciones'][x]['longitude']%></td>
+                          <td> <a href="http://192.168.100.141/TouchServer/embed.html##NewLink?arg1=<%=infoSupervisor['dataNCSupervisor'][x]['cencos_codigo']%>"><%=infoSupervisor['dataNCSupervisor'][x]['cencos_codigo']%></a> </td>
+                          <td><%=infoSupervisor['dataNCSupervisor'][x]['planta_nombre']%></td>
+                          <td><%=infoSupervisor['dataNCSupervisor'][x]['CANT_NC_PENDIENTES']%></td>
+                          <td><%=infoSupervisor['dataNCSupervisor'][x]['CANT_NC_ULT_MES']%></td>
+                          <td><%=infoSupervisor['dataNCSupervisor'][x]['CANT_NC_RES_ULT_MES']%></td>
+                          <td style="display: none;"><%=infoSupervisor['dataNCSupervisor'][x]['latitude']%></td>
+                          <td style="display: none;"><%=infoSupervisor['dataNCSupervisor'][x]['longitude']%></td>
 
                         </tr>
                       <% }  %>  

@@ -92,14 +92,19 @@ app.get("/nc-pendientes/supervisor/:id",async  function (req, res) {
   console.log("he")
   console.log("id",req.params.id)
   let supervisor_id=req.params.id
-let dataMap=await getNCPendientes(req.params.id)
+  //data todas las no conformidades pendientes para agrupar en el mapa
+let dataMap=await getNCPendientes(req.params.id) 
+//data para mostrar en tabla
+let dataNCSupervisor=await getDataNCSupervisor(req.params.id)
+
+//data de todas las plantas para añadir pin e info si fuese necesario
 let dataPlantas=(await getPlantas()).filter(x=>x["administrativo_id"]==supervisor_id)
 
 let supervisor_nombre=getUniqueProp(dataPlantas,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataPlantas,'zona_nombre').join(', ');
 console.log(supervisor_nombre,supervisor_zona)
 
-let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,}
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,dataNCSupervisor:dataNCSupervisor}
 
 //console.log(dataMap)
 //var geoJSON= createGeoJSON(dataMap);
@@ -401,7 +406,7 @@ function getResumenSupervisor(){
   select 
   cc.empresa_id,cc.cencos_codigo,cc.cencos_nombre,p.nombre as planta_nombre,latitude,longitude,administrativo_id,administrativo_nombre
   ,ISNULL(auditorias.cant_auditorias,0) as CANT_AUDITORIAS,ISNULL(nc_pendientes.cant_nc_pendientes,0) as CANT_NC_PENDIENTES
-  ,ISNULL(nc_ult_meses.cant_nc_ult_meses,0) as CANT_NC_ULT_MESES,ISNULL(nc_res_ult_meses.cant_nc_res_ult_meses,0) as CANT_NC_RES_ULT_MESES
+  ,ISNULL(nc_ult_mes.cant_nc_ult_mes,0) as CANT_NC_ULT_MES,ISNULL(nc_res_ult_mes.cant_nc_res_ult_mes,0) as CANT_NC_RES_ULT_MES
   ,zona_nombre
   from
   SISTEMA_CENTRAL.dbo.centros_costos as cc
@@ -412,42 +417,41 @@ function getResumenSupervisor(){
   left join (
   --auditorias ultimos 30 dias
   SELECT 
-  CENCO2_CODI,count(*) as cant_auditorias
+  ID_PLANTA,count(*) as cant_auditorias
     FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_VISITAS]
     where ESTADO='completada'
     and INICIO between dateadd(dd,-30,GETDATE()) and  getdate()
-    group by  CENCO2_CODI) as auditorias
-    on auditorias.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI=cc.cencos_codigo 
-  
+    group by  ID_PLANTA) as auditorias
+    on auditorias.ID_PLANTA= p.id
   left join (
   
   --nc pendientes
-  SELECT CENCO2_CODI,count (distinct id_nc) as cant_nc_pendientes
+  SELECT ID_PLANTA,count (distinct id_nc) as cant_nc_pendientes
     FROM  [BI-SERVER-01].[Inteligencias].[dbo].[NC_NOCONFORMIDADES]
   
-    where NC_ESTADO in ('pendiente','ejecutada')
-    group by CENCO2_CODI) as nc_pendientes
-    on nc_pendientes.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI=cc.cencos_codigo 
+    where NC_ESTADO in ('pendiente')
+    group by ID_PLANTA) as nc_pendientes
+    on nc_pendientes.ID_PLANTA =p.id
   
     left join (
   
-    --nc ingresadas ultimos 60 dias
-    SELECT CENCO2_CODI,count (distinct id_nc) as cant_nc_ult_meses
+    --nc ingresadas ultimos 30 dias
+    SELECT ID_PLANTA,count (distinct id_nc) as cant_nc_ult_mes
     FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_NOCONFORMIDADES]
     where accion='pendiente'
-    and FECHA_NC_HISTORIAL between dateadd(dd,-60,GETDATE()) and  getdate()
-      group by CENCO2_CODI) as nc_ult_meses
-    on nc_ult_meses.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI=cc.cencos_codigo 
+    and FECHA_NC_HISTORIAL between dateadd(dd,-30,GETDATE()) and  getdate()
+      group by ID_PLANTA) as nc_ult_mes
+     on nc_ult_mes.ID_PLANTA =p.id
   
       left join (
   
-      select CENCO2_CODI,count (distinct id_nc) as cant_nc_res_ult_meses
+      select ID_PLANTA,count (distinct id_nc) as cant_nc_res_ult_mes
   
     FROM [Inteligencias].[dbo].[NC_NOCONFORMIDADES]
-    where  FECHA_NC_HISTORIAL between dateadd(dd,-60,GETDATE()) and  getdate()
+    where  FECHA_NC_HISTORIAL between dateadd(dd,-30,GETDATE()) and  getdate()
     and accion in ('Validada en terreno','Validada por jefatura','validada')
-     group by CENCO2_CODI) as nc_res_ult_meses
-    on nc_res_ult_meses.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI=cc.cencos_codigo 
+     group by ID_PLANTA) as nc_res_ult_mes
+    on nc_res_ult_mes.ID_PLANTA=p.id
   
   
   where cc.deleted_at is null and p.deleted_at is null
@@ -456,6 +460,7 @@ function getResumenSupervisor(){
   --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
   and p.nombre is not null
   and latitude is not null
+  -- and administrativo_id=11518709 
   and administrativo_id=`+idSupervisor
   
   ;
@@ -555,7 +560,7 @@ function getNCPendientes(idSupervisor){
   left join SISTEMA_CENTRAL.dbo.plantas as p on p.centro_costos_id=cc.id
   
     left join (
-SELECT 
+SELECT distinct --distinct porque acá también vienen los comentarios
     nc.ID_NC
 	,FECHA_VISITA
      ,ID_PLANTA
@@ -565,7 +570,7 @@ SELECT
   left join NC_MATERIAS as mat
   on mat.SUBMAT_ID=nc.SUBMAT_ID
   where NC_ESTADO='pendiente'
-  and FECHA_VISITA>= DATEadd(dd,-30,getdate())
+ -- and FECHA_VISITA>= DATEadd(dd,-30,getdate())
   and mat.MAT_DESC like '%.%'
 ) as nc
     on nc.ID_PLANTA=p.id
