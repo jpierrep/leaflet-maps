@@ -47,6 +47,46 @@ console.log(geoJSON)
   res.render("no-conformidades.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
 })
 
+app.get("/visitas-pendientes/supervisor/:id",async  function (req, res) {
+ 
+  console.log("he")
+  console.log("id",req.params.id)
+let dataMap=await getVisitasPendientes(req.params.id)
+
+let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
+let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
+let supervisor_id=req.params.id
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap}
+
+//console.log(dataMap)
+//var geoJSON= createGeoJSON(dataMap);
+
+let geoJSON= dataMap.map(element=>{
+  return {"type":"Feature",
+
+  "geometry": {
+  "type": "Point",
+  "coordinates": [element.longitude,element.latitude],
+
+
+  }
+  ,"properties": {
+ 
+      "Group":"a","name":element.planta_nombre,"cenco2_codi":element.cencos_codigo
+  ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id
+  ,"fecha_visita_pendiente":element.FECHA 
+}
+  };
+
+});
+console.log(geoJSON)
+
+  res.render("visitas-pendientes.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
+})
+
+
+
+
 
 app.get("/tiempo-planta/supervisor/:id",async  function (req, res) {
  
@@ -542,6 +582,52 @@ SELECT ID_SUP,ID_PLANTA, SUM(DURACION) as DURACION,count(*) as CANT_VISITAS
 
 }
 
+
+
+function getVisitasPendientes(idSupervisor){
+
+  let query=`  
+
+  select 
+  cc.empresa_id,cc.cencos_codigo,cc.cencos_nombre,p.nombre as planta_nombre,latitude,longitude,estr.administrativo_id,administrativo_nombre
+  ,zona_nombre,visit_plani.fecha as FECHA
+
+  from
+  SISTEMA_CENTRAL.dbo.centros_costos as cc
+  left join [BI-SERVER-01].Inteligencias.dbo.SIST_CENTRAL_ESTR_ORGANIZACION as estr
+  on cc.cencos_codigo=estr.cencos_codigo and cc.empresa_id=estr.empresa_id
+  left join SISTEMA_CENTRAL.dbo.plantas as p on p.centro_costos_id=cc.id
+
+  inner join 
+
+  (select * from [BI-SERVER-01].[Inteligencias].[dbo].[NC_VISITAS_PLANIFICACION]  
+
+
+  where
+  fecha between  dateadd(dd,-30,GETDATE()) and  getdate()
+  and cumplimiento=0 
+
+  ) as visit_plani
+   on 
+  visit_plani.planta_id=p.id 
+
+  where 
+  --estr.administrativo_id=12193582
+  estr.administrativo_id=`+idSupervisor
+  
+  ;
+  
+  return new Promise(resolve=>{
+
+      entrega_resultDB(query).then(result=>{
+    
+        resolve(result);
+
+      });
+
+  });
+
+}
 
 function getNCPendientes(idSupervisor){
 
