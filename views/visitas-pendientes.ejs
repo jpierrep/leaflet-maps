@@ -144,8 +144,8 @@ thead tr:nth-child(1) th{
                       <tr>
                         <th scope="col">CODIGO</th>
                         <th scope="col">INSTALACION</th>
-                        <th scope="col">DURACION</th>
-                        <th scope="col">AUDITORIAS</th>
+                        <th scope="col">VISITAS PEND.</th>
+                        <th scope="col">VISITAS REALIZ.</th>
                         <th scope="col">VISITAS</th>
                         <th  style="display: none;"scope="col">Longitud</th>
                         <th style="display: none;" scope="col"> Latitud</th>
@@ -154,15 +154,15 @@ thead tr:nth-child(1) th{
                     </thead>
                     <tbody>
                      
-                      <% for (var x = 0;x < infoSupervisor['data_instalaciones'].length;x++){ %>
+                      <% for (var x = 0;x < infoSupervisor['dataNCSupervisor'].length;x++){ %>
                         <tr>
-                            <td> <a href="http://192.168.100.141/TouchServer/embed.html##NewLink?arg1=<%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%>"><%=infoSupervisor['data_instalaciones'][x]['cencos_codigo']%></a> </td>
-                            <td><%=infoSupervisor['data_instalaciones'][x]['cencos_nombre']%></td>
-                            <td><%=(parseFloat(infoSupervisor['data_instalaciones'][x]['DURACION'])).toFixed(1)%></td>
-                            <td><%=infoSupervisor['data_instalaciones'][x]['CANT_AUDITORIAS']%></td>
-                            <td><%=infoSupervisor['data_instalaciones'][x]['CANT_VISITAS']%></td>
-                            <td style="display: none;"><%=infoSupervisor['data_instalaciones'][x]['latitude']%></td>
-                            <td style="display: none;"><%=infoSupervisor['data_instalaciones'][x]['longitude']%></td>
+                            <td> <a href="http://192.168.100.141/TouchServer/embed.html##NewLink?arg1=<%=infoSupervisor['dataNCSupervisor'][x]['cencos_codigo']%>"><%=infoSupervisor['dataNCSupervisor'][x]['cencos_codigo']%></a> </td>
+                            <td><%=infoSupervisor['dataNCSupervisor'][x]['cencos_nombre']%></td>
+                            <td><%=infoSupervisor['dataNCSupervisor'][x]['CANT_VISITAS_PENDIENTES']%></td>
+                            <td><%=infoSupervisor['dataNCSupervisor'][x]['CANT_VISITAS_REALIZADAS']%></td>
+                            <td><%=infoSupervisor['dataNCSupervisor'][x]['CANT_VISITAS_PENDIENTES']%></td>
+                            <td style="display: none;"><%=infoSupervisor['dataNCSupervisor'][x]['latitude']%></td>
+                            <td style="display: none;"><%=infoSupervisor['dataNCSupervisor'][x]['longitude']%></td>
 
                           </tr>
                         <% }  %>  
@@ -228,6 +228,7 @@ $el.hover(stop, anim);
 
 var getTest =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assigned to getTest which will only work on browsers
 var infoSupervisor= JSON.parse('<%-JSON.stringify(infoSupervisor)%>') 
+var   plantasGeoJSON =  JSON.parse('<%-JSON.stringify(plantasGeoJSON)%>')
            console.log(getTest);  // successfully prints 101 on browser
             console.log("test")
             var mymap = L.map('mymap'
@@ -353,7 +354,7 @@ var geoJsonData = {
 
 ////////////
 
-                var customLayer = L.geoJson(getTest, {
+                var customLayer = L.geoJson(plantasGeoJSON, {
                 pointToLayer : function(feature,latlng){
                     console.log("hii") 
                 let geojsonMarkerOptions = {

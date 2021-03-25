@@ -47,19 +47,41 @@ console.log(geoJSON)
   res.render("no-conformidades.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
 })
 
+
+/******************** */
 app.get("/visitas-pendientes/supervisor/:id",async  function (req, res) {
  
   console.log("he")
   console.log("id",req.params.id)
+  //data visitas pendientes para cluster
 let dataMap=await getVisitasPendientes(req.params.id)
-
-let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
-let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
+//data para tabla
+let dataNCSupervisor=await getDataNCSupervisor(req.params.id)
+let supervisor_nombre=getUniqueProp(dataNCSupervisor,'administrativo_nombre')
+let supervisor_zona=getUniqueProp(dataNCSupervisor,'zona_nombre').join(', ');
 let supervisor_id=req.params.id
-let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap}
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,dataNCSupervisor:dataNCSupervisor}
 
-//console.log(dataMap)
-//var geoJSON= createGeoJSON(dataMap);
+
+
+let plantasGeoJSON= dataNCSupervisor.map(element=>{
+  return {"type":"Feature",
+
+  "geometry": {
+  "type": "Point",
+  "coordinates": [element.longitude,element.latitude],
+
+
+  }
+  ,"properties": {
+ 
+      "Group":"a","name":element.planta_nombre,"cenco2_codi":element.cencos_codigo
+  ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id
+}
+  };
+
+});
+
 
 let geoJSON= dataMap.map(element=>{
   return {"type":"Feature",
@@ -81,7 +103,7 @@ let geoJSON= dataMap.map(element=>{
 });
 console.log(geoJSON)
 
-  res.render("visitas-pendientes.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
+  res.render("visitas-pendientes.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor,plantasGeoJSON:plantasGeoJSON });
 })
 
 
@@ -109,7 +131,6 @@ let geoJSON= dataMap.map(element=>{
   "geometry": {
   "type": "Point",
   "coordinates": [element.longitude,element.latitude],
-
 
   }
   ,"properties": {
@@ -448,6 +469,8 @@ function getResumenSupervisor(){
   ,ISNULL(auditorias.cant_auditorias,0) as CANT_AUDITORIAS,ISNULL(nc_pendientes.cant_nc_pendientes,0) as CANT_NC_PENDIENTES
   ,ISNULL(nc_ult_mes.cant_nc_ult_mes,0) as CANT_NC_ULT_MES,ISNULL(nc_res_ult_mes.cant_nc_res_ult_mes,0) as CANT_NC_RES_ULT_MES
   ,zona_nombre
+  ,ISNULL(visitas_pendientes.cantidad,0) as CANT_VISITAS_PENDIENTES
+   ,ISNULL(visitas_realizadas.cantidad,0) as CANT_VISITAS_REALIZADAS
   from
   SISTEMA_CENTRAL.dbo.centros_costos as cc
   left join [BI-SERVER-01].Inteligencias.dbo.SIST_CENTRAL_ESTR_ORGANIZACION as estr
@@ -492,7 +515,26 @@ function getResumenSupervisor(){
     and accion in ('Validada en terreno','Validada por jefatura','validada')
      group by ID_PLANTA) as nc_res_ult_mes
     on nc_res_ult_mes.ID_PLANTA=p.id
-  
+	left join
+	(
+  select planta_id,count(*) cantidad from [BI-SERVER-01].[Inteligencias].[dbo].[NC_VISITAS_PLANIFICACION]  
+
+
+  where
+  fecha between  dateadd(dd,-30,GETDATE()) and  getdate()
+  and cumplimiento=0 
+  group by planta_id) as visitas_pendientes
+   on visitas_pendientes.planta_id=p.id
+   left join
+	(
+  select planta_id,count(*) cantidad from [BI-SERVER-01].[Inteligencias].[dbo].[NC_VISITAS_PLANIFICACION]  
+
+
+  where
+  fecha between  dateadd(dd,-30,GETDATE()) and  getdate()
+  and cumplimiento=1
+  group by planta_id) as visitas_realizadas
+   on visitas_realizadas.planta_id=p.id
   
   where cc.deleted_at is null and p.deleted_at is null
   and cc.empresa_id=0
@@ -500,7 +542,6 @@ function getResumenSupervisor(){
   --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
   and p.nombre is not null
   and latitude is not null
-  -- and administrativo_id=11518709 
   and administrativo_id=`+idSupervisor
   
   ;
