@@ -2,6 +2,17 @@
 <head>
   <meta charset="utf-8">
   <title>ClusterPies</title>
+
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+
+
+
   <link rel="stylesheet" href="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7.2/leaflet.css" />
   <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css' rel='stylesheet' />
   <link rel="stylesheet" href="/clusterpies/clusterpies.css"/>
@@ -111,6 +122,7 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
 -->
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js'></script>
 
+<h2 style="margin:0;text-align:center;background-color: black ;color: white;">NO CONFORMIDADES PENDIENTES</h2>
 <h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
 
 
@@ -129,9 +141,9 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
                     <tr>
                       <th scope="col">CODIGO</th>
                       <th scope="col">INSTALACION</th>
-                      <th scope="col">NC PEND.</th>
-                      <th scope="col">NC ULT. MES</th>
-                      <th scope="col">NC RES. ULT. MES</th>
+                      <th scope="col">PEND. TOTALES</th>
+                      <th scope="col">PEND. ULT. MES</th>
+                      <th scope="col">RES. ULT. MES</th>
                       <th  style="display: none;"scope="col">Longitud</th>
                       <th style="display: none;" scope="col"> Latitud</th>
                      
@@ -404,6 +416,104 @@ var customLayer = L.geoJson(plantasGeoJSON, {
                 
                 }).addTo(map);
                 map.fitBounds(customLayer.getBounds());
+
+
+
+               ////script para recorrido dinamico de la tabla 
+
+
+                let tabledata= []
+                $("table tr").each(function(index,tr) {
+                tabledata.push($("table tr").eq(index).position())
+                
+
+                })
+            
+
+
+loop();
+
+
+//crea circulos de color
+function loop() {
+var count=0
+var locations=[1]
+                $("table tr").each(function(index,tr) {
+ console.log("test")
+    
+    
+    setTimeout(function() {
+
+        var longitude=  $(tr).find("td").eq(6).html()  
+   var latitude=$(tr).find("td").eq(5).html()          
+     var   location = L.circleMarker([latitude,longitude], {radius: 50,color:'black'});
+             location.addTo(map)
+             locations.push(location)
+             console.log(locations)
+      
+      map.removeLayer(locations[locations.length-2]);
+      // marker2.removeFrom(map)
+
+      $("table tr").eq(index-1).find("td").css('background-color','white')
+        $("table tr").eq(index-1).find("td").css('color','black')
+      //  $(tr).find("td").css('background-color','white')
+     //   $(".testBox").append('<p class="box">' + value + '</p>');
+     console.log(tr)
+     console.log("hole")
+    //var s = $("table tbody > tr:nth-child("+(index+2)+")").position();
+
+     
+    //var myFeatureGroup = L.featureGroup().addTo(mymap);
+    //console.log(myFeatureGroup.getLayers())
+    //myFeatureGroup.clearLayers();
+   // mymap.removeLayer(myFeatureGroup) 
+    
+   // var circlemark = L.circleMarker([latitude,longitude], {radius: 50,color:'green'}).addTo(myFeatureGroup);
+
+   
+  
+  // var w = $(window);
+//w.scrollTop( $(tr).offset().top - (w.height()/3) );
+
+
+
+   $(tr).find("td").css('background-color','black')
+   $(tr).find("td").css('color','white')
+
+
+   //var s =$("table tr").eq(index+1).position();
+  // var s =$("table tr").eq(index+1).position();
+  
+  //aquí se controla la planta visible en el loop
+  //var s=tabledata[index-1]
+  var s=tabledata[index-2]
+
+   // console.log("table tbody > tr:nth-child("+(index+2)+")",s)
+   console.log("Index actual",index)
+   console.log("Index",$("table tr").eq(index).position())
+   console.log("table aa",$( '#tabla-instalaciones' ).prop("scrollHeight"))
+   console.log("tabledata",tabledata)
+   //debugger;
+  // $( '#tabla-instalaciones' ).scrollTop(300);
+if(s){
+$( '#tabla-instalaciones' ).scrollTop(s.top);
+}
+
+if (index==$("table tr").length-1){
+    $("table tr").eq(index).find("td").css('background-color','white')
+    $("table tr").eq(index).find("td").css('color','black')
+    map.removeLayer(locations[locations.length-1]);
+    loop();
+}
+
+      }, count * 2500)
+     //esto se hace acá pues no es asincrono, la funcion se llama automaticamente con todos los tiempos como corresponden
+      count++;
+
+
+  
+  });
+}
 
 
 

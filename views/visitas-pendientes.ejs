@@ -131,6 +131,7 @@ thead tr:nth-child(1) th{
 <p><%= JSON.stringify(geoJSON[0]) %></p>
 <p><%= infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona'] %></p>
 -->
+<h2 style="margin:0;text-align:center;background-color: black ;color: white;">VISITAS PENDIENTES ULTIMOS 30 DIAS</h2>
 <h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
 
 <div class="container-fluid h-100">
@@ -146,7 +147,7 @@ thead tr:nth-child(1) th{
                         <th scope="col">INSTALACION</th>
                         <th scope="col">VISITAS PEND.</th>
                         <th scope="col">VISITAS REALIZ.</th>
-                        <th scope="col">VISITAS</th>
+                        <th scope="col">CUMPL. (%)</th>
                         <th  style="display: none;"scope="col">Longitud</th>
                         <th style="display: none;" scope="col"> Latitud</th>
                        
@@ -160,7 +161,10 @@ thead tr:nth-child(1) th{
                             <td><%=infoSupervisor['dataNCSupervisor'][x]['cencos_nombre']%></td>
                             <td><%=infoSupervisor['dataNCSupervisor'][x]['CANT_VISITAS_PENDIENTES']%></td>
                             <td><%=infoSupervisor['dataNCSupervisor'][x]['CANT_VISITAS_REALIZADAS']%></td>
-                            <td><%=infoSupervisor['dataNCSupervisor'][x]['CANT_VISITAS_PENDIENTES']%></td>
+                            <td><%=parseInt(infoSupervisor['dataNCSupervisor'][x]['CANT_VISITAS_REALIZADAS']
+                                /(infoSupervisor['dataNCSupervisor'][x]['CANT_VISITAS_PENDIENTES']+infoSupervisor['dataNCSupervisor'][x]['CANT_VISITAS_REALIZADAS']) *100
+                            )
+                                %></td>
                             <td style="display: none;"><%=infoSupervisor['dataNCSupervisor'][x]['latitude']%></td>
                             <td style="display: none;"><%=infoSupervisor['dataNCSupervisor'][x]['longitude']%></td>
 
@@ -345,7 +349,7 @@ var geoJsonData = {
 
 		var geoJsonLayer = L.geoJson(getTest, {
 			onEachFeature: function (feature, layer) {
-				layer.bindPopup(feature.properties.address);
+				layer.bindPopup(feature.properties.fecha_visita_pendiente);
 			}
 		});
 		markers.addLayer(geoJsonLayer);
@@ -452,7 +456,10 @@ var locations=[1]
 
    //var s =$("table tr").eq(index+1).position();
   // var s =$("table tr").eq(index+1).position();
-   var s=tabledata[index-1]
+
+  //aquí se controla la planta visible en el loop
+  //var s=tabledata[index-1]
+  var s=tabledata[index-2]
 
    // console.log("table tbody > tr:nth-child("+(index+2)+")",s)
    console.log("Index actual",index)

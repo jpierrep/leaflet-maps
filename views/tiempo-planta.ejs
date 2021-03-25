@@ -109,6 +109,7 @@ thead tr:nth-child(1) th{
 <p><%= JSON.stringify(geoJSON[0]) %></p>
 <p><%= infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona'] %></p>
 -->
+<h2 style="margin:0;text-align:center;background-color: black ;color: white;">TIEMPO EN PLANTA ULTIMOS 30 DIAS</h2>
 <h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
 
 <div class="container-fluid h-100">
@@ -122,7 +123,7 @@ thead tr:nth-child(1) th{
                       <tr>
                         <th scope="col">CODIGO</th>
                         <th scope="col">INSTALACION</th>
-                        <th scope="col">DURACION</th>
+                        <th scope="col">DURACION (HH)</th>
                         <th scope="col">AUDITORIAS</th>
                         <th scope="col">VISITAS</th>
                         <th  style="display: none;"scope="col">Longitud</th>
