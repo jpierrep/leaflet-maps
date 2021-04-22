@@ -276,6 +276,28 @@ res.status(200).send(plantilla);
 })
 
 
+app.get("/pantalla/:id",async  function (req, res) {
+  let plantilla
+  let tipoMapa=""
+  if (req.params.id==1|req.params.id==2){
+    if (req.params.id==1)
+    tipoMapa="tiempo-planta"
+  else  tipoMapa="nc-pendientes"
+  let plantas= await getPlantas()
+  var  id_supervisores=  plantas.map(value=>{
+    return value.administrativo_id;
+  });
+  var distinctSupervisores=getUnique(id_supervisores);
+  console.log(distinctSupervisores)
+  plantilla=plantilla_websites.getTemplateEndpoints(tipoMapa,distinctSupervisores)
+}else{
+  plantilla=plantilla_websites.getTemplateEndpointsTargit(req.params.id)
+}
+
+res.status(200).send(plantilla);
+})
+
+
 
 
 
