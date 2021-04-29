@@ -279,10 +279,13 @@ res.status(200).send(plantilla);
 app.get("/pantalla/:id",async  function (req, res) {
   let plantilla
   let tipoMapa=""
-  if (req.params.id==1|req.params.id==2){
-    if (req.params.id==1)
+  if (req.params.id==2||req.params.id==3||req.params.id==6){
+    if (req.params.id==2)
     tipoMapa="tiempo-planta"
-  else  tipoMapa="nc-pendientes"
+    else if (req.params.id==3)
+    tipoMapa="nc-pendientes"
+  else  tipoMapa="visitas-pendientes"
+
   let plantas= await getPlantas()
   var  id_supervisores=  plantas.map(value=>{
     return value.administrativo_id;
