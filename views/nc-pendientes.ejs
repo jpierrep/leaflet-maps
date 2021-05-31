@@ -122,7 +122,7 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
 -->
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js'></script>
 
-<h2 style="margin:0;text-align:center;background-color: black ;color: white;">NO CONFORMIDADES PENDIENTES</h2>
+<h2 style="margin:0;padding: 10px;text-align:center;background-color: black ;color: white;">NO CONFORMIDADES PENDIENTES</h2>
 <h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
 
 
@@ -383,8 +383,8 @@ var customLayer = L.geoJson(plantasGeoJSON, {
                 let geojsonMarkerOptions = {
                 radius: baseRadius,
              //   fillColor: colorRadio,
-                  fillColor:'blue',
-                color:  'red',
+                  fillColor:'#00487d',
+                color:  '#be1010',
                 weight: 1,
                 opacity: 1,
                 fillOpacity: 0.8

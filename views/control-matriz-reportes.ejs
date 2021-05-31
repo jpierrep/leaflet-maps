@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css" 
+    crossorigin="anonymous">
+
+  <title>Procesos</title>
+
+
+  <style>
+    .progress-bar-vertical {
+      width: 20px;
+      min-height: 100px;
+      display: flex;
+      align-items: flex-end;
+      margin-right: 20px;
+      float: left;
+    }
+        </style>
+</head>
+
+<body>
+
+  <div class="alert alert-danger" id="global-alert" role="alert"   style="display:none;">
+    <strong>Error!</strong> Archivo sin formato o sin ruts.
+  </div>
+
+  <div class="container">
+    <div class="row">
+<!--
+      <div class="col-6"> Empresa:
+        <select id="empresa-select" class="custom-select custom-select-lg mb-3">
+
+          <option selected value="0">Guard Service Seguridad S.A.</option>
+          <option value="2">GS Outsourcing S.A.</option>
+
+        </select>
+      </div>
+      <div class="col-6"> Mes:
+        <select id="mes-select"  class="custom-select custom-select-lg mb-3">
+
+       <option selected value="2020-11-01">2020-11</option>
+          <option value="2020-10-01">2020-10</option>
+      
+
+        </select>
+      </div>
+
+      -->
+
+    
+
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="row">
+
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Matriz Principal
+             
+            </h5>
+
+            <p class="card-text">Genera matriz reportes principal</p>
+            <div class="row">
+
+              
+
+ 
+              
+              <div class="col-1">
+                <button type="button" id="principal-button" class="btn btn-primary">Ejecutar</button>
+              </div>
+              
+            </div>
+
+
+
+          </div>
+
+        </div>
+      </div>
+
+
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Clientes
+             
+            </h5>
+
+            <p class="card-text">Genera matriz reportes por clientes</p>
+            <div class="row">
+
+              
+
+                <div class="col-6"> 
+                  <select id="cliente-select" class="custom-select custom-select-lg mb-3">
+          
+                    <option selected value="160-000">CLIENTE 1 </option>
+                    <option value="090-000">CLIENTE 2</option>
+          
+                  </select>
+                </div>
+
+              
+              <div class="col-1">
+                <button type="button" id="cliente-button" class="btn btn-primary">Ejecutar</button>
+              </div>
+              
+            </div>
+
+
+
+          </div>
+
+        </div>
+      </div>
+
+
+
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Supervisores
+             
+            </h5>
+
+            <p class="card-text">Genera matriz reportes por Supervisor</p>
+            <div class="row">
+
+              
+
+                <div class="col-6"> 
+                  <select id="supervisor-select" class="custom-select custom-select-lg mb-3">
+          
+                    <option selected value="160-000">CLIENTE 1 </option>
+                    <option value="090-000">CLIENTE 2</option>
+          
+                  </select>
+                </div>
+
+              
+              <div class="col-1">
+                <button type="button" id="supervisor-button" class="btn btn-primary">Ejecutar</button>
+              </div>
+              
+            </div>
+
+
+
+          </div>
+
+        </div>
+      </div>
+
+
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  
+    <script src="/js/jquery.min.js"></script> 
+  <!--<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>-->
+  <script src="/js/popper.min.js" 
+    crossorigin="anonymous"></script>
+  <script src="/js/bootstrap.min.js" 
+    crossorigin="anonymous"></script>
+
+    <script>
+'use strict'
+
+
+$(document).ready(function () {
+
+  let clientes =  JSON.parse('<%-JSON.stringify(CLIENTES)%>')
+  let supervisores=JSON.parse('<%-JSON.stringify(SUPERVISORES)%>')
+console.log(clientes)
+
+
+
+      //valores del select
+      $('#cliente-select').empty()
+    
+      clientes.map(cliente=>{
+        $('#cliente-select').append(`<option selected value="`+cliente["CODI"]+`"> `+cliente["LABEL"]+`</option>`); 
+      })
+
+          //valores del select
+          $('#supervisor-select').empty()
+    
+    supervisores.map(supervisor=>{
+      $('#supervisor-select').append(`<option selected value="`+supervisor["CODI"]+`"> `+supervisor["LABEL"]+`</option>`); 
+    })
+
+      $("#cliente-button").click(function (event) {
+
+        let clienteSelected = $("#cliente-select").val();
+ console.log("boton empieza")
+
+//stop submit the form, we will post it manually.
+event.preventDefault();
+    
+let data={'matrizConfig':{'id':2,'parameter':clienteSelected}};
+
+
+      $.ajax({
+    
+    url: "/actualizaFiltroMatriz",
+    type: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            
+            data: JSON.stringify(data),
+    success: function (data) {
+
+      console.log(data);
+        
+       if (data.status=="ok"){
+        console.log("ok ");
+       
+        
+       } 
+    },
+    error: function (e) {
+
+      
+        console.log("ERROR : ", e);
+       
+
+    }
+});
+
+});
+
+
+$("#supervisor-button").click(function (event) {
+
+let supervisorSelected = $("#supervisor-select").val();
+console.log("boton empieza Supervisor")
+
+//stop submit the form, we will post it manually.
+event.preventDefault();
+
+let data={'matrizConfig':{'id':3,'parameter':supervisorSelected}};
+
+
+$.ajax({
+
+url: "/actualizaFiltroMatriz",
+type: 'post',
+    dataType: 'json',
+    contentType: 'application/json',
+    
+    data: JSON.stringify(data),
+success: function (data) {
+
+console.log(data);
+
+if (data.status=="ok"){
+console.log("ok ");
+
+
+} 
+},
+error: function (e) {
+
+
+console.log("ERROR : ", e);
+
+
+}
+});
+
+});
+
+
+$("#principal-button").click(function (event) {
+
+
+console.log("boton empieza principal")
+
+//stop submit the form, we will post it manually.
+event.preventDefault();
+
+let data={'matrizConfig':{'id':1,'parameter':''}};
+
+
+$.ajax({
+
+url: "/actualizaFiltroMatriz",
+type: 'post',
+    dataType: 'json',
+    contentType: 'application/json',
+    
+    data: JSON.stringify(data),
+success: function (data) {
+
+console.log(data);
+
+if (data.status=="ok"){
+console.log("ok ");
+
+
+} 
+},
+error: function (e) {
+
+
+console.log("ERROR : ", e);
+
+
+}
+});
+
+});
+
+
+    });
+
+    </script>
+
+
+
+
+</body>
+
+</html>

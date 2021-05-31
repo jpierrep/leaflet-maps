@@ -109,7 +109,7 @@ thead tr:nth-child(1) th{
 <p><%= JSON.stringify(geoJSON[0]) %></p>
 <p><%= infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona'] %></p>
 -->
-<h2 style="margin:0;text-align:center;background-color: black ;color: white;">TIEMPO EN PLANTA ULTIMOS 30 DIAS</h2>
+<h2 style="margin:0;padding: 10px;text-align:center;background-color: black ;color: white;">TIEMPO EN PLANTA ULTIMOS 30 DIAS</h2>
 <h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
 
 <div class="container-fluid h-100">
@@ -319,8 +319,8 @@ var customLayerVolumen = L.geoJson(getTest, {
                 let geojsonMarkerOptions = {
                 radius: baseRadius,
              //   fillColor: colorRadio,
-                  fillColor:'blue',
-                color:  'red',
+                  fillColor:'#00487d',
+                color:  '#be1010',
                 weight: 1,
                 opacity: 1,
                 fillOpacity: 0.8
@@ -330,7 +330,7 @@ var customLayerVolumen = L.geoJson(getTest, {
                     if (feature.properties.CANT_VISITAS>0){
                     geojsonMarkerOptions.fillColor='yellow'
                 }else{
-                    geojsonMarkerOptions.fillColor='red'
+                    geojsonMarkerOptions.fillColor='#be1010'
                 }
                 }
 

@@ -1,5 +1,6 @@
 'use strict'
 
+var bodyParser = require('body-parser')
 var express=require("express");
 
 var app=express();
@@ -20,6 +21,9 @@ var config = {
 app.set("view engine","jade");
 app.use(express.static('public'));
 
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({extended:false,limit: '50mb'}));
+app.use(bodyParser.json({limit: '50mb'})); // transforma los datos de la peticion a json
 
 app.get("/testView", function (req, res) {
   console.log("he")
@@ -28,6 +32,59 @@ app.get("/testView", function (req, res) {
 
   res.render("test.ejs", { hola: "hola" });
 })
+
+
+
+//actualiza filtro parametro
+app.post("/actualizaFiltroMatriz", async function (req, res) {
+  console.log("actualiza matriz")
+//  fs.writeFileSync('test.json',JSON.stringify(JSON.parse(req)))
+
+let matriz=req.body.matrizConfig
+//{"matrizConfig":{"id":2,"parameter":"165-000"}}
+
+//let matriz={"id":2,"parameter":"090-000"}
+console.log (matriz)
+let data=JSON.stringify(matriz)
+
+fs.writeFileSync('config/activeTemplate.json',data)
+
+res.status(200).send({status:"ok"});
+
+
+
+  
+
+})
+
+
+app.get("/testViewMatriz", async function (req, res) {
+  console.log("he")
+
+  let dataMap=await getInfoCentroCosto()
+
+  let distinctClientes=getUniqueProp(dataMap,'CENCO1_DESC')
+  let clientes= distinctClientes.map(cliente=>{
+    let codi=dataMap.find(x=>x['CENCO1_DESC']==cliente)['CENCO1_CODI']
+    return {CODI:codi,VALUE:cliente,LABEL:cliente+' '+codi}
+
+  })
+
+  let distinctSupervisores=getUniqueProp(dataMap,'administrativo_nombre')
+  let supervisores= distinctSupervisores.filter(x=>x!=null) .map(supervisor=>{
+    let codi=dataMap.find(x=>x['administrativo_nombre']==supervisor)['administrativo_id']
+    
+    return {CODI:supervisor.replace(/ /g, "%20"),VALUE:supervisor,LABEL:supervisor+' '+codi}
+
+  })
+
+console.log(clientes)
+console.log(supervisores)
+
+
+  res.render("control-matriz-reportes.ejs", { CLIENTES: clientes,SUPERVISORES:supervisores });
+})
+
 
 app.get("/no-conformidades/supervisor/:id",async  function (req, res) {
  
@@ -751,7 +808,38 @@ SELECT distinct --distinct porque acá también vienen los comentarios
 
 }
 
+async function getInfoCentroCosto(){
+  let query=` 
+  SELECT  [bi_dotaciones].*,
+SUBSTRING(bi_dotaciones.CENCO2_CODI,0,4)+'-000' as CENCO1_CODI
+,estr.administrativo_nombre,estr.administrativo_id
+,cc.CENCO1_DESC
 
+
+  FROM [SISTEMA_CENTRAL].[dbo].[bi_dotaciones]
+
+  left join [BI-SERVER-01].inteligencias.dbo.SIST_CENTRAL_ESTR_ORGANIZACION as estr
+  on estr.cencos_codigo=bi_dotaciones.CENCO2_CODI and estr.empresa_id=EMP_CODI
+  left join [BI-SERVER-01].Inteligencias.dbo.CENTROS_COSTO as cc
+  on cc.EMP_CODI=[bi_dotaciones].EMP_CODI and cc.CENCO2_CODI collate Modern_Spanish_CI_AS=[bi_dotaciones].CENCO2_CODI
+
+
+  where MES_ACTUAL_ERP=(select max(MES_ACTUAL_ERP) FROM [SISTEMA_CENTRAL].[dbo].[bi_dotaciones])
+
+  `;
+  
+  return new Promise(resolve=>{
+
+      entrega_resultDB(query).then(result=>{
+
+    
+        resolve(result);
+
+      });
+
+  });
+
+}
 
 
 
