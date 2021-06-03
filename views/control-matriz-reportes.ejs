@@ -90,6 +90,33 @@
         </div>
       </div>
 
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Matriz Acción Inmediata
+             
+            </h5>
+
+            <p class="card-text">Genera matriz reportes acción inmediata</p>
+            <div class="row">
+
+              
+
+ 
+              
+              <div class="col-1">
+                <button type="button" id="accion-inmediata-button" class="btn btn-primary">Ejecutar</button>
+              </div>
+              
+            </div>
+
+
+
+          </div>
+
+        </div>
+      </div>
+
 
       <div class="col-sm-12">
         <div class="card">
@@ -163,6 +190,41 @@
         </div>
       </div>
 
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Jefes de Operaciones
+             
+            </h5>
+
+            <p class="card-text">Genera matriz reportes por Jefe de Operaciones</p>
+            <div class="row">
+
+              
+
+                <div class="col-6"> 
+                  <select id="jefes-operaciones-select" class="custom-select custom-select-lg mb-3">
+          
+                    <option selected value="160-000">CLIENTE 1 </option>
+                    <option value="090-000">CLIENTE 2</option>
+          
+                  </select>
+                </div>
+
+              
+              <div class="col-1">
+                <button type="button" id="jefes-operaciones-button" class="btn btn-primary">Ejecutar</button>
+              </div>
+              
+            </div>
+
+
+
+          </div>
+
+        </div>
+      </div>
+
 
 
     </div>
@@ -194,7 +256,8 @@ $(document).ready(function () {
 
   let clientes =  JSON.parse('<%-JSON.stringify(CLIENTES)%>')
   let supervisores=JSON.parse('<%-JSON.stringify(SUPERVISORES)%>')
-console.log(clientes)
+  let jefesOperaciones=JSON.parse('<%-JSON.stringify(JEFES_OPERACIONES)%>')
+console.log(jefesOperaciones)
 
 
 
@@ -212,6 +275,17 @@ console.log(clientes)
       $('#supervisor-select').append(`<option selected value="`+supervisor["CODI"]+`"> `+supervisor["LABEL"]+`</option>`); 
     })
 
+              //valores del select
+              $('#jefes-operaciones-select').empty()
+    
+              jefesOperaciones.map(jefeOperaciones=>{
+      $('#jefes-operaciones-select').append(`<option selected value="`+jefeOperaciones["CODI"]+`"> `+jefeOperaciones["LABEL"]+`</option>`); 
+    })
+
+
+
+
+
       $("#cliente-button").click(function (event) {
 
         let clienteSelected = $("#cliente-select").val();
@@ -222,33 +296,8 @@ event.preventDefault();
     
 let data={'matrizConfig':{'id':2,'parameter':clienteSelected}};
 
+actualizaMatriz(data)
 
-      $.ajax({
-    
-    url: "/actualizaFiltroMatriz",
-    type: 'post',
-            dataType: 'json',
-            contentType: 'application/json',
-            
-            data: JSON.stringify(data),
-    success: function (data) {
-
-      console.log(data);
-        
-       if (data.status=="ok"){
-        console.log("ok ");
-       
-        
-       } 
-    },
-    error: function (e) {
-
-      
-        console.log("ERROR : ", e);
-       
-
-    }
-});
 
 });
 
@@ -264,32 +313,7 @@ event.preventDefault();
 let data={'matrizConfig':{'id':3,'parameter':supervisorSelected}};
 
 
-$.ajax({
-
-url: "/actualizaFiltroMatriz",
-type: 'post',
-    dataType: 'json',
-    contentType: 'application/json',
-    
-    data: JSON.stringify(data),
-success: function (data) {
-
-console.log(data);
-
-if (data.status=="ok"){
-console.log("ok ");
-
-
-} 
-},
-error: function (e) {
-
-
-console.log("ERROR : ", e);
-
-
-}
-});
+actualizaMatriz(data)
 
 });
 
@@ -305,7 +329,54 @@ event.preventDefault();
 let data={'matrizConfig':{'id':1,'parameter':''}};
 
 
-$.ajax({
+actualizaMatriz(data)
+
+});
+
+
+$("#accion-inmediata-button").click(function (event) {
+
+
+console.log("boton empieza accion inmediata")
+
+//stop submit the form, we will post it manually.
+event.preventDefault();
+
+let data={'matrizConfig':{'id':4,'parameter':''}};
+
+actualizaMatriz(data)
+
+});
+
+
+$("#jefes-operaciones-button").click(function (event) {
+
+
+console.log("boton empieza jefes operaciones")
+
+let jefesOperacionesSelected = $("#jefes-operaciones-select").val();
+
+
+//stop submit the form, we will post it manually.
+event.preventDefault();
+
+let data={'matrizConfig':{'id':5,'parameter':jefesOperacionesSelected}};
+
+
+actualizaMatriz(data)
+
+});
+
+
+
+
+
+
+    });
+
+function actualizaMatriz(data){
+
+  $.ajax({
 
 url: "/actualizaFiltroMatriz",
 type: 'post',
@@ -332,10 +403,7 @@ console.log("ERROR : ", e);
 }
 });
 
-});
-
-
-    });
+}
 
     </script>
 

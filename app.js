@@ -78,11 +78,19 @@ app.get("/testViewMatriz", async function (req, res) {
 
   })
 
+  let distinctJefeOperaciones=getUniqueProp(dataMap,'jefe_operaciones')
+  let jefesOperaciones= distinctJefeOperaciones.filter(x=>x!=null) .map(jefe=>{
+
+    
+    return {CODI:jefe.replace(/ /g, "%20"),VALUE:jefe,LABEL:jefe}
+
+  })
+
 console.log(clientes)
 console.log(supervisores)
 
 
-  res.render("control-matriz-reportes.ejs", { CLIENTES: clientes,SUPERVISORES:supervisores });
+  res.render("control-matriz-reportes.ejs", { CLIENTES: clientes,SUPERVISORES:supervisores,JEFES_OPERACIONES:jefesOperaciones });
 })
 
 
@@ -813,7 +821,7 @@ async function getInfoCentroCosto(){
   SELECT  [bi_dotaciones].*,
 SUBSTRING(bi_dotaciones.CENCO2_CODI,0,4)+'-000' as CENCO1_CODI
 ,estr.administrativo_nombre,estr.administrativo_id
-,cc.CENCO1_DESC
+,cc.CENCO1_DESC,estr.jefe_operaciones
 
 
   FROM [SISTEMA_CENTRAL].[dbo].[bi_dotaciones]

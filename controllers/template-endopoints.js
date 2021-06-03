@@ -75,7 +75,39 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
     
     ]
 
-  }
+  }else if(idMatriz==4){
+
+    //accion inmediata
+    
+
+  urlBase="http://192.168.100.141/TouchServer/embed.html##" 
+   base=[
+    {id:1, nombre:"kpi",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Cert%20Vencidos%20Ranking.xview']}
+    ,{id:4, nombre:"acreditacion",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Instalaciones%20sin%20auditoria%20mas%20de%201%20mes.xview']}
+    ,{id:5, nombre:"dotaciones",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Instalaciones%20sin%20visita%20mas%20de%201%20mes.xview']}
+    
+    ,{id:7, nombre:"No conformidades",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Ranking%20Ausencias%20sin%20Justificacion.xview']}
+    ,{id:8, nombre:"visitas y auditorias",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Ranking%20Problemas%20Coberturas.xview']}
+    ,{id:9, nombre:"asistencias",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Cert%20Vencidos%20Ranking.xview']}
+  
+  ]
+
+}else if(idMatriz==5){
+  //jefe operaciones
+  
+  urlBase="http://192.168.100.141/TouchServer/embed.html##" 
+   base=[
+    {id:1, nombre:"kpi",paneles:['OPERSUPERVISOR1?supervisor='+parameter]}
+    ,{id:4, nombre:"acreditacion",paneles:['OPERSUPERVISOR2?supervisor='+parameter]}
+    ,{id:5, nombre:"dotaciones",paneles:['OPERSUPERVISOR3?supervisor='+parameter]}
+    
+    ,{id:7, nombre:"No conformidades",paneles:['OPERSUPERVISOR4?supervisor='+parameter]}
+    ,{id:8, nombre:"visitas y auditorias",paneles:['OPERSUPERVISOR5?supervisor='+parameter]}
+    ,{id:9, nombre:"asistencias",paneles:['OPERSUPERVISOR6?supervisor='+parameter]}
+  
+  ]
+
+}
 
 
   //se añade url base
