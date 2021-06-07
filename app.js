@@ -175,11 +175,13 @@ console.log(geoJSON)
 
 
 
-app.get("/tiempo-planta/supervisor/:id",async  function (req, res) {
+app.get("/tiempo-planta/:tipo/:id",async  function (req, res) {
+
+  //tipo:supervisor,cliente
  
   console.log("he")
   console.log("id",req.params.id)
-let dataMap=await getDataTiempoPlantaSupervisor(req.params.id)
+let dataMap=await getDataTiempoPlantaInstalaciones(req.params.tipo,req.params.id)
 let max_duracion=Math.max(...dataMap.map(x=>parseFloat(x["DURACION"])))
 
 let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
@@ -343,6 +345,17 @@ res.status(200).send(plantilla);
 
 app.get("/pantalla/:id",async  function (req, res) {
   let plantilla
+
+  plantilla= await plantilla_websites.getTemplateEndpointsTargit(req.params.id)
+  console.log("plantilla",plantilla)
+
+
+res.status(200).send(plantilla);
+})
+
+/*
+app.get("/pantalla/:id",async  function (req, res) {
+  let plantilla
   let tipoMapa=""
   if (req.params.id==2||req.params.id==3||req.params.id==6){
     if (req.params.id==2)
@@ -365,7 +378,7 @@ app.get("/pantalla/:id",async  function (req, res) {
 res.status(200).send(plantilla);
 })
 
-
+*/
 
 
 
@@ -463,7 +476,7 @@ let unique = (value, index, self) => {
 }
 
 async function getPlantas(){
-    let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
+    let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_CODI as CENCO1_CODI, ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
     ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
     ,ci.CENCO2_CODI as cenco2_codi,estr.zona_nombre
         FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
@@ -649,7 +662,13 @@ function getResumenSupervisor(){
 }
 
 
-function getDataTiempoPlantaSupervisor(idSupervisor){
+function getDataTiempoPlantaInstalaciones(tipo,id){
+  let filterName=''
+  if (tipo=='supervisor')
+  filterName='administrativo_id='+id
+
+  if (tipo=='cliente')
+  filterName=`cc.cencos_codigo like '%`+id.substr(0,4)+`%'`
 
   let query=`  
 
@@ -675,8 +694,6 @@ function getDataTiempoPlantaSupervisor(idSupervisor){
     group by  ID_PLANTA) as auditorias
     on auditorias.ID_PLANTA=p.id
 	
-  
-
 
   left join (
 SELECT ID_SUP,ID_PLANTA, SUM(DURACION) as DURACION,count(*) as CANT_VISITAS
@@ -696,11 +713,12 @@ SELECT ID_SUP,ID_PLANTA, SUM(DURACION) as DURACION,count(*) as CANT_VISITAS
   and administrativo_nombre is not null
   --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
   and p.nombre is not null
-  and latitude is not null
-  and administrativo_id=`+idSupervisor
+  and latitude is not null 
+  and `
   
+  +filterName
   ;
-  
+  //and administrativo_id=`+idSupervisor
   return new Promise(resolve=>{
 
       entrega_resultDB(query).then(result=>{
