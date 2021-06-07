@@ -97,13 +97,13 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
   
   urlBase="http://192.168.100.141/TouchServer/embed.html##" 
    base=[
-    {id:1, nombre:"kpi",paneles:['OPERSUPERVISOR1?supervisor='+parameter]}
-    ,{id:4, nombre:"acreditacion",paneles:['OPERSUPERVISOR2?supervisor='+parameter]}
-    ,{id:5, nombre:"dotaciones",paneles:['OPERSUPERVISOR3?supervisor='+parameter]}
+    {id:1, nombre:"kpi",paneles:['OPERJEFE1?jefeoperaciones='+parameter]}
+    ,{id:4, nombre:"acreditacion",paneles:['OPERJEFE2?jefeoperaciones='+parameter]}
+    ,{id:5, nombre:"dotaciones",paneles:['OPERJEFE3?jefeoperaciones='+parameter]}
     
-    ,{id:7, nombre:"No conformidades",paneles:['OPERSUPERVISOR4?supervisor='+parameter]}
-    ,{id:8, nombre:"visitas y auditorias",paneles:['OPERSUPERVISOR5?supervisor='+parameter]}
-    ,{id:9, nombre:"asistencias",paneles:['OPERSUPERVISOR6?supervisor='+parameter]}
+    ,{id:7, nombre:"No conformidades",paneles:['OPERJEFE4?jefeoperaciones='+parameter]}
+    ,{id:8, nombre:"visitas y auditorias",paneles:['OPERJEFE5?jefeoperaciones='+parameter]}
+    ,{id:9, nombre:"asistencias",paneles:['OPERJEFE6?jefeoperaciones='+parameter]}
   
   ]
 
