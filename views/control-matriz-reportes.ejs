@@ -263,23 +263,25 @@ console.log(jefesOperaciones)
 
       //valores del select
       $('#cliente-select').empty()
-    
+      $('#cliente-select').append(`<option selected value="">SELECCIONE CLIENTE...</option>`); 
+
       clientes.map(cliente=>{
-        $('#cliente-select').append(`<option selected value="`+cliente["CODI"]+`"> `+cliente["LABEL"]+`</option>`); 
+        $('#cliente-select').append(`<option  value="`+cliente["CODI"]+`"> `+cliente["LABEL"]+`</option>`); 
       })
 
           //valores del select
           $('#supervisor-select').empty()
+          $('#supervisor-select').append(`<option selected value="">SELECCIONE SUPERVISOR...</option>`); 
     
     supervisores.map(supervisor=>{
-      $('#supervisor-select').append(`<option selected value="`+supervisor["CODI"]+`"> `+supervisor["LABEL"]+`</option>`); 
+      $('#supervisor-select').append(`<option  value="`+supervisor["CODI"]+`"> `+supervisor["LABEL"]+`</option>`); 
     })
 
               //valores del select
               $('#jefes-operaciones-select').empty()
-    
+              $('#jefes-operaciones-select').append(`<option selected value="">SELECCIONE JEFE OPERACIONES...</option>`); 
               jefesOperaciones.map(jefeOperaciones=>{
-      $('#jefes-operaciones-select').append(`<option selected value="`+jefeOperaciones["CODI"]+`"> `+jefeOperaciones["LABEL"]+`</option>`); 
+      $('#jefes-operaciones-select').append(`<option  value="`+jefeOperaciones["CODI"]+`"> `+jefeOperaciones["LABEL"]+`</option>`); 
     })
 
 
@@ -289,6 +291,10 @@ console.log(jefesOperaciones)
       $("#cliente-button").click(function (event) {
 
         let clienteSelected = $("#cliente-select").val();
+
+        $('#supervisor-select').val("").change();
+        $('#jefes-operaciones-select').val("").change();
+
  console.log("boton empieza")
 
 //stop submit the form, we will post it manually.
@@ -305,6 +311,10 @@ actualizaMatriz(data)
 $("#supervisor-button").click(function (event) {
 
 let supervisorSelected = $("#supervisor-select").val();
+
+$('#cliente-select').val("").change();
+$('#jefes-operaciones-select').val("").change();
+
 console.log("boton empieza Supervisor")
 
 //stop submit the form, we will post it manually.
@@ -351,6 +361,8 @@ actualizaMatriz(data)
 
 $("#jefes-operaciones-button").click(function (event) {
 
+  $('#cliente-select').val("").change();
+  $('#supervisor-select').val("").change();
 
 console.log("boton empieza jefes operaciones")
 

@@ -70,7 +70,7 @@ async function getMatrices(idMatriz,parameter){
     ,'Paneles%20CIC/ACCION-INMEDIATA/Instalaciones%20sin%20visita%20mas%20de%201%20mes.xview','Paneles%20CIC/ACCION-INMEDIATA/Ranking%20Ausencias%20sin%20Justificacion.xview',
     'Paneles%20CIC/ACCION-INMEDIATA/Ranking%20Problemas%20Coberturas.xview']}
       ,{id:5, nombre:"dotaciones",paneles:['Paneles%20CIC/G5/Dotaciones%20Vendidas%20y%20Reales%20por%20Cliente-Base%20Cotizaciones-Sistema%20Asistencias-sin%20cotizacion.xview','Paneles%20CIC/G5/Dotaciones%20Vendidas%20y%20Reales%20por%20Cliente-Base%20Cotizaciones-Sistema%20Asistencias-sin%20dotacion%20real.xview','Paneles%20CIC/G5/Dotaciones%20Vendidas%20y%20Reales%20por%20Cliente-Base%20Cotizaciones-Sistema%20Asistencias-sobredotacion.xview','Paneles%20CIC/G5/Dotaciones%20Vendidas%20y%20Reales%20por%20Cliente-Base%20Cotizaciones-Sistema%20Asistencias-subdotacion.xview']}
-      ,{id:3, nombre:"mapa",paneles:mapasVisitasPendientes}
+      ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
       ,{id:7, nombre:"cumplimiento visitas planificadas",paneles:['Paneles%20CIC/G6/cumpl%20visitas%20planificadas%20ultimos%202%20meses.xview','Paneles%20CIC/G6/cumpl%20auditorias%20planificadas%20ultimos%202%20meses.xview']}
     
       ,{id:8, nombre:"visitas y auditorias",paneles:['Paneles%20CIC/G4/Cumplimiento-Visitas-Mes-Anterior-y-Actual%20(sin%20det).xview','Paneles%20CIC/G4/Cumplimiento%20visitas%20por%20supervisor%20mes%20actual.xview','Paneles%20CIC/G4/Cumplimiento-Auditorias-Mes-Anterior-y-Actual.xview','Paneles%20CIC/G4/Cumplimiento%20auditorias%20por%20supervisor%20mes%20actual.xview','Paneles%20CIC/G4/Plantas%20sin%20visita%201%20mes.xview']}
@@ -113,14 +113,20 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
 
   }else if(idMatriz==3){
 
+     //como parametro llega el nombre del supervisor, neceitamos el id para el api
+   let id_supervisor=plantas.find(x=>x["administrativo_nombre"]==parameter.replace(/%20/g, " "))["administrativo_id"]
+  // let id_supervisor=plantas.find(x=>x["administrativo_nombre"]=="Cortes Jara Alfredo")["administrativo_id"]
+
+   //"Cortes%20Jara%20Alfredo"
+
     urlBase="http://192.168.100.141/TouchServer/embed.html##" 
      base=[
       {id:1, nombre:"kpi",paneles:['OPERSUPERVISOR1?supervisor='+parameter]}
-      ,{id:2, nombre:"mapa",paneles:['tiempo-planta/supervisor/'+parameter]}
-      ,{id:3, nombre:"mapa",paneles:['nc-pendientes/supervisor/'+parameter]}
+      ,{id:2, nombre:"mapa",paneles:['tiempo-planta/supervisor/'+id_supervisor]}
+      ,{id:3, nombre:"mapa",paneles:['nc-pendientes/supervisor/'+id_supervisor]}
       ,{id:4, nombre:"acreditacion",paneles:['OPERSUPERVISOR2?supervisor='+parameter]}
       ,{id:5, nombre:"dotaciones",paneles:['OPERSUPERVISOR3?supervisor='+parameter]}
-      ,{id:6, nombre:"mapa",paneles:['visitas-pendientes/supervisor/'+parameter]}
+      ,{id:6, nombre:"mapa",paneles:['visitas-pendientes/supervisor/'+id_supervisor]}
       ,{id:7, nombre:"No conformidades",paneles:['OPERSUPERVISOR4?supervisor='+parameter]}
       ,{id:8, nombre:"visitas y auditorias",paneles:['OPERSUPERVISOR5?supervisor='+parameter]}
       ,{id:9, nombre:"asistencias",paneles:['OPERSUPERVISOR6?supervisor='+parameter]}
@@ -129,15 +135,28 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
 
   }else if(idMatriz==4){
 
+      //todos los supervisores
+      var  id_supervisores=  plantas.map(value=>{
+        return value.administrativo_id;
+      });
+      var distinctSupervisores=getUnique(id_supervisores);
+      console.log(distinctSupervisores)
+  
+      let mapasTiempoPlanta=getTemplateEndpoints("tiempo-planta","supervisor",distinctSupervisores)
+      let mapasNCPendientes=getTemplateEndpoints("nc-pendientes","supervisor",distinctSupervisores)
+      let mapasVisitasPendientes=getTemplateEndpoints("visitas-pendientes","supervisor",distinctSupervisores)
+
     //accion inmediata
     
 
   urlBase="http://192.168.100.141/TouchServer/embed.html##" 
    base=[
     {id:1, nombre:"kpi",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Cert%20Vencidos%20Ranking.xview']}
+    ,{id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
+    ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
     ,{id:4, nombre:"acreditacion",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Instalaciones%20sin%20auditoria%20mas%20de%201%20mes.xview']}
     ,{id:5, nombre:"dotaciones",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Instalaciones%20sin%20visita%20mas%20de%201%20mes.xview']}
-    
+    ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
     ,{id:7, nombre:"No conformidades",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Ranking%20Ausencias%20sin%20Justificacion.xview']}
     ,{id:8, nombre:"visitas y auditorias",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Ranking%20Problemas%20Coberturas.xview']}
     ,{id:9, nombre:"asistencias",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Cert%20Vencidos%20Ranking.xview']}
@@ -147,12 +166,29 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
 }else if(idMatriz==5){
   //jefe operaciones
   
+
+        //todos los supervisores del jefe operaciones correspondiente
+        var  id_supervisores=plantas.filter(x=>x['jefe_operaciones']!=null).filter(x=>x['jefe_operaciones']==parameter.replace(/%20/g, " ")) .map(value=>{
+          return value.administrativo_id;
+        });
+
+
+
+        var distinctSupervisores=getUnique(id_supervisores);
+        console.log("distinctSupervisores",distinctSupervisores)
+    
+        let mapasTiempoPlanta=getTemplateEndpoints("tiempo-planta","supervisor",distinctSupervisores)
+        let mapasNCPendientes=getTemplateEndpoints("nc-pendientes","supervisor",distinctSupervisores)
+        let mapasVisitasPendientes=getTemplateEndpoints("visitas-pendientes","supervisor",distinctSupervisores)
+
   urlBase="http://192.168.100.141/TouchServer/embed.html##" 
    base=[
     {id:1, nombre:"kpi",paneles:['OPERJEFE1?jefeoperaciones='+parameter]}
+    ,{id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
+    ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
     ,{id:4, nombre:"acreditacion",paneles:['OPERJEFE2?jefeoperaciones='+parameter]}
     ,{id:5, nombre:"dotaciones",paneles:['OPERJEFE3?jefeoperaciones='+parameter]}
-    
+    ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
     ,{id:7, nombre:"No conformidades",paneles:['OPERJEFE4?jefeoperaciones='+parameter]}
     ,{id:8, nombre:"visitas y auditorias",paneles:['OPERJEFE5?jefeoperaciones='+parameter]}
     ,{id:9, nombre:"asistencias",paneles:['OPERJEFE6?jefeoperaciones='+parameter]}
@@ -337,7 +373,7 @@ function getTemplateEndpoints(tipo,dimension,listado){
 
 async function getPlantas(){
   let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_CODI as CENCO1_CODI, ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
-  ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
+  ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp,estr.jefe_operaciones
   ,ci.CENCO2_CODI as cenco2_codi,estr.zona_nombre
       FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
       on p.centro_costos_id=cc.id

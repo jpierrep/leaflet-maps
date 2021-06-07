@@ -94,11 +94,11 @@ console.log(supervisores)
 })
 
 
-app.get("/no-conformidades/supervisor/:id",async  function (req, res) {
+app.get("/no-conformidades/:tipo/:id",async  function (req, res) {
  
   console.log("he")
   console.log("id",req.params.id)
-let dataMap=await getDataNCSupervisor(req.params.id)
+let dataMap=await getDataNCInstalaciones(req.params.tipo,req.params.id)
 
 let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
@@ -114,14 +114,14 @@ console.log(geoJSON)
 
 
 /******************** */
-app.get("/visitas-pendientes/supervisor/:id",async  function (req, res) {
+app.get("/visitas-pendientes/:tipo/:id",async  function (req, res) {
  
   console.log("he")
   console.log("id",req.params.id)
   //data visitas pendientes para cluster
 let dataMap=await getVisitasPendientes(req.params.id)
 //data para tabla
-let dataNCSupervisor=await getDataNCSupervisor(req.params.id)
+let dataNCSupervisor=await getDataNCInstalaciones(req.params.tipo,req.params.id)
 let supervisor_nombre=getUniqueProp(dataNCSupervisor,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataNCSupervisor,'zona_nombre').join(', ');
 let supervisor_id=req.params.id
@@ -215,18 +215,30 @@ console.log(geoJSON)
 })
 
 
-app.get("/nc-pendientes/supervisor/:id",async  function (req, res) {
- 
-  console.log("he")
-  console.log("id",req.params.id)
+app.get("/nc-pendientes/:tipo/:id",async  function (req, res) {
+  
+
+  let tipo=req.params.tipo
+  let filterName=''
+  if (tipo=='supervisor')
+  filterName='administrativo_id'
+
+  if (tipo=='cliente')
+  filterName='CENCO1_CODI'
+
+  
+
   let supervisor_id=req.params.id
+
+
   //data todas las no conformidades pendientes para agrupar en el mapa
-let dataMap=await getNCPendientes(req.params.id) 
+let dataMap=await getNCPendientes(req.params.tipo,req.params.id) 
 //data para mostrar en tabla
-let dataNCSupervisor=await getDataNCSupervisor(req.params.id)
+let dataNCSupervisor=await getDataNCInstalaciones(req.params.tipo,req.params.id)
 
 //data de todas las plantas para añadir pin e info si fuese necesario
-let dataPlantas=(await getPlantas()).filter(x=>x["administrativo_id"]==supervisor_id)
+
+let dataPlantas=(await getPlantas()).filter(x=>x[filterName]==req.params.id)
 
 let supervisor_nombre=getUniqueProp(dataPlantas,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataPlantas,'zona_nombre').join(', ');
@@ -565,7 +577,16 @@ function getResumenSupervisor(){
 
 }
 
- function getDataNCSupervisor(idSupervisor){
+ function getDataNCInstalaciones(tipo,id){
+
+  let filterName=''
+  if (tipo=='supervisor')
+  filterName='administrativo_id='+id
+
+  if (tipo=='cliente')
+  filterName=`cc.cencos_codigo like '%`+id.substr(0,4)+`%'`
+
+
   let query=`  
   select 
   cc.empresa_id,cc.cencos_codigo,cc.cencos_nombre,p.nombre as planta_nombre,latitude,longitude,administrativo_id,administrativo_nombre
@@ -645,10 +666,12 @@ function getResumenSupervisor(){
   --centro de costo debe tener al menos 1 planta --ej cc de supervisores no tienen planta
   and p.nombre is not null
   and latitude is not null
-  and administrativo_id=`+idSupervisor
+  and 
+  `+filterName
+
   
   ;
-  
+  //and administrativo_id=+idSupervisor
   return new Promise(resolve=>{
 
       entrega_resultDB(query).then(result=>{
@@ -778,7 +801,13 @@ function getVisitasPendientes(idSupervisor){
 
 }
 
-function getNCPendientes(idSupervisor){
+function getNCPendientes(tipo,id){
+  let filterName=''
+  if (tipo=='supervisor')
+  filterName='administrativo_id='+id
+
+  if (tipo=='cliente')
+  filterName=`cc.cencos_codigo like '%`+id.substr(0,4)+`%'`
 
   let query=`  
 
@@ -818,10 +847,10 @@ SELECT distinct --distinct porque acá también vienen los comentarios
   and p.nombre is not null
   and latitude is not null
   and FECHA_VISITA is not null
-  and administrativo_id=`+idSupervisor
-  
+ and 
+    `+filterName
   ;
-  
+ // and administrativo_id=`+idSupervisor
   return new Promise(resolve=>{
 
       entrega_resultDB(query).then(result=>{
