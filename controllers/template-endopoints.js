@@ -149,7 +149,7 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
     //accion inmediata
     
 
-  urlBase="http://192.168.100.141/TouchServer/embed.html##" 
+  urlBase="http://192.168.100.141/TouchServer/embed.html#vfs://Global/Auditorias/"
    base=[
     {id:1, nombre:"kpi",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Cert%20Vencidos%20Ranking.xview']}
     ,{id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
