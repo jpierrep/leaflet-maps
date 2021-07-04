@@ -84,13 +84,16 @@ async function getMatrices(idMatriz,parameter){
 
 
   }else if(idMatriz==2){
+
+    //matriz cliente
  
-//let file= fs.readFileSync('./config/activeTemplate.json','utf8')
-//console.log('file',file)
+console.log("paramenter",parameter)
+let typeFilter='cenco1codi'
+ //parameter={"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
 
-//cliente
-
-
+ let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&")
+ let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+ parameter.apertura=parameter.apertura.toUpperCase()
 
 
 
@@ -98,42 +101,56 @@ async function getMatrices(idMatriz,parameter){
 urlBase="http://192.168.100.141/TouchServer/embed.html##" 
 
  base=[
-  {id:1, nombre:"kpi",paneles:['OPERCLIENTE1?cenco1codi='+parameter]}
-  ,{id:2, nombre:"mapa",paneles:['tiempo-planta/cliente/'+parameter]}
-  ,{id:3, nombre:"mapa",paneles:['nc-pendientes/cliente/'+parameter]}
-  ,{id:4, nombre:"acreditacion",paneles:['OPERCLIENTE2?cenco1codi='+parameter]}
-  ,{id:5, nombre:"dotaciones",paneles:['OPERCLIENTE3?cenco1codi='+parameter]}
-  ,{id:6, nombre:"mapa",paneles:['visitas-pendientes/cliente/'+parameter]}
-  ,{id:7, nombre:"No conformidades",paneles:['OPERCLIENTE4?cenco1codi='+parameter]}
-  ,{id:8, nombre:"visitas y auditorias",paneles:['OPERCLIENTE5?cenco1codi='+parameter]}
-  ,{id:9, nombre:"asistencias",paneles:['OPERCLIENTE6?cenco1codi='+parameter]}
+  {id:1, nombre:"kpi",paneles:['OPER'+parameter.apertura+'1?'+baseFilter,'OPER'+parameter.apertura+'1-2?'+baseFilter]}
+  ,{id:2, nombre:"mapa",paneles:['tiempo-planta/cliente/'+parameterFilter]}
+  ,{id:3, nombre:"mapa",paneles:['nc-pendientes/cliente/'+parameterFilter]}
+  ,{id:4, nombre:"acreditacion",paneles:['OPER'+parameter.apertura+'2?'+baseFilter]}
+  ,{id:5, nombre:"% visitas",paneles:['OPER'+parameter.apertura+'3?'+baseFilter]}
+  ,{id:6, nombre:"% auditorias",paneles:['OPER'+parameter.apertura+'6?'+baseFilter]}
+//   ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
+,{id:7, nombre:"visitas y auditorias cumplimiento",paneles:['OPER'+parameter.apertura+'8?'+baseFilter,'OPER'+parameter.apertura+'8-2?'+baseFilter]}
+  ,{id:8, nombre:"No conformidades",paneles:['OPER'+parameter.apertura+'4?'+baseFilter]}
+  ,{id:9, nombre:"Turnos por confimar",paneles:['OPER'+parameter.apertura+'5?'+baseFilter]}
 
 ]
 
 
   }else if(idMatriz==3){
 
+    //matriz supervisor
+    
+    let typeFilter='sup'
+ //parameter={"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+
+ let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&")
+ let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+ parameter.apertura=parameter.apertura.toUpperCase()
+
      //como parametro llega el nombre del supervisor, neceitamos el id para el api
-   let id_supervisor=plantas.find(x=>x["administrativo_nombre"]==parameter.replace(/%20/g, " "))["administrativo_id"]
+   parameterFilter=plantas.find(x=>x["administrativo_nombre"]==parameterFilter.replace(/%20/g, " "))["administrativo_id"]
   // let id_supervisor=plantas.find(x=>x["administrativo_nombre"]=="Cortes Jara Alfredo")["administrativo_id"]
 
    //"Cortes%20Jara%20Alfredo"
 
     urlBase="http://192.168.100.141/TouchServer/embed.html##" 
-     base=[
-      {id:1, nombre:"kpi",paneles:['OPERSUPERVISOR1?supervisor='+parameter]}
-      ,{id:2, nombre:"mapa",paneles:['tiempo-planta/supervisor/'+id_supervisor]}
-      ,{id:3, nombre:"mapa",paneles:['nc-pendientes/supervisor/'+id_supervisor]}
-      ,{id:4, nombre:"acreditacion",paneles:['OPERSUPERVISOR2?supervisor='+parameter]}
-      ,{id:5, nombre:"dotaciones",paneles:['OPERSUPERVISOR3?supervisor='+parameter]}
-      ,{id:6, nombre:"mapa",paneles:['visitas-pendientes/supervisor/'+id_supervisor]}
-      ,{id:7, nombre:"No conformidades",paneles:['OPERSUPERVISOR4?supervisor='+parameter]}
-      ,{id:8, nombre:"visitas y auditorias",paneles:['OPERSUPERVISOR5?supervisor='+parameter]}
-      ,{id:9, nombre:"asistencias",paneles:['OPERSUPERVISOR6?supervisor='+parameter]}
+    base=[
+      {id:1, nombre:"kpi",paneles:['OPER'+parameter.apertura+'1?'+baseFilter,'OPER'+parameter.apertura+'1-2?'+baseFilter]}
+      ,{id:2, nombre:"mapa",paneles:['tiempo-planta/supervisor/'+parameterFilter]}
+      ,{id:3, nombre:"mapa",paneles:['nc-pendientes/supervisor/'+parameterFilter]}
+      ,{id:4, nombre:"acreditacion",paneles:['OPER'+parameter.apertura+'2?'+baseFilter]}
+      ,{id:5, nombre:"% visitas",paneles:['OPER'+parameter.apertura+'3?'+baseFilter]}
+      ,{id:6, nombre:"% auditorias",paneles:['OPER'+parameter.apertura+'6?'+baseFilter]}
+   //   ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
+   ,{id:7, nombre:"visitas y auditorias cumplimiento",paneles:['OPER'+parameter.apertura+'8?'+baseFilter,'OPER'+parameter.apertura+'8-2?'+baseFilter]}
+      ,{id:8, nombre:"No conformidades",paneles:['OPER'+parameter.apertura+'4?'+baseFilter]}
+      ,{id:9, nombre:"Turnos por confimar",paneles:['OPER'+parameter.apertura+'5?'+baseFilter]}
     
     ]
+    
 
   }else if(idMatriz==4){
+
+      //accion inmediata
 
       //todos los supervisores
       var  id_supervisores=  plantas.map(value=>{
@@ -146,7 +163,7 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
       let mapasNCPendientes=getTemplateEndpoints("nc-pendientes","supervisor",distinctSupervisores)
       let mapasVisitasPendientes=getTemplateEndpoints("visitas-pendientes","supervisor",distinctSupervisores)
 
-    //accion inmediata
+  
     
 
   urlBase="http://192.168.100.141/TouchServer/embed.html#vfs://Global/Auditorias/"
@@ -167,8 +184,15 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
   //jefe operaciones
   
 
+  let typeFilter='jefeop'
+  //parameter={"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+ 
+  let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&")
+  let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+  parameter.apertura=parameter.apertura.toUpperCase()
+
         //todos los supervisores del jefe operaciones correspondiente
-        var  id_supervisores=plantas.filter(x=>x['jefe_operaciones']!=null).filter(x=>x['jefe_operaciones']==parameter.replace(/%20/g, " ")) .map(value=>{
+        var  id_supervisores=plantas.filter(x=>x['jefe_operaciones']!=null).filter(x=>x['jefe_operaciones']==parameterFilter.replace(/%20/g, " ")) .map(value=>{
           return value.administrativo_id;
         });
 
@@ -182,18 +206,22 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
         let mapasVisitasPendientes=getTemplateEndpoints("visitas-pendientes","supervisor",distinctSupervisores)
 
   urlBase="http://192.168.100.141/TouchServer/embed.html##" 
-   base=[
-    {id:1, nombre:"kpi",paneles:['OPERJEFE1?jefeoperaciones='+parameter]}
+   
+  base=[
+    {id:1, nombre:"kpi",paneles:['OPER'+parameter.apertura+'1?'+baseFilter,'OPER'+parameter.apertura+'1-2?'+baseFilter]}
     ,{id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
     ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
-    ,{id:4, nombre:"acreditacion",paneles:['OPERJEFE2?jefeoperaciones='+parameter]}
-    ,{id:5, nombre:"dotaciones",paneles:['OPERJEFE3?jefeoperaciones='+parameter]}
-    ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
-    ,{id:7, nombre:"No conformidades",paneles:['OPERJEFE4?jefeoperaciones='+parameter]}
-    ,{id:8, nombre:"visitas y auditorias",paneles:['OPERJEFE5?jefeoperaciones='+parameter]}
-    ,{id:9, nombre:"asistencias",paneles:['OPERJEFE6?jefeoperaciones='+parameter]}
+    ,{id:4, nombre:"acreditacion",paneles:['OPER'+parameter.apertura+'2?'+baseFilter]}
+    ,{id:5, nombre:"% visitas",paneles:['OPER'+parameter.apertura+'3?'+baseFilter]}
+    ,{id:6, nombre:"% auditorias",paneles:['OPER'+parameter.apertura+'6?'+baseFilter]}
+ //   ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
+ ,{id:7, nombre:"visitas y auditorias cumplimiento",paneles:['OPER'+parameter.apertura+'8?'+baseFilter,'OPER'+parameter.apertura+'8-2?'+baseFilter]}
+    ,{id:8, nombre:"No conformidades",paneles:['OPER'+parameter.apertura+'4?'+baseFilter]}
+    ,{id:9, nombre:"Turnos por confimar",paneles:['OPER'+parameter.apertura+'5?'+baseFilter]}
+   
   
   ]
+  
 
 }
 
@@ -293,7 +321,7 @@ let file= JSON.parse(fs.readFileSync('./config/activeTemplate.json','utf8'))
 console.log('file',file)
 
 let idMatriz=file.id
-let parameter=file.parameter
+let parameter=file
 
 //id Matriz- tiene el id matriz a obtener
 //parameter tiene el filtro (centro costo, nombre, etc)

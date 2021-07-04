@@ -120,12 +120,14 @@
 
       <div class="col-sm-12">
         <div class="card">
+
           <div class="card-body">
             <h5 class="card-title">Clientes
              
             </h5>
 
             <p class="card-text">Genera matriz reportes por clientes</p>
+            
             <div class="row">
 
               
@@ -145,7 +147,15 @@
               </div>
               
             </div>
-
+            
+            <div class="row"> 
+            <div class="col-2">
+                  <input type="radio" name="radio-apertura-cliente" value="supervisor" aria-label="Checkbox for following text input"> Supervisor
+            </div>
+            <div class="col-2">
+              <input type="radio"  name="radio-apertura-cliente" value="instalacion" aria-label="Checkbox for following text input"> Instalación
+        </div>
+          </div>
 
 
           </div>
@@ -180,7 +190,16 @@
               <div class="col-1">
                 <button type="button" id="supervisor-button" class="btn btn-primary">Ejecutar</button>
               </div>
-              
+
+            </div>
+
+            <div class="row"> 
+              <div class="col-2">
+                <input type="radio" name="radio-apertura-supervisor" value="cliente" aria-label="Checkbox for following text input"> Cliente
+          </div>
+          <div class="col-2">
+            <input type="radio"  name="radio-apertura-supervisor" value="instalacion" aria-label="Checkbox for following text input"> Instalación
+      </div>
             </div>
 
 
@@ -218,7 +237,17 @@
               
             </div>
 
-
+            <div class="row"> 
+              <div class="col-2">
+                    <input type="radio" name="radio-apertura-jefeop" value="instalacion" aria-label="Checkbox for following text input"> Instalación
+              </div>
+              <div class="col-2">
+                <input type="radio"  name="radio-apertura-jefeop" value="cliente" aria-label="Checkbox for following text input"> Cliente
+          </div>
+          <div class="col-2">
+            <input type="radio"  name="radio-apertura-jefeop" value="supervisor" aria-label="Checkbox for following text input"> Supervisor
+      </div>
+            </div>
 
           </div>
 
@@ -291,16 +320,18 @@ console.log(jefesOperaciones)
       $("#cliente-button").click(function (event) {
 
         let clienteSelected = $("#cliente-select").val();
+        let aperturaSelected=$('input[name="radio-apertura-cliente"]:checked').val();
 
         $('#supervisor-select').val("").change();
         $('#jefes-operaciones-select').val("").change();
-
+       
+      //  {"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
  console.log("boton empieza")
 
 //stop submit the form, we will post it manually.
 event.preventDefault();
     
-let data={'matrizConfig':{'id':2,'parameter':clienteSelected}};
+let data={'matrizConfig':{"id":2,"filterValue":[{"type":"cenco1codi","value":clienteSelected},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":aperturaSelected }};
 
 actualizaMatriz(data)
 
@@ -311,6 +342,7 @@ actualizaMatriz(data)
 $("#supervisor-button").click(function (event) {
 
 let supervisorSelected = $("#supervisor-select").val();
+let aperturaSelected=$('input[name="radio-apertura-supervisor"]:checked').val();
 
 $('#cliente-select').val("").change();
 $('#jefes-operaciones-select').val("").change();
@@ -320,7 +352,8 @@ console.log("boton empieza Supervisor")
 //stop submit the form, we will post it manually.
 event.preventDefault();
 
-let data={'matrizConfig':{'id':3,'parameter':supervisorSelected}};
+let data={'matrizConfig':{"id":3,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":supervisorSelected},{"type":"jefeop","value":null}],"apertura":aperturaSelected }};
+
 
 
 actualizaMatriz(data)
@@ -367,12 +400,14 @@ $("#jefes-operaciones-button").click(function (event) {
 console.log("boton empieza jefes operaciones")
 
 let jefesOperacionesSelected = $("#jefes-operaciones-select").val();
+let aperturaSelected=$('input[name="radio-apertura-jefeop"]:checked').val();
 
 
 //stop submit the form, we will post it manually.
 event.preventDefault();
 
-let data={'matrizConfig':{'id':5,'parameter':jefesOperacionesSelected}};
+let data={'matrizConfig':{"id":5,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":null},{"type":"jefeop","value":jefesOperacionesSelected}],"apertura":aperturaSelected }};
+
 
 
 actualizaMatriz(data)

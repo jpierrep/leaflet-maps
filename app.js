@@ -37,6 +37,9 @@ app.get("/testView", function (req, res) {
 
 //actualiza filtro parametro
 app.post("/actualizaFiltroMatriz", async function (req, res) {
+
+//{"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+
   console.log("actualiza matriz")
 //  fs.writeFileSync('test.json',JSON.stringify(JSON.parse(req)))
 
@@ -46,6 +49,8 @@ let matriz=req.body.matrizConfig
 //let matriz={"id":2,"parameter":"090-000"}
 console.log (matriz)
 let data=JSON.stringify(matriz)
+
+
 
 fs.writeFileSync('config/activeTemplate.json',data)
 
