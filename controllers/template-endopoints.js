@@ -78,6 +78,114 @@ async function getMatrices(idMatriz,parameter){
    
 
 
+  }else if(idMatriz==9){
+
+    //matriz cliente
+ 
+console.log("paramenter",parameter)
+
+ //parameter={"id":2,"filterValue":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+  let typeFilter=parameter["filterValue"].find(x=>x.value!=null).type
+  //typeFilter='cenco1codi'
+  //cambia null por %20 para urlparameter
+ let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&")
+ let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+
+
+ let mapasTiempoPlanta=[]
+ let mapasNCPendientes=[]
+
+
+ if(typeFilter=='cenco1codi'){
+  mapasTiempoPlanta= ['tiempo-planta/cliente/'+parameterFilter]
+  mapasNCPendientes=['nc-pendientes/cliente/'+parameterFilter]
+  } 
+ else if(typeFilter=='sup') {
+  mapasTiempoPlanta= ['tiempo-planta/supervisor/'+parameterFilter]
+  mapasNCPendientes=['nc-pendientes/supervisor/'+parameterFilter]
+ }
+ else if(typeFilter=='jefeop'){ 
+  var  ids_buscar=[]
+
+  if (parameter.apertura=='supervisor'){
+        //todos los supervisores del jefe operaciones correspondiente
+        ids_buscar=plantas.filter(x=>x['jefe_operaciones']!=null).filter(x=>x['jefe_operaciones']==parameterFilter.replace(/%20/g, " ")) .map(value=>{
+          return value.administrativo_id;
+        });
+    
+
+  }
+  if (parameter.apertura=='cliente'){
+            //todos los supervisores del jefe operaciones correspondiente
+            ids_buscar=plantas.filter(x=>x['jefe_operaciones']!=null).filter(x=>x['jefe_operaciones']==parameterFilter.replace(/%20/g, " ")) .map(value=>{
+              return value.CENCO1_CODI;
+            });
+        
+
+  }
+
+
+
+    var distinctIds=getUnique(ids_buscar);
+    console.log("distinctIds",distinctIds)
+
+   mapasTiempoPlanta=getTemplateEndpoints("tiempo-planta",parameter.apertura,distinctIds)
+  mapasNCPendientes=getTemplateEndpoints("nc-pendientes",parameter.apertura,distinctIds)
+
+} else {
+//si viene nulo traer todos los supervisores o clientes
+
+
+var  ids_buscar=[]
+
+  if (parameter.apertura=='supervisor'){
+        //todos los supervisores del jefe operaciones correspondiente
+        ids_buscar=plantas.filter(x=>x["administrativo_id"]!=null).map(value=>{
+          return value.administrativo_id;
+        });
+    
+
+  }
+  if (parameter.apertura=='cliente'){
+            //todos los supervisores del jefe operaciones correspondiente
+            ids_buscar=plantas.filter(x=>x["CENCO1_CODI"]!=null).map(value=>{
+              return value.CENCO1_CODI;
+            });  
+
+  }
+
+
+    var distinctIds=getUnique(ids_buscar);
+    console.log("distinctIds",distinctIds)
+
+   mapasTiempoPlanta=getTemplateEndpoints("tiempo-planta",parameter.apertura,distinctIds)
+  mapasNCPendientes=getTemplateEndpoints("nc-pendientes",parameter.apertura,distinctIds)
+
+} 
+
+
+
+
+
+//urlBase="http://192.168.100.141/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+urlBase="http://192.168.100.141/TouchServer/embed.html##" 
+parameter.apertura=parameter.apertura.toUpperCase()
+
+ base=[
+  {id:1, nombre:"kpi",paneles:['OPER'+parameter.apertura+'1?'+baseFilter,'OPER'+parameter.apertura+'1-2?'+baseFilter]}
+  ,{id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
+  ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
+  ,{id:4, nombre:"acreditacion",paneles:['OPER'+parameter.apertura+'2?'+baseFilter]}
+  ,{id:5, nombre:"% visitas",paneles:['OPER'+parameter.apertura+'3?'+baseFilter]}
+  ,{id:6, nombre:"% auditorias",paneles:['OPER'+parameter.apertura+'6?'+baseFilter]}
+//   ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
+,{id:7, nombre:"visitas y auditorias cumplimiento",paneles:['OPER'+parameter.apertura+'8?'+baseFilter,'OPER'+parameter.apertura+'8-2?'+baseFilter]}
+  ,{id:8, nombre:"No conformidades",paneles:['OPER'+parameter.apertura+'4?'+baseFilter]}
+  ,{id:9, nombre:"Turnos por confimar",paneles:['OPER'+parameter.apertura+'5?'+baseFilter]}
+
+]
+
+
   }
   else if (idMatriz==1){
 
