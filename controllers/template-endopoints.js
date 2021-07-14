@@ -44,7 +44,42 @@ async function getMatrices(idMatriz,parameter){
   let  urlBase=''
   let base=''
 
-  if (idMatriz==1){
+  if (idMatriz==8){
+
+    console.log("paramenter",parameter)
+    let typeFilter='cenco1codi'
+     //parameter={"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+    
+     let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&")
+     let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+     parameter.apertura=parameter.apertura.toUpperCase()
+    
+    
+    
+    //urlBase="http://192.168.100.141/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+    urlBase="http://192.168.100.141/TouchServer/embed.html##" 
+    
+     base=[
+      {id:1, nombre:"kpi",paneles:['OPERPRINC'+parameter.apertura+'P1-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P1-2?'+baseFilter]}
+      ,{id:2, nombre:"mapa",paneles:['tiempo-planta/cliente/'+parameterFilter]}
+      ,{id:3, nombre:"mapa",paneles:['nc-pendientes/cliente/'+parameterFilter]}
+      ,{id:4, nombre:"acreditacion",paneles:['OPERPRINC'+parameter.apertura+'P4-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-4?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-5?'+baseFilter]}
+      ,{id:5, nombre:"% visitas",paneles:['OPERPRINC'+parameter.apertura+'P5-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-4?'+baseFilter]}
+      ,{id:6, nombre:"% auditorias",paneles:['OPERPRINC'+parameter.apertura+'6?'+baseFilter]}
+    //   ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
+    ,{id:7, nombre:"visitas y auditorias cumplimiento",paneles:['OPERPRINC'+parameter.apertura+'P7-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P7-2?'+baseFilter]}
+      ,{id:8, nombre:"No conformidades",paneles:['OPERPRINC'+parameter.apertura+'P8-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P8-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P8-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P8-4?'+baseFilter]}
+      ,{id:9, nombre:"Turnos por confimar",paneles:['OPERPRINC'+parameter.apertura+'P9-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P9-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P9-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P9-4?'+baseFilter,'OPERPRINC'+parameter.apertura+'P9-5?'+baseFilter]}
+    
+    ]
+    
+
+
+   
+
+
+  }
+  else if (idMatriz==1){
 
 
     //todos los supervisores
