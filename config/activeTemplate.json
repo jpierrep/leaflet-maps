@@ -1,1 +1,4 @@
-{"id":5,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":null},{"type":"jefeop","value":"Delgado%20Hugo"}],"apertura":"instalacion"}
+
+    {"id":9,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":null},{"type":"jefeop","value":"Turres%20Jorge"}],"apertura":"instalacion"
+    ,"old":{"id":8,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":null},{"type":"jefeop","value":"Turres%20Jorge"}],"apertura":"cliente"}
+    }

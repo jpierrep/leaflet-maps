@@ -47,22 +47,28 @@ async function getMatrices(idMatriz,parameter){
   if (idMatriz==8){
 
     console.log("paramenter",parameter)
-    let typeFilter='cenco1codi'
+    
      //parameter={"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
     
      let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&")
-     let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+     /// paara los mapas let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+     
+     
+     let mapasTiempoPlanta=await getMapsEndPoints('tiempo-planta',parameter)
+     let mapasNCPendientes=await getMapsEndPoints('nc-pendientes',parameter)
+     
      parameter.apertura=parameter.apertura.toUpperCase()
-    
-    
+     
+
+
     
     //urlBase="http://192.168.100.141/TouchServer/embed.html##OPER1?cenco1codi=962-000"
     urlBase="http://192.168.100.141/TouchServer/embed.html##" 
     
      base=[
       {id:1, nombre:"kpi",paneles:['OPERPRINC'+parameter.apertura+'P1-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P1-2?'+baseFilter]}
-      ,{id:2, nombre:"mapa",paneles:['tiempo-planta/cliente/'+parameterFilter]}
-      ,{id:3, nombre:"mapa",paneles:['nc-pendientes/cliente/'+parameterFilter]}
+      ,{id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
+      ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
       ,{id:4, nombre:"acreditacion",paneles:['OPERPRINC'+parameter.apertura+'P4-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-4?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-5?'+baseFilter]}
       ,{id:5, nombre:"% visitas",paneles:['OPERPRINC'+parameter.apertura+'P5-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-4?'+baseFilter]}
       ,{id:6, nombre:"% auditorias",paneles:['OPERPRINC'+parameter.apertura+'6?'+baseFilter]}
@@ -89,80 +95,9 @@ console.log("paramenter",parameter)
   //typeFilter='cenco1codi'
   //cambia null por %20 para urlparameter
  let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&")
- let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
-
-
- let mapasTiempoPlanta=[]
- let mapasNCPendientes=[]
-
-
- if(typeFilter=='cenco1codi'){
-  mapasTiempoPlanta= ['tiempo-planta/cliente/'+parameterFilter]
-  mapasNCPendientes=['nc-pendientes/cliente/'+parameterFilter]
-  } 
- else if(typeFilter=='sup') {
-  mapasTiempoPlanta= ['tiempo-planta/supervisor/'+parameterFilter]
-  mapasNCPendientes=['nc-pendientes/supervisor/'+parameterFilter]
- }
- else if(typeFilter=='jefeop'){ 
-  var  ids_buscar=[]
-
-  if (parameter.apertura=='supervisor'){
-        //todos los supervisores del jefe operaciones correspondiente
-        ids_buscar=plantas.filter(x=>x['jefe_operaciones']!=null).filter(x=>x['jefe_operaciones']==parameterFilter.replace(/%20/g, " ")) .map(value=>{
-          return value.administrativo_id;
-        });
-    
-
-  }
-  if (parameter.apertura=='cliente'){
-            //todos los supervisores del jefe operaciones correspondiente
-            ids_buscar=plantas.filter(x=>x['jefe_operaciones']!=null).filter(x=>x['jefe_operaciones']==parameterFilter.replace(/%20/g, " ")) .map(value=>{
-              return value.CENCO1_CODI;
-            });
-        
-
-  }
-
-
-
-    var distinctIds=getUnique(ids_buscar);
-    console.log("distinctIds",distinctIds)
-
-   mapasTiempoPlanta=getTemplateEndpoints("tiempo-planta",parameter.apertura,distinctIds)
-  mapasNCPendientes=getTemplateEndpoints("nc-pendientes",parameter.apertura,distinctIds)
-
-} else {
-//si viene nulo traer todos los supervisores o clientes
-
-
-var  ids_buscar=[]
-
-  if (parameter.apertura=='supervisor'){
-        //todos los supervisores del jefe operaciones correspondiente
-        ids_buscar=plantas.filter(x=>x["administrativo_id"]!=null).map(value=>{
-          return value.administrativo_id;
-        });
-    
-
-  }
-  if (parameter.apertura=='cliente'){
-            //todos los supervisores del jefe operaciones correspondiente
-            ids_buscar=plantas.filter(x=>x["CENCO1_CODI"]!=null).map(value=>{
-              return value.CENCO1_CODI;
-            });  
-
-  }
-
-
-    var distinctIds=getUnique(ids_buscar);
-    console.log("distinctIds",distinctIds)
-
-   mapasTiempoPlanta=getTemplateEndpoints("tiempo-planta",parameter.apertura,distinctIds)
-  mapasNCPendientes=getTemplateEndpoints("nc-pendientes",parameter.apertura,distinctIds)
-
-} 
-
+ 
+ let mapasTiempoPlanta=await getMapsEndPoints('tiempo-planta',parameter)
+ let mapasNCPendientes=await getMapsEndPoints('nc-pendientes',parameter)
 
 
 
@@ -368,6 +303,9 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
 
 }
 
+
+
+console.log("la base es",base)
 
   //se añade url base
 base= base.map(pantalla=>{
@@ -590,6 +528,116 @@ function entrega_resultDB(queryDB){
 
 
    }); 
+
+
+
+}
+
+
+
+async function getMapsEndPoints(tipoMapa,parameter){
+
+
+
+  let plantas= await getPlantas()
+ //parameter={"id":2,"filterValue":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+ let typeFilter=parameter["filterValue"].find(x=>x.value!=null).type
+
+ //typeFilter='cenco1codi'
+ //cambia null por %20 para urlparameter
+//let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&") //composicion para la url del filtro
+let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+
+/*
+  tipoMapa='tiempo-planta'
+  typeFilter='cenco1codi'
+  parameterFilter='128-000'
+  apertura=""
+  //apertura='supervisor'
+  */
+ let mapasURLS=[]
+ 
+
+
+ if(typeFilter=='cenco1codi'){
+  mapasURLS= [tipoMapa+'/cliente/'+parameterFilter]
+ 
+  } 
+ else if(typeFilter=='sup') {
+  mapasURLS= [tipoMapa+'/supervisor/'+parameterFilter]
+ }
+ else if(typeFilter=='jefeop'){ 
+  var  ids_buscar=[]
+
+  if (parameter.apertura=='supervisor'){
+        //todos los supervisores del jefe operaciones correspondiente
+        ids_buscar=plantas.filter(x=>x['jefe_operaciones']!=null).filter(x=>x['jefe_operaciones']==parameterFilter.replace(/%20/g, " ")) .map(value=>{
+          return value.administrativo_id;
+        });
+    
+
+  }
+  if (parameter.apertura=='cliente'){
+    console.log("dentro de cliente")
+            //todos los supervisores del jefe operaciones correspondiente
+            ids_buscar=plantas.filter(x=>x['jefe_operaciones']!=null).filter(x=>x['jefe_operaciones']==parameterFilter.replace(/%20/g, " ")) .map(value=>{
+              return value.CENCO1_CODI;
+            });
+        
+
+  }
+
+
+
+    var distinctIds=getUnique(ids_buscar);
+    console.log("distinctIds",distinctIds)
+
+    mapasURLS=getTemplateEndpoints(tipoMapa,parameter.apertura,distinctIds)
+
+
+} else {
+//si viene nulo traer todos los supervisores o clientes
+
+
+var  ids_buscar=[]
+
+  if (parameter.apertura=='supervisor'){
+        //todos los supervisores del jefe operaciones correspondiente
+        ids_buscar=plantas.filter(x=>x["administrativo_id"]!=null).map(value=>{
+          return value.administrativo_id;
+        });
+    
+
+  }
+  if (parameter.apertura=='cliente'){
+            //todos los supervisores del jefe operaciones correspondiente
+            ids_buscar=plantas.filter(x=>x["CENCO1_CODI"]!=null).map(value=>{
+              return value.CENCO1_CODI;
+            });  
+
+  }
+
+
+    var distinctIds=getUnique(ids_buscar);
+    console.log("distinctIds",distinctIds)
+
+    mapasURLS=getTemplateEndpoints(tipoMapa,parameter.apertura,distinctIds)
+
+} 
+console.log("mapas url",mapasURLS)
+
+/*
+mapas url [
+  'nc-pendientes/cliente/028-000',
+  'nc-pendientes/cliente/113-000',
+  'nc-pendientes/cliente/129-000',
+  'nc-pendientes/cliente/145-000',
+  'nc-pendientes/cliente/955-000',
+  'nc-pendientes/cliente/956-000',
+  'nc-pendientes/cliente/962-000'
+]
+*/
+return mapasURLS
 
 
 
