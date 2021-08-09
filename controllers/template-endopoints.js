@@ -91,8 +91,7 @@ async function getMatrices(idMatriz,parameter){
 console.log("paramenter",parameter)
 
  //parameter={"id":2,"filterValue":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
-  let typeFilter=parameter["filterValue"].find(x=>x.value!=null).type
-  //typeFilter='cenco1codi'
+
   //cambia null por %20 para urlparameter
  let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&")
  
@@ -107,9 +106,11 @@ urlBase="http://192.168.100.141/TouchServer/embed.html##"
 parameter.apertura=parameter.apertura.toUpperCase()
 
  base=[
-  {id:1, nombre:"kpi",paneles:['OPER'+parameter.apertura+'1?'+baseFilter,'OPER'+parameter.apertura+'1-2?'+baseFilter]}
-  ,{id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
+ {id:1, nombre:"kpi",paneles:['OPER'+parameter.apertura+'1?'+baseFilter,'OPER'+parameter.apertura+'1-2?'+baseFilter]},
+  {id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
   ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
+
+  
   ,{id:4, nombre:"acreditacion",paneles:['OPER'+parameter.apertura+'2?'+baseFilter]}
   ,{id:5, nombre:"% visitas",paneles:['OPER'+parameter.apertura+'3?'+baseFilter]}
   ,{id:6, nombre:"% auditorias",paneles:['OPER'+parameter.apertura+'6?'+baseFilter]}
@@ -482,17 +483,23 @@ function getTemplateEndpoints(tipo,dimension,listado){
 
 async function getPlantas(){
   let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_CODI as CENCO1_CODI, ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
-  ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp,estr.jefe_operaciones
+  ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
   ,ci.CENCO2_CODI as cenco2_codi,estr.zona_nombre
+   ,jefeOp.[JEFE OPERACIONES]
+
+
       FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
       on p.centro_costos_id=cc.id
       left join [BI-SERVER-01].Inteligencias.dbo.VIEW_CENTROS_COSTO as ci
       left join [BI-SERVER-01].Inteligencias.dbo.VIEW_SIST_CENTRAL_ESTR_ORGANIZACION as estr
+	
       on estr.cencos_codigo=ci.CENCO2_CODI and estr.empresa_id=ci.EMP_CODI
       on ci.CENCO2_CODI=cc.cencos_codigo and ci.EMP_CODI=cc.empresa_id
     left join [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] as dot
      on dot.CENCO2_CODI=ci.CENCO2_CODI and dot.EMP_CODI=ci.EMP_CODI and dot.ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
-      where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0 
+     
+	   left join [BI-SERVER-01].Inteligencias.dbo.CCOSTO_JEFE_OPERACIONES as jefeOp on ci.CENCO2_CODI=jefeOp.CODI collate Modern_Spanish_CI_AS
+	 where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0 
       and dot.PERSONAL_VIGENTE_ERP>0 and administrativo_id is not null
       and administrativo_id not in (16750473,6757887) --excluye patricio peñaloza y zona testing
       order by ci.CENCO1_DESC asc
@@ -541,12 +548,17 @@ async function getMapsEndPoints(tipoMapa,parameter){
 
   let plantas= await getPlantas()
  //parameter={"id":2,"filterValue":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
- let typeFilter=parameter["filterValue"].find(x=>x.value!=null).type
+ let typeFilter=parameter["filterValue"].find(x=>x.value!=null)?parameter["filterValue"].find(x=>x.value!=null).type:null
+ let parameterFilter=null
 
  //typeFilter='cenco1codi'
  //cambia null por %20 para urlparameter
 //let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&") //composicion para la url del filtro
-let parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+if (typeFilter!=null){
+  parameterFilter=parameter.filterValue.find(x=>x.type==typeFilter).value
+}
+
+
 
 /*
   tipoMapa='tiempo-planta'

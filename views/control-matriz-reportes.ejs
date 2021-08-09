@@ -31,91 +31,78 @@
     <strong>Error!</strong> Archivo sin formato o sin ruts.
   </div>
 
+
+
   <div class="container">
-    <div class="row">
-<!--
-      <div class="col-6"> Empresa:
-        <select id="empresa-select" class="custom-select custom-select-lg mb-3">
 
-          <option selected value="0">Guard Service Seguridad S.A.</option>
-          <option value="2">GS Outsourcing S.A.</option>
+    <div class="row mt-5 justify-content-center">
 
-        </select>
-      </div>
-      <div class="col-6"> Mes:
-        <select id="mes-select"  class="custom-select custom-select-lg mb-3">
-
-       <option selected value="2020-11-01">2020-11</option>
-          <option value="2020-10-01">2020-10</option>
-      
-
-        </select>
-      </div>
-
-      -->
-
+  <div class="col-sm-12">
+  <div class="card">
+    <div class="card-header">
+      Matrices
+    </div>
+  
+    <div class="container">
     
+      <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
 
+        <div class="card-body">
+          <h5 class="card-title">Matrices
+           
+          </h5>
+
+          <p class="card-text">Seleccion de matrices a mostrar</p>
+          
+          <div class="row">
+
+            
+
+              <div class="col-6"> 
+                <select id="matriz-select" class="custom-select custom-select-lg mb-3">
+                  <option selected value="">SELECCIONE MATRIZ.. </option>
+                  <option  value="8">MATRIZ PRINCIPAL </option>
+                  <option value="9">MATRIZ RESUMEN</option>
+     
+                </select>
+              </div>
+
+
+            
+          </div>
+          
+
+
+        </div>
+
+      </div>
     </div>
   </div>
+</div>
+
+  </div>
+</div>
+</div>
 
 
+
+
+
+
+
+<div class="row mt-5 justify-content-center">
+
+<div class="col-sm-12">
+  <div class="card">
+    <div class="card-header">
+      Filtros
+    </div>
   <div class="container">
     <div class="row">
 
-      <div class="col-sm-12">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Matriz Principal
-             
-            </h5>
 
-            <p class="card-text">Genera matriz reportes principal</p>
-            <div class="row">
-
-              
-
- 
-              
-              <div class="col-1">
-                <button type="button" id="principal-button" class="btn btn-primary">Ejecutar</button>
-              </div>
-              
-            </div>
-
-
-
-          </div>
-
-        </div>
-      </div>
-
-      <div class="col-sm-12">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Matriz Acción Inmediata
-             
-            </h5>
-
-            <p class="card-text">Genera matriz reportes acción inmediata</p>
-            <div class="row">
-
-              
-
- 
-              
-              <div class="col-1">
-                <button type="button" id="accion-inmediata-button" class="btn btn-primary">Ejecutar</button>
-              </div>
-              
-            </div>
-
-
-
-          </div>
-
-        </div>
-      </div>
 
 
       <div class="col-sm-12">
@@ -254,14 +241,66 @@
         </div>
       </div>
 
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Zonas
+             
+            </h5>
+
+            <p class="card-text">Genera matriz reportes por Zona</p>
+            <div class="row">
+
+              
+
+                <div class="col-6"> 
+                  <select id="zona-select" class="custom-select custom-select-lg mb-3">
+                    <option selected value="160-000">SELECCIONE ZONA... </option>
+                    <option  value="160-000">ZONA 1 </option>
+                    <option value="090-000">ZONA 2</option>
+                    <option  value="160-000">ZONA 3 </option>
+                    <option value="090-000">ZONA 4</option>
+                    <option  value="160-000">ZONA 5</option>
+                    <option value="090-000">ZONA 6</option>
+          
+                  </select>
+                </div>
+
+              
+              <div class="col-1">
+                <button type="button" id="zona-button" class="btn btn-primary">Ejecutar</button>
+              </div>
+              
+            </div>
+
+            <div class="row"> 
+              <div class="col-2">
+                    <input type="radio" name="radio-apertura-zona" value="instalacion" aria-label="Checkbox for following text input"> Instalación
+              </div>
+              <div class="col-2">
+                <input type="radio"  name="radio-apertura-zona" value="cliente" aria-label="Checkbox for following text input"> Cliente
+          </div>
+          <div class="col-2">
+            <input type="radio"  name="radio-apertura-zona" value="supervisor" aria-label="Checkbox for following text input"> Supervisor
+      </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
 
 
     </div>
 
   </div>
+</div>
+</div>
+</div>
 
 
-
+</div>
 
 
 
@@ -318,8 +357,8 @@ console.log(jefesOperaciones)
 
 
       $("#cliente-button").click(function (event) {
-
-        let clienteSelected = $("#cliente-select").val();
+        let matrizSelected = $("#matriz-select").val();
+        let clienteSelected = $("#cliente-select").val()==""?null:$("#cliente-select").val();
         let aperturaSelected=$('input[name="radio-apertura-cliente"]:checked').val();
 
         $('#supervisor-select').val("").change();
@@ -331,7 +370,7 @@ console.log(jefesOperaciones)
 //stop submit the form, we will post it manually.
 event.preventDefault();
     
-let data={'matrizConfig':{"id":2,"filterValue":[{"type":"cenco1codi","value":clienteSelected},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":aperturaSelected }};
+let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":clienteSelected},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":aperturaSelected }};
 
 actualizaMatriz(data)
 
@@ -340,8 +379,8 @@ actualizaMatriz(data)
 
 
 $("#supervisor-button").click(function (event) {
-
-let supervisorSelected = $("#supervisor-select").val();
+  let matrizSelected = $("#matriz-select").val();
+let supervisorSelected = $("#supervisor-select").val()==""?null: $("#supervisor-select").val();
 let aperturaSelected=$('input[name="radio-apertura-supervisor"]:checked').val();
 
 $('#cliente-select').val("").change();
@@ -352,7 +391,7 @@ console.log("boton empieza Supervisor")
 //stop submit the form, we will post it manually.
 event.preventDefault();
 
-let data={'matrizConfig':{"id":3,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":supervisorSelected},{"type":"jefeop","value":null}],"apertura":aperturaSelected }};
+let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":supervisorSelected},{"type":"jefeop","value":null}],"apertura":aperturaSelected }};
 
 
 
@@ -398,15 +437,15 @@ $("#jefes-operaciones-button").click(function (event) {
   $('#supervisor-select').val("").change();
 
 console.log("boton empieza jefes operaciones")
-
-let jefesOperacionesSelected = $("#jefes-operaciones-select").val();
+let matrizSelected = $("#matriz-select").val();
+let jefesOperacionesSelected = $("#jefes-operaciones-select").val()==""?null:$("#jefes-operaciones-select").val();
 let aperturaSelected=$('input[name="radio-apertura-jefeop"]:checked').val();
 
 
 //stop submit the form, we will post it manually.
 event.preventDefault();
 
-let data={'matrizConfig':{"id":5,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":null},{"type":"jefeop","value":jefesOperacionesSelected}],"apertura":aperturaSelected }};
+let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":null},{"type":"jefeop","value":jefesOperacionesSelected}],"apertura":aperturaSelected }};
 
 
 
