@@ -2,6 +2,7 @@
 
 var bodyParser = require('body-parser')
 var express=require("express");
+const axios = require('axios').default;
 
 var app=express();
 var path=require('path');
@@ -9,6 +10,8 @@ var sql = require("mssql");
 var stringify = require('json-stringify');
 const plantilla_websites = require('./controllers/template-endopoints');
 const fs = require('fs');
+
+const cicURL='192.168.5.5:3800/cic_control/'
 
 // config for your database
 var config = {
@@ -61,6 +64,47 @@ res.status(200).send({status:"ok"});
   
 
 })
+
+
+//actualiza filtro parametro
+
+app.get("/cicStop", async function (req, res) {
+
+  //{"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+  
+    console.log("cerrando cic")
+    //http://192.168.5.5:3800/cic_control/cicRestart
+    //http://192.168.5.5:3800/cic_control/cicStop
+    try {
+      const resp = await axios.get('http://'+cicURL+'/cicStop',);
+      console.log(resp.data);
+    return  res.status(200).send({status:"ok"});
+  } catch (err) {
+      // Handle Error Here
+      console.error(err);
+   return   res.status(500).send({status:"error"});
+  }   
+  
+  })
+
+  app.get("/cicRestart", async function (req, res) {
+
+    //{"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+    
+      console.log("cerrando cic")
+      //http://192.168.5.5:3800/cic_control/cicRestart
+      //http://192.168.5.5:3800/cic_control/cicStop
+      try {
+        const resp = await axios.get('http://'+cicURL+'/cicRestart',);
+        console.log(resp.data);
+      return  res.status(200).send({status:"ok"});
+    } catch (err) {
+        // Handle Error Here
+        console.error(err);
+     return   res.status(500).send({status:"error"});
+    }   
+    
+    })
 
 
 app.get("/testViewMatriz", async function (req, res) {

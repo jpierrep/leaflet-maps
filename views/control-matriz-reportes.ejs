@@ -69,6 +69,12 @@
                 </select>
               </div>
 
+              <div class="col-1">
+                <button type="button" id="cic-stop-button" class="btn btn-danger">Detener</button>
+              </div>
+              <div class="col-1">
+                <button type="button" id="cic-restart-button" class="btn btn-success">Reiniciar</button>
+              </div>
 
             
           </div>
@@ -416,6 +422,9 @@ actualizaMatriz(data)
 });
 
 
+
+
+
 $("#accion-inmediata-button").click(function (event) {
 
 
@@ -454,7 +463,25 @@ actualizaMatriz(data)
 });
 
 
+$("#cic-stop-button").click(function (event) {
 
+
+console.log("cerrarCic")
+
+
+cicControl('stop')
+
+});
+
+$("#cic-restart-button").click(function (event) {
+
+
+console.log("reiniciar cic")
+
+
+cicControl('restart')
+
+});
 
 
 
@@ -490,6 +517,32 @@ console.log("ERROR : ", e);
 });
 
 }
+
+
+function cicControl(action){
+
+  let url=''
+
+if (action=='restart'){
+url='/cicRestart'
+}
+
+if (action=='stop'){
+  url='/cicStop'
+}
+
+$.get( url, function(data) {
+  alert( "success",data );
+})
+  .done(function() {
+    //alert( "second success" );
+  })
+
+}
+
+
+
+
 
     </script>
 
