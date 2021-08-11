@@ -56,8 +56,17 @@ let data=JSON.stringify(matriz)
 
 
 fs.writeFileSync('config/activeTemplate.json',data)
+try{
+  console.log("exito control cic")
+  await cicRestart()
+  res.status(200).send({status:"ok"});
+}catch{
+  console.log("no se puede tener control de la cic")
+  res.status(500).send({status:"error"});
+}
 
-res.status(200).send({status:"ok"});
+
+
 
 
 
@@ -911,6 +920,26 @@ SELECT distinct --distinct porque acá también vienen los comentarios
   });
 
 }
+
+async function cicRestart(){
+
+  //{"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+    
+  console.log("cerrando cic")
+  //http://192.168.5.5:3800/cic_control/cicRestart
+  //http://192.168.5.5:3800/cic_control/cicStop
+  try {
+    const resp = await axios.get('http://'+cicURL+'/cicRestart',);
+    console.log(resp.data);
+  return {status:"ok"} ;
+} catch (err) {
+    // Handle Error Here
+    console.error(err);
+ return  {status:"error"};
+} 
+}
+
+
 
 async function getInfoCentroCosto(){
   let query=` 

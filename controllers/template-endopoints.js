@@ -576,7 +576,9 @@ if (typeFilter!=null){
  
   } 
  else if(typeFilter=='sup') {
-  mapasURLS= [tipoMapa+'/supervisor/'+parameterFilter]
+
+  let id_buscar=plantas.find(x=>x['administrativo_nombre']==parameterFilter.replace(/%20/g, " "))['administrativo_id']
+  mapasURLS= [tipoMapa+'/supervisor/'+id_buscar]
  }
  else if(typeFilter=='jefeop'){ 
   var  ids_buscar=[]
