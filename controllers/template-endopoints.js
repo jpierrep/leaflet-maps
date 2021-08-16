@@ -46,6 +46,8 @@ async function getMatrices(idMatriz,parameter){
 
   if (idMatriz==8){
 
+    //matriz principal
+
     console.log("paramenter",parameter)
     
      //parameter={"id":2,"filter":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
@@ -86,7 +88,7 @@ async function getMatrices(idMatriz,parameter){
 
   }else if(idMatriz==9){
 
-    //matriz cliente
+    //matriz resumen
  
 console.log("paramenter",parameter)
 
@@ -485,7 +487,7 @@ async function getPlantas(){
   let query=`SELECT [nombre],[longitude],[latitude] ,ci.CENCO1_CODI as CENCO1_CODI, ci.CENCO1_DESC as cenco1_desc,estr.administrativo_id,estr.administrativo_nombre
   ,dot.DOT_ASIG_COTIZA as cotiza_dot_asignada,dot.DOT_VENDIDA_COTIZA as cotiza_dot_vendida,dot.PERSONAL_VIGENTE_ERP as cotiza_dot_vigente_erp
   ,ci.CENCO2_CODI as cenco2_codi,estr.zona_nombre
-   ,jefeOp.[JEFE OPERACIONES]
+   ,jefeOp.[JEFE OPERACIONES] as jefe_operaciones
 
 
       FROM [SISTEMA_CENTRAL].[dbo].[plantas] as p left join [SISTEMA_CENTRAL].[dbo].[centros_costos] as cc
