@@ -144,11 +144,20 @@ app.get("/testViewMatriz", async function (req, res) {
 
   })
 
-console.log(clientes)
-console.log(supervisores)
+
+  let distinctZonas=getUniqueProp(dataMap,'zona_nombre')
+  let zonas= distinctZonas.filter(x=>x!=null) .map(zona=>{
+
+    
+    return {CODI:zona.replace(/ /g, "%20"),VALUE:zona,LABEL:zona}
+
+  })
+
+console.log(zonas,'zonas')
+//console.log(supervisores)
 
 
-  res.render("control-matriz-reportes.ejs", { CLIENTES: clientes,SUPERVISORES:supervisores,JEFES_OPERACIONES:jefesOperaciones });
+  res.render("control-matriz-reportes.ejs", { CLIENTES: clientes,SUPERVISORES:supervisores,JEFES_OPERACIONES:jefesOperaciones,ZONAS:zonas });
 })
 
 
@@ -239,12 +248,14 @@ app.get("/tiempo-planta/:tipo/:id",async  function (req, res) {
  
   console.log("he")
   console.log("id",req.params.id)
-let dataMap=await getDataTiempoPlantaInstalaciones(req.params.tipo,req.params.id)
+  let id= decodeURI(req.params.id)
+
+let dataMap=await getDataTiempoPlantaInstalaciones(req.params.tipo,id)
 let max_duracion=Math.max(...dataMap.map(x=>parseFloat(x["DURACION"])))
 
 let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
-let supervisor_id=req.params.id
+let supervisor_id=id
 let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,max_duracion:max_duracion}
 
 //console.log(dataMap)
@@ -267,7 +278,7 @@ let geoJSON= dataMap.map(element=>{
   };
 
 });
-console.log(geoJSON)
+//console.log(geoJSON)
 
   res.render("tiempo-planta.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
 })
@@ -283,26 +294,28 @@ app.get("/nc-pendientes/:tipo/:id",async  function (req, res) {
 
   if (tipo=='cliente')
   filterName='CENCO1_CODI'
-
+  if (tipo=='zona')
+  filterName='zona_nombre'
   
 
-  let supervisor_id=req.params.id
-
+  let id=decodeURI(req.params.id)
+ console.log(id,tipo)
 
   //data todas las no conformidades pendientes para agrupar en el mapa
-let dataMap=await getNCPendientes(req.params.tipo,req.params.id) 
+let dataMap=await getNCPendientes(tipo,id) 
 //data para mostrar en tabla
-let dataNCSupervisor=await getDataNCInstalaciones(req.params.tipo,req.params.id)
+let dataNCSupervisor=await getDataNCInstalaciones(tipo,id)
 
 //data de todas las plantas para añadir pin e info si fuese necesario
 
-let dataPlantas=(await getPlantas()).filter(x=>x[filterName]==req.params.id)
+let dataPlantas=(await getPlantas()).filter(x=>x[filterName]==id)
+console.log(dataPlantas,'todas')
 
 let supervisor_nombre=getUniqueProp(dataPlantas,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataPlantas,'zona_nombre').join(', ');
-console.log(supervisor_nombre,supervisor_zona)
 
-let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,dataNCSupervisor:dataNCSupervisor}
+
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:id,data_instalaciones:dataMap,dataNCSupervisor:dataNCSupervisor}
 
 //console.log(dataMap)
 //var geoJSON= createGeoJSON(dataMap);
@@ -644,6 +657,8 @@ function getResumenSupervisor(){
   if (tipo=='cliente')
   filterName=`cc.cencos_codigo like '%`+id.substr(0,4)+`%'`
 
+  if (tipo=='zona')
+  filterName=`zona_nombre = '`+id+`'`
 
   let query=`  
   select 
@@ -750,6 +765,9 @@ function getDataTiempoPlantaInstalaciones(tipo,id){
 
   if (tipo=='cliente')
   filterName=`cc.cencos_codigo like '%`+id.substr(0,4)+`%'`
+
+  if (tipo=='zona')
+  filterName=`zona_nombre = '`+id+`'`
 
   let query=`  
 
@@ -866,7 +884,9 @@ function getNCPendientes(tipo,id){
 
   if (tipo=='cliente')
   filterName=`cc.cencos_codigo like '%`+id.substr(0,4)+`%'`
+  if (tipo=='zona')
 
+  filterName=`zona_nombre = '`+id+`'`
   let query=`  
 
   select 
@@ -946,7 +966,7 @@ async function getInfoCentroCosto(){
   SELECT  [bi_dotaciones].*,
 SUBSTRING(bi_dotaciones.CENCO2_CODI,0,4)+'-000' as CENCO1_CODI
 ,estr.administrativo_nombre,estr.administrativo_id
-,cc.CENCO1_DESC,estr.jefe_operaciones
+,cc.CENCO1_DESC,estr.jefe_operaciones,estr.zona_nombre
 
 
   FROM [SISTEMA_CENTRAL].[dbo].[bi_dotaciones]

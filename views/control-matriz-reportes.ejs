@@ -260,34 +260,29 @@
               
 
                 <div class="col-6"> 
-                  <select id="zona-select" class="custom-select custom-select-lg mb-3">
+                  <select id="zonas-select" class="custom-select custom-select-lg mb-3">
                     <option selected value="160-000">SELECCIONE ZONA... </option>
                     <option  value="160-000">ZONA 1 </option>
-                    <option value="090-000">ZONA 2</option>
-                    <option  value="160-000">ZONA 3 </option>
-                    <option value="090-000">ZONA 4</option>
-                    <option  value="160-000">ZONA 5</option>
-                    <option value="090-000">ZONA 6</option>
           
                   </select>
                 </div>
 
               
               <div class="col-1">
-                <button type="button" id="zona-button" class="btn btn-primary">Ejecutar</button>
+                <button type="button" id="zonas-button" class="btn btn-primary">Ejecutar</button>
               </div>
               
             </div>
 
             <div class="row"> 
               <div class="col-2">
-                    <input type="radio" name="radio-apertura-zona" value="instalacion" aria-label="Checkbox for following text input"> Instalación
+                    <input type="radio" name="radio-apertura-zonas" value="instalacion" aria-label="Checkbox for following text input"> Instalación
               </div>
               <div class="col-2">
-                <input type="radio"  name="radio-apertura-zona" value="cliente" aria-label="Checkbox for following text input"> Cliente
+                <input type="radio"  name="radio-apertura-zonas" value="cliente" aria-label="Checkbox for following text input"> Cliente
           </div>
           <div class="col-2">
-            <input type="radio"  name="radio-apertura-zona" value="supervisor" aria-label="Checkbox for following text input"> Supervisor
+            <input type="radio"  name="radio-apertura-zonas" value="supervisor" aria-label="Checkbox for following text input"> Supervisor
       </div>
             </div>
 
@@ -331,7 +326,8 @@ $(document).ready(function () {
   let clientes =  JSON.parse('<%-JSON.stringify(CLIENTES)%>')
   let supervisores=JSON.parse('<%-JSON.stringify(SUPERVISORES)%>')
   let jefesOperaciones=JSON.parse('<%-JSON.stringify(JEFES_OPERACIONES)%>')
-console.log(jefesOperaciones)
+  let zonas=JSON.parse('<%-JSON.stringify(ZONAS)%>')
+console.log(zonas)
 
 
 
@@ -358,6 +354,12 @@ console.log(jefesOperaciones)
       $('#jefes-operaciones-select').append(`<option  value="`+jefeOperaciones["CODI"]+`"> `+jefeOperaciones["LABEL"]+`</option>`); 
     })
 
+              //valores del select zonas
+              $('#zonas-select').empty()
+              $('#zonas-select').append(`<option selected value="">SELECCIONE ZONA...</option>`); 
+              zonas.map(zona=>{
+      $('#zonas-select').append(`<option  value="`+zona["CODI"]+`"> `+zona["LABEL"]+`</option>`); 
+    })
 
 
 
@@ -376,7 +378,7 @@ console.log(jefesOperaciones)
 //stop submit the form, we will post it manually.
 event.preventDefault();
     
-let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":clienteSelected},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":aperturaSelected }};
+let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":clienteSelected},{"type":"sup","value":null},{"type":"jefeop","value":null},{"type":"zona","value":null}],"apertura":aperturaSelected }};
 
 actualizaMatriz(data)
 
@@ -397,7 +399,7 @@ console.log("boton empieza Supervisor")
 //stop submit the form, we will post it manually.
 event.preventDefault();
 
-let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":supervisorSelected},{"type":"jefeop","value":null}],"apertura":aperturaSelected }};
+let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":supervisorSelected},{"type":"jefeop","value":null},{"type":"zona","value":null}],"apertura":aperturaSelected }};
 
 
 
@@ -454,7 +456,30 @@ let aperturaSelected=$('input[name="radio-apertura-jefeop"]:checked').val();
 //stop submit the form, we will post it manually.
 event.preventDefault();
 
-let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":null},{"type":"jefeop","value":jefesOperacionesSelected}],"apertura":aperturaSelected }};
+let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":null},{"type":"jefeop","value":jefesOperacionesSelected},{"type":"zona","value":null}],"apertura":aperturaSelected }};
+
+
+
+actualizaMatriz(data)
+
+});
+
+
+$("#zonas-button").click(function (event) {
+
+$('#cliente-select').val("").change();
+$('#supervisor-select').val("").change();
+$('#jefes-operaciones-select').val("").change();
+console.log("boton empieza zonas")
+let matrizSelected = $("#matriz-select").val();
+let zonaSelected = $("#zonas-select").val()==""?null:$("#zonas-select").val();
+let aperturaSelected=$('input[name="radio-apertura-zonas"]:checked').val();
+
+
+//stop submit the form, we will post it manually.
+event.preventDefault();
+
+let data={'matrizConfig':{"id":matrizSelected,"filterValue":[{"type":"cenco1codi","value":null},{"type":"sup","value":null},{"type":"jefeop","value":null},{"type":"zona","value":zonaSelected}],"apertura":aperturaSelected }};
 
 
 
