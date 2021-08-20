@@ -112,17 +112,21 @@ thead tr:nth-child(1) th{
   let auditorias_text='text-danger'
   let tiempo_planta_text='text-danger'
    
-  var visitas_crecimiento=parseInt((infoSupervisor['metricasActual']['visitas_percent'] - infoSupervisor['metricasPasado']['visitas_percent'])
-   /infoSupervisor['metricasPasado']['visitas_percent']* 100)
+  //var visitas_crecimiento=parseInt((infoSupervisor['metricasActual']['visitas_percent'] - infoSupervisor['metricasPasado']['visitas_percent'])
+  // /infoSupervisor['metricasPasado']['visitas_percent']* 100)
+  var visitas_crecimiento=infoSupervisor['metricasActual']['visitas_percent']-infoSupervisor['metricasPasado']['visitas_percent']
    if (visitas_crecimiento>=0) visitas_text='text-success'
 
 
-  var tiempo_planta_crecimiento= parseInt((infoSupervisor['metricasActual']['tiempo_planta_percent'] - infoSupervisor['metricasPasado']['tiempo_planta_percent'])
-   /infoSupervisor['metricasPasado']['tiempo_planta_percent']* 100)
+  //var tiempo_planta_crecimiento= parseInt((infoSupervisor['metricasActual']['tiempo_planta_percent'] - infoSupervisor['metricasPasado']['tiempo_planta_percent'])
+  // /infoSupervisor['metricasPasado']['tiempo_planta_percent']* 100)
+  var tiempo_planta_crecimiento=infoSupervisor['metricasActual']['tiempo_planta_percent']-infoSupervisor['metricasPasado']['tiempo_planta_percent']
    if (tiempo_planta_crecimiento>=0 ) tiempo_planta_text='text-success'
 
-   var auditorias_crecimiento= parseInt((infoSupervisor['metricasActual']['auditorias_percent'] - infoSupervisor['metricasPasado']['auditorias_percent'])
-   /infoSupervisor['metricasPasado']['auditorias_percent']* 100)
+  // var auditorias_crecimiento= parseInt((infoSupervisor['metricasActual']['auditorias_percent'] - infoSupervisor['metricasPasado']['auditorias_percent'])
+  // /infoSupervisor['metricasPasado']['auditorias_percent']* 100)
+  var auditorias_crecimiento=infoSupervisor['metricasActual']['auditorias_percent']-infoSupervisor['metricasPasado']['auditorias_percent']
+  
    if (auditorias_crecimiento>=0) auditorias_text='text-success'
    %>
 

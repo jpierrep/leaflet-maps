@@ -862,6 +862,8 @@ group by planta_id
   
   +filterName
   ;
+
+  
   //and administrativo_id=`+idSupervisor
   return new Promise(resolve=>{
 
@@ -1139,8 +1141,8 @@ function entrega_resultDB(queryDB){
   let total_visitas_plani= data.reduce((sum, b) => { return sum + parseInt(b.CANT_VISITAS_PLANI) }, 0)
   let total_auditorias= data.reduce((sum, b) => { return sum + parseInt(b.CANT_AUDITORIAS>b.CANT_AUDITORIAS_PLANI?b.CANT_AUDITORIAS_PLANI:b.CANT_AUDITORIAS) }, 0)
   let total_auditorias_plani= data.reduce((sum, b) => { return sum + parseInt(b.CANT_AUDITORIAS_PLANI) }, 0)
-  let total_tiempo_planta= data.reduce((sum, b) => { return sum + parseInt(b.DURACION>b.DURACION_PLANI?b.DURACION_PLANI:b.DURACION) }, 0)
-  let total_tiempo_planta_plani= data.reduce((sum, b) => { return sum + parseInt(b.DURACION_PLANI) }, 0)
+  let total_tiempo_planta= data.reduce((sum, b) => { return sum + parseFloat(b.DURACION>b.DURACION_PLANI?b.DURACION_PLANI:b.DURACION) }, 0)
+  let total_tiempo_planta_plani= data.reduce((sum, b) => { return sum + parseFloat(b.DURACION_PLANI) }, 0)
   let visitas_percent=parseInt(total_visitas/total_visitas_plani*100)
   let auditorias_percent=parseInt(total_auditorias/total_auditorias_plani*100)
   let tiempo_planta_percent=parseInt(total_tiempo_planta/total_tiempo_planta_plani*100)
