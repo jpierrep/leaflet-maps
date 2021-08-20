@@ -103,6 +103,29 @@ thead tr:nth-child(1) th{
     
 </head>
 <body>
+
+  <% 	
+  //fecha De hoy
+  var f = new Date();
+
+  let visitas_text='text-danger'
+  let auditorias_text='text-danger'
+  let tiempo_planta_text='text-danger'
+   
+  var visitas_crecimiento=parseInt((infoSupervisor['metricasActual']['visitas_percent'] - infoSupervisor['metricasPasado']['visitas_percent'])
+   /infoSupervisor['metricasPasado']['visitas_percent']* 100)
+   if (visitas_crecimiento>=0) visitas_text='text-success'
+
+
+  var tiempo_planta_crecimiento= parseInt((infoSupervisor['metricasActual']['tiempo_planta_percent'] - infoSupervisor['metricasPasado']['tiempo_planta_percent'])
+   /infoSupervisor['metricasPasado']['tiempo_planta_percent']* 100)
+   if (tiempo_planta_crecimiento>=0 ) tiempo_planta_text='text-success'
+
+   var auditorias_crecimiento= parseInt((infoSupervisor['metricasActual']['auditorias_percent'] - infoSupervisor['metricasPasado']['auditorias_percent'])
+   /infoSupervisor['metricasPasado']['auditorias_percent']* 100)
+   if (auditorias_crecimiento>=0) auditorias_text='text-success'
+   %>
+
 <!--
 <h1>This is a Heading</h1>
 <p>This is a paragraph.</p>
@@ -119,14 +142,14 @@ thead tr:nth-child(1) th{
 
               <div class="container-fluid" style="  padding: 20px;">
                 <div class="row">
-                  <div class="col-xl-6 col-md-6">
+                  <div class="col-xl-4 col-md-4">
                     <div class="card card-stats">
                       <!-- Card body -->
                       <div class="card-body">
                         <div class="row">
                           <div class="col">
-                            <h5 class="card-title text-uppercase text-muted mb-0">Total traffic</h5>
-                            <span class="h2 font-weight-bold mb-0">350,897</span>
+                            <h5 class="card-title text-uppercase text-muted mb-0">T. PLANTA</h5>
+                            <span class="h2 font-weight-bold mb-0"><%=infoSupervisor['metricasActual']['tiempo_planta_percent']%> %</span>
                           </div>
                           <div class="col-auto">
                             <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
@@ -135,20 +158,22 @@ thead tr:nth-child(1) th{
                           </div>
                         </div>
                         <p class="mt-3 mb-0 text-sm">
-                          <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 3.48%</span>
-                          <span class="text-nowrap">Since last month</span>
+                          <span class=" <%=tiempo_planta_text %> mr-2"><i class="fa fa-arrow-up"></i> 
+                            <%=tiempo_planta_crecimiento %>
+                            %</span>
+                          <span class="text-nowrap">Desde mes anterior</span>
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div class="col-xl-6 col-md-6">
+                  <div class="col-xl-4 col-md-4">
                     <div class="card card-stats">
                       <!-- Card body -->
                       <div class="card-body">
                         <div class="row">
                           <div class="col">
-                            <h5 class="card-title text-uppercase text-muted mb-0">Total traffic</h5>
-                            <span class="h2 font-weight-bold mb-0">350,897</span>
+                            <h5 class="card-title text-uppercase text-muted mb-0">AUDITOR...</h5>
+                            <span class="h2 font-weight-bold mb-0"><%=infoSupervisor['metricasActual']['auditorias_percent']%> %</span>
                           </div>
                           <div class="col-auto">
                             <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
@@ -157,8 +182,34 @@ thead tr:nth-child(1) th{
                           </div>
                         </div>
                         <p class="mt-3 mb-0 text-sm">
-                          <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 3.48%</span>
-                          <span class="text-nowrap">Since last month</span>
+                          <span class="<%=auditorias_text %>  mr-2"><i class="fa fa-arrow-up"></i> 
+                            <%=auditorias_crecimiento  %>
+                            %</span>
+                          <span class="text-nowrap">Desde mes anterior</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-xl-4 col-md-4">
+                    <div class="card card-stats">
+                      <!-- Card body -->
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col">
+                            <h5 class="card-title text-uppercase text-muted mb-0">VISITAS</h5>
+                            <span class="h2 font-weight-bold mb-0"> <%=infoSupervisor['metricasActual']['visitas_percent']%>  %</span>
+                          </div>
+                          <div class="col-auto">
+                            <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                              <i class="ni ni-active-40"></i>
+                            </div>
+                          </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-sm">
+                          <span class="<%=visitas_text %>  mr-2"><i class="fa fa-arrow-up"></i> 
+                            <%=visitas_crecimiento  %>
+                            %</span>
+                          <span class="text-nowrap">Desde mes anterior</span>
                         </p>
                       </div>
                     </div>

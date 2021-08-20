@@ -10,6 +10,7 @@ var sql = require("mssql");
 var stringify = require('json-stringify');
 const plantilla_websites = require('./controllers/template-endopoints');
 const fs = require('fs');
+const moment=require('moment')
 
 const cicURL='192.168.5.5:3800/cic_control/'
 
@@ -245,19 +246,39 @@ console.log(geoJSON)
 app.get("/tiempo-planta/:tipo/:id",async  function (req, res) {
 
   //tipo:supervisor,cliente
- 
+ console.log('moment', moment(new Date()).subtract(30, 'days').calendar());
   console.log("he")
   console.log("id",req.params.id)
   let id= decodeURI(req.params.id)
 
-let dataMap=await getDataTiempoPlantaInstalaciones(req.params.tipo,id)
+  console.log(moment(new Date()).subtract(30, 'days').format('YYYY-MM-DD'))
+
+
+  //mes pasado
+  let fechaDesdeAnterior=moment(new Date()).subtract(60, 'days').format('YYYY-MM-DD')
+  let fechaHastaAnterior=moment(new Date()).subtract(30, 'days').format('YYYY-MM-DD')
+
+  //mes actual
+  let fechaDesdeActual=moment(new Date()).subtract(30, 'days').format('YYYY-MM-DD')
+  let fechaHastaActual=moment(new Date()).format('YYYY-MM-DD')
+
+let dataMap=await getDataTiempoPlantaInstalaciones(req.params.tipo,id,fechaDesdeActual,fechaHastaActual)
+let dataMapPasado=await getDataTiempoPlantaInstalaciones(req.params.tipo,id,fechaDesdeAnterior,fechaHastaAnterior)
+
+let metricasActual=getMetricasTiempoPlanta(dataMap)
+let metricasPasado=getMetricasTiempoPlanta(dataMapPasado)
+
 let max_duracion=Math.max(...dataMap.map(x=>parseFloat(x["DURACION"])))
 
 let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
 let supervisor_id=id
-let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,max_duracion:max_duracion}
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,max_duracion:max_duracion
+,metricasActual:metricasActual,metricasPasado:metricasPasado}
 
+let test=parseInt((infoSupervisor['metricasActual']['visitas_percent'] - infoSupervisor['metricasPasado']['visitas_percent'])
+                            /infoSupervisor['metricasPasado']['visitas_percent']* 100)
+                            
 //console.log(dataMap)
 //var geoJSON= createGeoJSON(dataMap);
 
@@ -758,7 +779,7 @@ function getResumenSupervisor(){
 }
 
 
-function getDataTiempoPlantaInstalaciones(tipo,id){
+function getDataTiempoPlantaInstalaciones(tipo,id,fechaDesde,fechaHasta){
   let filterName=''
   if (tipo=='supervisor')
   filterName='administrativo_id='+id
@@ -775,8 +796,11 @@ function getDataTiempoPlantaInstalaciones(tipo,id){
   cc.empresa_id,cc.cencos_codigo,cc.cencos_nombre,p.nombre as planta_nombre,latitude,longitude,administrativo_id,administrativo_nombre
   ,zona_nombre
   ,isnull(tiempo_planta.DURACION,0) as DURACION
+  ,isnull(visit_plani,0)*20/60.0 as DURACION_PLANI
   ,isnull(auditorias.CANT_AUDITORIAS,0) as CANT_AUDITORIAS
   ,isnull(tiempo_planta.CANT_VISITAS,0) as CANT_VISITAS
+   ,isnull(visit_plani,0) as CANT_VISITAS_PLANI
+      ,isnull(audit_plani,0) as CANT_AUDITORIAS_PLANI
   from
   SISTEMA_CENTRAL.dbo.centros_costos as cc
   left join [BI-SERVER-01].Inteligencias.dbo.SIST_CENTRAL_ESTR_ORGANIZACION as estr
@@ -789,8 +813,9 @@ function getDataTiempoPlantaInstalaciones(tipo,id){
   ID_PLANTA,count(*) as cant_auditorias
     FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_VISITAS]
     where ESTADO='completada'
-    and INICIO between dateadd(dd,-30,GETDATE()) and  getdate()
-    group by  ID_PLANTA) as auditorias
+   -- and INICIO between dateadd(dd,-30,GETDATE()) and  getdate() 
+   and INICIO between '`+fechaDesde+`' and '`+ fechaHasta+ `'
+   group by  ID_PLANTA) as auditorias
     on auditorias.ID_PLANTA=p.id
 	
 
@@ -798,13 +823,33 @@ function getDataTiempoPlantaInstalaciones(tipo,id){
 SELECT ID_SUP,ID_PLANTA, SUM(DURACION) as DURACION,count(*) as CANT_VISITAS
   FROM [BI-SERVER-01].[Inteligencias].[dbo].NC_PRESENCIA_SUP_VISITAS
   where
-   DIA_VISITA between dateadd(dd,-30,GETDATE()) and  getdate()
-  -- DATEADD(MONTH, DATEDIFF(MONTH, 0, DIA_VISITA), 0)=  DATEADD(MONTH, DATEDIFF(MONTH, 0, getdate()), 0)
-  group by ID_SUP,ID_PLANTA
+   DIA_VISITA between '`+fechaDesde+`' and '`+ fechaHasta+ `'
+   group by ID_SUP,ID_PLANTA
 
 ) as tiempo_planta
     on tiempo_planta.ID_PLANTA=p.id
 	and ID_SUP=estr.administrativo_id
+	left join
+		(select visit_plani.planta_id,visit_plani,audit_plani from
+(
+SELECT planta_id,count(*) as visit_plani
+
+  FROM [NoconformidadesProd].[dbo].[visitas_planeadas]
+  where fecha between  '`+fechaDesde+`' and '`+ fechaHasta+ `' 
+group by planta_id
+  )as visit_plani left join
+  (
+  SELECT planta_id,count(*) as audit_plani
+
+  FROM [NoconformidadesProd].[dbo].[auditorias_planeadas]
+  where fecha between   '`+fechaDesde+`' and '`+ fechaHasta+ `' 
+  group by planta_id
+  )as audit_plani
+
+  on visit_plani.planta_id=audit_plani.planta_id)
+  visit_audit_plani 
+    on visit_audit_plani.planta_id=p.id
+  
   
   
   where cc.deleted_at is null and p.deleted_at is null
@@ -1067,6 +1112,55 @@ function entrega_resultDB(queryDB){
   
   
   }
+
+
+ function getMetricasTiempoPlanta(data){
+
+  
+   /*
+   DATA
+   empresa_id: 0,
+    cencos_codigo: '060-374',
+    cencos_nombre: 'MINISTERIO PUBLICO FISCALIA LOCAL QUINTERO',
+    planta_nombre: 'MP Fiscalia Local de Quintero',
+    latitude: -32.782798,
+    longitude: -71.531988,
+    administrativo_id: 15294688,
+    administrativo_nombre: 'Flandez López Richard',
+    zona_nombre: 'Zona 2',
+    DURACION: 0.333333,
+    DURACION_PLANI: 0.666666,
+    CANT_AUDITORIAS: 1,
+    CANT_VISITAS: 1,
+    CANT_VISITAS_PLANI: 2,
+    CANT_AUDITORIAS_PLANI: 2*/
+  
+  let total_visitas= data.reduce((sum, b) => { return sum + parseInt(b.CANT_VISITAS>b.CANT_VISITAS_PLANI?b.CANT_VISITAS_PLANI:b.CANT_VISITAS) }, 0)
+  let total_visitas_plani= data.reduce((sum, b) => { return sum + parseInt(b.CANT_VISITAS_PLANI) }, 0)
+  let total_auditorias= data.reduce((sum, b) => { return sum + parseInt(b.CANT_AUDITORIAS>b.CANT_AUDITORIAS_PLANI?b.CANT_AUDITORIAS_PLANI:b.CANT_AUDITORIAS) }, 0)
+  let total_auditorias_plani= data.reduce((sum, b) => { return sum + parseInt(b.CANT_AUDITORIAS_PLANI) }, 0)
+  let total_tiempo_planta= data.reduce((sum, b) => { return sum + parseInt(b.DURACION>b.DURACION_PLANI?b.DURACION_PLANI:b.DURACION) }, 0)
+  let total_tiempo_planta_plani= data.reduce((sum, b) => { return sum + parseInt(b.DURACION_PLANI) }, 0)
+  let visitas_percent=parseInt(total_visitas/total_visitas_plani*100)
+  let auditorias_percent=parseInt(total_auditorias/total_auditorias_plani*100)
+  let tiempo_planta_percent=parseInt(total_tiempo_planta/total_tiempo_planta_plani*100)
+
+  return {
+    total_visitas:total_visitas,
+    total_visitas_plani:total_visitas_plani,
+    total_auditorias:total_auditorias,
+    total_auditorias_plani:total_auditorias_plani,
+    total_tiempo_planta:total_tiempo_planta,
+    total_tiempo_planta_plani,total_tiempo_planta_plani,
+    visitas_percent:visitas_percent,
+    auditorias_percent:auditorias_percent,
+    tiempo_planta_percent,tiempo_planta_percent
+
+
+
+  }
+
+ }
 
 
 app.listen(8000,()=>{
