@@ -245,11 +245,28 @@ console.log(geoJSON)
 
 app.get("/tiempo-planta/:tipo/:id",async  function (req, res) {
 
+
+  
+
   //tipo:supervisor,cliente
  console.log('moment', moment(new Date()).subtract(30, 'days').calendar());
   console.log("he")
   console.log("id",req.params.id)
   let id= decodeURI(req.params.id)
+  let tipo=req.params.tipo
+
+  let filterName=''
+  let titleName=''
+
+  if (tipo=='supervisor'){
+    filterName='administrativo_id'  
+  }
+  if (tipo=='cliente'){
+    filterName='CENCO1_CODI'
+  }
+  if (tipo=='zona'){
+    filterName='zona_nombre'
+  }
 
   console.log(moment(new Date()).subtract(30, 'days').format('YYYY-MM-DD'))
 
@@ -262,19 +279,33 @@ app.get("/tiempo-planta/:tipo/:id",async  function (req, res) {
   let fechaDesdeActual=moment(new Date()).subtract(30, 'days').format('YYYY-MM-DD')
   let fechaHastaActual=moment(new Date()).format('YYYY-MM-DD')
 
-let dataMap=await getDataTiempoPlantaInstalaciones(req.params.tipo,id,fechaDesdeActual,fechaHastaActual)
-let dataMapPasado=await getDataTiempoPlantaInstalaciones(req.params.tipo,id,fechaDesdeAnterior,fechaHastaAnterior)
+let dataMap=await getDataTiempoPlantaInstalaciones(tipo,id,fechaDesdeActual,fechaHastaActual)
+let dataMapPasado=await getDataTiempoPlantaInstalaciones(tipo,id,fechaDesdeAnterior,fechaHastaAnterior)
 
 let metricasActual=getMetricasTiempoPlanta(dataMap)
 let metricasPasado=getMetricasTiempoPlanta(dataMapPasado)
+
+let dataPlantas=(await getPlantas()).filter(x=>x[filterName]==id)
 
 let max_duracion=Math.max(...dataMap.map(x=>parseFloat(x["DURACION"])))
 
 let supervisor_nombre=getUniqueProp(dataMap,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataMap,'zona_nombre').join(', ');
+
+if (tipo=='supervisor'){
+  titleName=id+' - '+String(getUniqueProp(dataPlantas,'administrativo_nombre')).substring(0,20)+' - '+String(getUniqueProp(dataPlantas,'zona_nombre').join(', ')).substr(0,20)
+}
+if (tipo=='cliente'){
+  titleName=id+' - '+String(getUniqueProp(dataPlantas,'cenco1_desc')).substr(0,20)
+}
+if (tipo=='zona'){
+  titleName=id+' - '+String(getUniqueProp(dataPlantas,'administrativo_nombre')).substr(0,25)
+}
+
+
 let supervisor_id=id
 let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:supervisor_id,data_instalaciones:dataMap,max_duracion:max_duracion
-,metricasActual:metricasActual,metricasPasado:metricasPasado}
+,metricasActual:metricasActual,metricasPasado:metricasPasado,tituloMapa:titleName}
 
 let test=parseInt((infoSupervisor['metricasActual']['visitas_percent'] - infoSupervisor['metricasPasado']['visitas_percent'])
                             /infoSupervisor['metricasPasado']['visitas_percent']* 100)
@@ -310,22 +341,43 @@ app.get("/nc-pendientes/:tipo/:id",async  function (req, res) {
 
   let tipo=req.params.tipo
   let filterName=''
-  if (tipo=='supervisor')
-  filterName='administrativo_id'
+  let titleName=''
 
-  if (tipo=='cliente')
-  filterName='CENCO1_CODI'
-  if (tipo=='zona')
-  filterName='zona_nombre'
+  if (tipo=='supervisor'){
+    filterName='administrativo_id'  
+  }
+  if (tipo=='cliente'){
+    filterName='CENCO1_CODI'
+  }
+  if (tipo=='zona'){
+    filterName='zona_nombre'
+  }
+  
   
 
   let id=decodeURI(req.params.id)
  console.log(id,tipo)
 
+
+   //mes pasado
+   let fechaDesdeAnterior=moment(new Date()).subtract(60, 'days').format('YYYY-MM-DD')
+   let fechaHastaAnterior=moment(new Date()).subtract(30, 'days').format('YYYY-MM-DD')
+ 
+   //mes actual
+   let fechaDesdeActual=moment(new Date()).subtract(30, 'days').format('YYYY-MM-DD')
+   let fechaHastaActual=moment(new Date()).format('YYYY-MM-DD')
+
   //data todas las no conformidades pendientes para agrupar en el mapa
 let dataMap=await getNCPendientes(tipo,id) 
 //data para mostrar en tabla
-let dataNCSupervisor=await getDataNCInstalaciones(tipo,id)
+let dataNCSupervisor=await getDataNCInstalaciones(tipo,id,fechaDesdeActual,fechaHastaActual)
+let dataNCSupervisorPasado=await getDataNCInstalaciones(tipo,id,fechaDesdeActual,fechaHastaActual)
+
+
+
+
+let metricasActual=getMetricasNCPendientes(dataNCSupervisor)
+let metricasPasado=getMetricasNCPendientes(dataNCSupervisorPasado)
 
 //data de todas las plantas para añadir pin e info si fuese necesario
 
@@ -335,8 +387,19 @@ console.log(dataPlantas,'todas')
 let supervisor_nombre=getUniqueProp(dataPlantas,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataPlantas,'zona_nombre').join(', ');
 
+if (tipo=='supervisor'){
+  titleName=id+' - '+String(getUniqueProp(dataPlantas,'administrativo_nombre')).substring(0,20)+' - '+String(getUniqueProp(dataPlantas,'zona_nombre').join(', ')).substr(0,20)
+}
+if (tipo=='cliente'){
+  titleName=id+' - '+String(getUniqueProp(dataPlantas,'cenco1_desc')).substr(0,20)
+}
+if (tipo=='zona'){
+  titleName=id+' - '+String(getUniqueProp(dataPlantas,'administrativo_nombre')).substr(0,25)
+}
 
-let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:id,data_instalaciones:dataMap,dataNCSupervisor:dataNCSupervisor}
+
+let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor_nombre,supervisor_id:id,data_instalaciones:dataMap,dataNCSupervisor:dataNCSupervisor,metricasActual:metricasActual,metricasPasado:metricasPasado
+,tituloMapa:titleName}
 
 //console.log(dataMap)
 //var geoJSON= createGeoJSON(dataMap);
@@ -429,6 +492,8 @@ let data = JSON.stringify(geoJSON);
 //escribe para prueba del json
 fs.writeFileSync('testData.json', data);
   res.render("nc-pendientes.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor,plantasGeoJSON:plantasGeoJSON});
+
+
 })
 
 
@@ -669,7 +734,7 @@ function getResumenSupervisor(){
 
 }
 
- function getDataNCInstalaciones(tipo,id){
+ function getDataNCInstalaciones(tipo,id,fechaDesde,fechaHasta){
 
   let filterName=''
   if (tipo=='supervisor')
@@ -701,7 +766,7 @@ function getResumenSupervisor(){
   ID_PLANTA,count(*) as cant_auditorias
     FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_VISITAS]
     where ESTADO='completada'
-    and INICIO between dateadd(dd,-30,GETDATE()) and  getdate()
+    and INICIO between '`+fechaDesde+`' and '`+ fechaHasta+ `'
     group by  ID_PLANTA) as auditorias
     on auditorias.ID_PLANTA= p.id
   left join (
@@ -720,7 +785,7 @@ function getResumenSupervisor(){
     SELECT ID_PLANTA,count (distinct id_nc) as cant_nc_ult_mes
     FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_NOCONFORMIDADES]
     where accion='pendiente'
-    and FECHA_NC_HISTORIAL between dateadd(dd,-30,GETDATE()) and  getdate()
+    and FECHA_NC_HISTORIAL between '`+fechaDesde+`' and '`+ fechaHasta+ `'
       group by ID_PLANTA) as nc_ult_mes
      on nc_ult_mes.ID_PLANTA =p.id
   
@@ -728,8 +793,8 @@ function getResumenSupervisor(){
   
       select ID_PLANTA,count (distinct id_nc) as cant_nc_res_ult_mes
   
-    FROM [Inteligencias].[dbo].[NC_NOCONFORMIDADES]
-    where  FECHA_NC_HISTORIAL between dateadd(dd,-30,GETDATE()) and  getdate()
+    FROM [BI-SERVER-01].[Inteligencias].[dbo].[NC_NOCONFORMIDADES]
+    where  FECHA_NC_HISTORIAL between '`+fechaDesde+`' and '`+ fechaHasta+ `'
     and accion in ('Validada en terreno','Validada por jefatura','validada')
      group by ID_PLANTA) as nc_res_ult_mes
     on nc_res_ult_mes.ID_PLANTA=p.id
@@ -739,7 +804,7 @@ function getResumenSupervisor(){
 
 
   where
-  fecha between  dateadd(dd,-30,GETDATE()) and  getdate()
+  fecha between  '`+fechaDesde+`' and '`+ fechaHasta+ `'
   and cumplimiento=0 
   group by planta_id) as visitas_pendientes
    on visitas_pendientes.planta_id=p.id
@@ -749,7 +814,7 @@ function getResumenSupervisor(){
 
 
   where
-  fecha between  dateadd(dd,-30,GETDATE()) and  getdate()
+  fecha between  '`+fechaDesde+`' and '`+ fechaHasta+ `'
   and cumplimiento=1
   group by planta_id) as visitas_realizadas
    on visitas_realizadas.planta_id=p.id
@@ -1163,6 +1228,48 @@ function entrega_resultDB(queryDB){
   }
 
  }
+
+ function getMetricasNCPendientes(data){
+
+  
+  /*
+  DATA
+ {
+  empresa_id: 0,
+  cencos_codigo: "011-050",
+  cencos_nombre: "BODEMAR S.A.  I CALLE LIMACHE # 4491",
+  planta_nombre: "Bodemar I",
+  latitude: -33.04108,
+  longitude: -71.52127,
+  administrativo_id: 13665782,
+  administrativo_nombre: "Quintriqueo Valdenegro Lorenzo",
+  CANT_AUDITORIAS: 1,
+  CANT_NC_PENDIENTES: 4,
+  CANT_NC_ULT_MES: 0,
+  CANT_NC_RES_ULT_MES: 0,
+  zona_nombre: "Zona 5 ",
+  CANT_VISITAS_PENDIENTES: 0,
+  CANT_VISITAS_REALIZADAS: 1,
+}*/
+ 
+ let total_nc_pendientes= data.reduce((sum, b) => { return sum + parseInt(b.CANT_NC_PENDIENTES) }, 0)
+ let total_nc_ultimo_mes= data.reduce((sum, b) => { return sum + parseInt(b.CANT_NC_ULT_MES) }, 0)
+ let total_nc_res_ult_mes= data.reduce((sum, b) => { return sum + parseInt(b.CANT_NC_RES_ULT_MES) }, 0)
+ let nc_cumplimiento_percent=parseInt(total_nc_ultimo_mes>0?total_nc_res_ult_mes/total_nc_ultimo_mes:0*100)
+ let nc_pend_percent=parseInt(total_nc_pendientes>0?total_nc_pendientes/total_nc_pendientes:0*100)
+
+
+ return {
+  total_nc_pendientes:total_nc_pendientes,
+  total_nc_ultimo_mes:total_nc_ultimo_mes,
+  total_nc_res_ult_mes:total_nc_res_ult_mes,
+  nc_cumplimiento_percent:nc_cumplimiento_percent,
+  nc_pend_percent:nc_pend_percent
+
+ }
+
+}
+
 
 
 app.listen(8000,()=>{

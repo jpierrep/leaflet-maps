@@ -113,6 +113,25 @@ z-index: 10;
 </head>  
 <body>
 
+  <% 	
+  //fecha De hoy
+  var f = new Date();
+
+  let  nc_cumplimiento_text='text-danger'
+  let nc_pend_text='text-danger'
+
+  var nc_cumplimiento_crecimiento=infoSupervisor['metricasActual']['nc_cumplimiento_percent']-infoSupervisor['metricasPasado']['nc_cumplimiento_percent']
+   if ( nc_cumplimiento_crecimiento>=0) nc_cumplimiento_text='text-success'
+
+ 
+  var nc_pend_crecimiento=infoSupervisor['metricasActual']['nc_pend_percent']-infoSupervisor['metricasPasado']['nc_pend_percent']
+   if (nc_pend_crecimiento>=0 ) nc_pend_text='text-success'
+
+
+   %>
+
+
+
 <!--
 Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado arriba
 <script src="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7.2/leaflet.js" charset="utf-8"></script>
@@ -123,7 +142,7 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js'></script>
 
 <h2 style="margin:0;padding: 10px;text-align:center;background-color: black ;color: white;">NO CONFORMIDADES PENDIENTES</h2>
-<h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= (infoSupervisor['supervisor_id'] +" - " +infoSupervisor['supervisor_nombre']+" - "+infoSupervisor['supervisor_zona']).toUpperCase()%></h2>
+<h2 style="margin:0;text-align:center;background-color: black ;color: white;"><%= infoSupervisor['tituloMapa'].toUpperCase()%></h2>
 
 
  
@@ -135,6 +154,61 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
       <div class="col-4 hidden-md-down " style="overflow-y:auto;" id="yellow">
           <!--<div class="col-4 hidden-md-down" >  -->
         
+
+            <div class="container-fluid" style="  padding: 20px;">
+              <div class="row">
+                <div class="col-xl-6 col-md-6">
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">CUMPL. NC</h5>
+                         <span class="h2 font-weight-bold mb-0"><%=infoSupervisor['metricasActual']['nc_cumplimiento_percent']%> %</span>
+                       </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="ni ni-active-40"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="mt-3 mb-0 text-sm">
+                       <span class="<%=nc_cumplimiento_text %> mr-2"><i class="fa fa-arrow-up"></i> 
+                        <%=nc_cumplimiento_crecimiento %>       %</span>
+                        <span class="text-nowrap">Desde mes anterior</span> 
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xl-6 col-md-6">
+                  <div class="card card-stats">
+                    <!-- Card body -->
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col">
+                          <h5 class="card-title text-uppercase text-muted mb-0">NC PEND.</h5>
+                           <span class="h2 font-weight-bold mb-0"><%=infoSupervisor['metricasActual']['nc_pend_percent']%> %</span>
+                       </div>
+                        <div class="col-auto">
+                          <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
+                            <i class="ni ni-active-40"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="mt-3 mb-0 text-sm">
+                    <span class=" <%=nc_pend_text%>  mr-2"><i class="fa fa-arrow-up"></i> 
+                         
+                      <%= nc_pend_crecimiento%> %</span> 
+                        <span class="text-nowrap">Desde mes anterior</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+    </div>
+    
+    </div>
+
           <div id="tabla-instalaciones" style=" height: 600px; overflow: auto;" >
               <table class="table table-hover" >
                   <thead>
