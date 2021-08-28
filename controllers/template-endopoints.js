@@ -37,7 +37,10 @@ function getUnique(data){
 
 async function getMatrices(idMatriz,parameter){
 
+
+  //revisar logica donde se inserta urlBaseMap al retornar
   let urlBaseMap="http://192.168.0.158:8000/"
+
   let plantas= await getPlantas()
 
 
@@ -73,7 +76,7 @@ async function getMatrices(idMatriz,parameter){
       ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
       ,{id:4, nombre:"acreditacion",paneles:['OPERPRINC'+parameter.apertura+'P4-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-4?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-5?'+baseFilter]}
       ,{id:5, nombre:"% visitas",paneles:['OPERPRINC'+parameter.apertura+'P5-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-4?'+baseFilter]}
-      ,{id:6, nombre:"% auditorias",paneles:['OPERPRINC'+parameter.apertura+'6?'+baseFilter]}
+      ,{id:6, nombre:"% visitas",paneles:['OPERPRINC'+parameter.apertura+'P6-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-4?'+baseFilter]}
     //   ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
     ,{id:7, nombre:"visitas y auditorias cumplimiento",paneles:['OPERPRINC'+parameter.apertura+'P7-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P7-2?'+baseFilter]}
       ,{id:8, nombre:"No conformidades",paneles:['OPERPRINC'+parameter.apertura+'P8-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P8-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P8-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P8-4?'+baseFilter]}
@@ -120,6 +123,45 @@ parameter.apertura=parameter.apertura.toUpperCase()
 ,{id:7, nombre:"visitas y auditorias cumplimiento",paneles:['OPER'+parameter.apertura+'8?'+baseFilter,'OPER'+parameter.apertura+'8-2?'+baseFilter]}
   ,{id:8, nombre:"No conformidades",paneles:['OPER'+parameter.apertura+'4?'+baseFilter]}
   ,{id:9, nombre:"Turnos por confimar",paneles:['OPER'+parameter.apertura+'5?'+baseFilter]}
+
+]
+
+
+  }
+  else if(idMatriz==10){
+
+    //matriz ACCION INMEDIATA // SIN MAPAS
+ 
+console.log("paramenter",parameter)
+
+ //parameter={"id":2,"filterValue":[{"type":"cenco1codi","value":"028-000"},{"type":"sup","value":null},{"type":"jefeop","value":null}],"apertura":"supervisor" }
+
+  //cambia null por %20 para urlparameter
+ let baseFilter=parameter["filterValue"].map(x=>x.type+"="+ (x.value==null?"%20":x.value)).join("&")
+ 
+
+
+
+
+
+//urlBase="http://192.168.100.141/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+urlBase="http://192.168.100.141/TouchServer/embed.html##" 
+
+//parameter.apertura=parameter.apertura.toUpperCase()
+
+ base=[
+ {id:1, nombre:"kpi",paneles:['OPERACCIONINMEDIATAP1-1?'+baseFilter]},
+  {id:2, nombre:"otro",paneles:['OPERACCIONINMEDIATAP2-1?'+baseFilter]}
+  ,{id:3, nombre:"otro",paneles:['OPERACCIONINMEDIATAP3-1?'+baseFilter]}
+
+  
+  ,{id:4, nombre:"acreditacion",paneles:['OPERACCIONINMEDIATAP4-1?'+baseFilter]}
+  ,{id:5, nombre:"% visitas",paneles:['OPERACCIONINMEDIATAP5-1?'+baseFilter]}
+  ,{id:6, nombre:"% auditorias",paneles:['OPERACCIONINMEDIATAP6-1?'+baseFilter]}
+//   ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
+,{id:7, nombre:"visitas y auditorias cumplimiento",paneles:['OPERACCIONINMEDIATAP7-1?'+baseFilter]}
+  ,{id:8, nombre:"No conformidades",paneles:['OPERACCIONINMEDIATAP8-1?'+baseFilter]}
+  ,{id:9, nombre:"Turnos por confimar",paneles:['OPERACCIONINMEDIATAP9-1?'+baseFilter]}
 
 ]
 
