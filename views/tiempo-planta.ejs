@@ -241,7 +241,7 @@ thead tr:nth-child(1) th{
       
       </div>
           
-            <div id="tabla-instalaciones" style=" height: 600px; overflow: auto;" >
+            <div id="tabla-instalaciones" style=" height: 800px; overflow: auto;" >
                 <table id="tabla-principal" class="table table-hover" >
                     <thead>
                       <tr>
@@ -585,15 +585,16 @@ function pintaTabla(){
  valor=infoSupervisor['data_instalaciones'][index]['DURACION']/infoSupervisor['data_instalaciones'][index]['DURACION_PLANI']
   
   if (valor<0.5){
-    $("table tr").eq(index+1).find("td").css('background-color','red')
+    $("table tr").eq(index+1).find("td").css('background-color','#BE1010')
     $("table tr").eq(index+1).find("td").css('color','white')
 
   } else if (valor>0.5&&valor<0.75){
-    $("table tr").eq(index+1).find("td").css('background-color','yellow')
+    $("table tr").eq(index+1).find("td").css('background-color','#EEB31D')
     $("table tr").eq(index+1).find("td").css('color','black')
 
   }else{
-    $("table tr").eq(index+1).find("td").css('background-color','green')
+    //green
+    $("table tr").eq(index+1).find("td").css('background-color','#1A6408')
     $("table tr").eq(index+1).find("td").css('color','white')
   }
 

@@ -120,12 +120,27 @@ z-index: 10;
   let  nc_cumplimiento_text='text-danger'
   let nc_pend_text='text-danger'
 
+  let nc_cumplimiento_text_principal='text-danger'
+  let nc_pend_text_principal='text-danger'
+
+
   var nc_cumplimiento_crecimiento=infoSupervisor['metricasActual']['nc_cumplimiento_percent']-infoSupervisor['metricasPasado']['nc_cumplimiento_percent']
    if ( nc_cumplimiento_crecimiento>=0) nc_cumplimiento_text='text-success'
 
  
   var nc_pend_crecimiento=infoSupervisor['metricasActual']['nc_pend_percent']-infoSupervisor['metricasPasado']['nc_pend_percent']
    if (nc_pend_crecimiento>=0 ) nc_pend_text='text-success'
+
+
+   if(infoSupervisor['metricasActual']['nc_cumplimiento_percent']>0.5&&infoSupervisor['metricasActual']['nc_cumplimiento_percent'] < 0.75)
+   nc_cumplimiento_text_principal='text-warning'
+ if(infoSupervisor['metricasActual']['nc_cumplimiento_percent']>0.75)
+ nc_cumplimiento_text_principal='text-success'
+
+ if(infoSupervisor['metricasActual']['nc_pend_percent']>0.5&&infoSupervisor['metricasActual']['nc_pend_percent'] < 0.75)
+ nc_pend_text_principal='text-warning'
+ if(infoSupervisor['metricasActual']['nc_pend_percent']>0.75)
+ nc_pend_text_principal='text-success'
 
 
    %>
@@ -163,8 +178,8 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-                          <h5 class="card-title text-uppercase text-muted mb-0">CUMPL. NC</h5>
-                         <span class="h2 font-weight-bold mb-0"><%=infoSupervisor['metricasActual']['nc_cumplimiento_percent']%> %</span>
+                          <h5 class="card-title text-uppercase text-muted mb-0 ">CUMPLIMIENTO</h5>
+                         <span class="h2 font-weight-bold mb-0 <%=nc_cumplimiento_text_principal %>"><%=infoSupervisor['metricasActual']['nc_cumplimiento_percent']%> %</span>
                        </div>
                         <div class="col-auto">
                           <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
@@ -186,8 +201,8 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
                     <div class="card-body">
                       <div class="row">
                         <div class="col">
-                          <h5 class="card-title text-uppercase text-muted mb-0">NC PEND.</h5>
-                           <span class="h2 font-weight-bold mb-0"><%=infoSupervisor['metricasActual']['nc_pend_percent']%> %</span>
+                          <h5 class="card-title text-uppercase text-muted mb-0">RESUELTAS</h5>
+                           <span class="h2 font-weight-bold mb-0 <%=nc_pend_text_principal %>"><%=infoSupervisor['metricasActual']['nc_pend_percent']%> %</span>
                        </div>
                         <div class="col-auto">
                           <div class="icon icon-shape bg-gradient-red text-white rounded-circle shadow">
@@ -209,15 +224,15 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
     
     </div>
 
-          <div id="tabla-instalaciones" style=" height: 600px; overflow: auto;" >
+          <div id="tabla-instalaciones" style=" height: 800px; overflow: auto;" >
               <table class="table table-hover" >
                   <thead>
                     <tr>
-                      <th scope="col">CODIGO</th>
+                      <th scope="col">COD</th>
                       <th scope="col">INSTALACION</th>
-                      <th scope="col">PEND. TOTALES</th>
-                      <th scope="col">PEND. ULT. MES</th>
-                      <th scope="col">RES. ULT. MES</th>
+                      <th scope="col">TOT.</th>
+                      <th scope="col">PEND. MES</th>
+                      <th scope="col">RES. MES</th>
                       <th  style="display: none;"scope="col">Longitud</th>
                       <th style="display: none;" scope="col"> Latitud</th>
                      
@@ -284,6 +299,7 @@ Aquí si se carga el script de leaflet, dejará sin efecto el leaflet cargado ar
          // geojson = data;
          geojson =  JSON.parse('<%-JSON.stringify(geoJSON)%>') //var test is now assigned to getTest which will only work on browsers
       var   plantasGeoJSON =  JSON.parse('<%-JSON.stringify(plantasGeoJSON)%>')
+      var infoSupervisor= JSON.parse('<%-JSON.stringify(infoSupervisor)%>') 
          
          metadata = geojson.properties;
           var markers = L.geoJson(geojson, {
@@ -518,6 +534,8 @@ var locations=[1]
     
     setTimeout(function() {
 
+      pintaTabla()
+
         var longitude=  $(tr).find("td").eq(6).html()  
    var latitude=$(tr).find("td").eq(5).html()          
      var   location = L.circleMarker([latitude,longitude], {radius: 50,color:'black'});
@@ -528,8 +546,8 @@ var locations=[1]
       map.removeLayer(locations[locations.length-2]);
       // marker2.removeFrom(map)
 
-      $("table tr").eq(index-1).find("td").css('background-color','white')
-        $("table tr").eq(index-1).find("td").css('color','black')
+   ////   $("table tr").eq(index-1).find("td").css('background-color','white')
+   ////     $("table tr").eq(index-1).find("td").css('color','black')
       //  $(tr).find("td").css('background-color','white')
      //   $(".testBox").append('<p class="box">' + value + '</p>');
      console.log(tr)
@@ -589,6 +607,34 @@ if (index==$("table tr").length-1){
   });
 }
 
+function pintaTabla(){
+  console.log("tabla",  $("table tr"))
 
+
+  $("table tr").each(function(index,tr) {
+
+  let valor=0
+
+    if(infoSupervisor['dataNCSupervisor'][index])
+
+ valor=infoSupervisor['dataNCSupervisor'][index]['CANT_NC_RES_ULT_MES']/infoSupervisor['dataNCSupervisor'][index]['CANT_NC_ULT_MES']
+  
+  if (valor<0.5){
+    $("table tr").eq(index+1).find("td").css('background-color','#BE1010')
+    $("table tr").eq(index+1).find("td").css('color','white')
+
+  } else if (valor>0.5&&valor<0.75){
+    $("table tr").eq(index+1).find("td").css('background-color','#EEB31D')
+    $("table tr").eq(index+1).find("td").css('color','black')
+
+  }else{
+    //green
+    $("table tr").eq(index+1).find("td").css('background-color','#1A6408')
+    $("table tr").eq(index+1).find("td").css('color','white')
+  }
+
+  
+  })
+}
 
 </script>

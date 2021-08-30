@@ -1255,8 +1255,8 @@ function entrega_resultDB(queryDB){
  let total_nc_pendientes= data.reduce((sum, b) => { return sum + parseInt(b.CANT_NC_PENDIENTES) }, 0)
  let total_nc_ultimo_mes= data.reduce((sum, b) => { return sum + parseInt(b.CANT_NC_ULT_MES) }, 0)
  let total_nc_res_ult_mes= data.reduce((sum, b) => { return sum + parseInt(b.CANT_NC_RES_ULT_MES) }, 0)
- let nc_cumplimiento_percent=parseInt(total_nc_ultimo_mes>0?total_nc_res_ult_mes/total_nc_ultimo_mes:0*100)
- let nc_pend_percent=parseInt(total_nc_pendientes>0?total_nc_pendientes/total_nc_pendientes:0*100)
+ let nc_cumplimiento_percent=parseInt(total_nc_ultimo_mes>0?total_nc_res_ult_mes/total_nc_ultimo_mes:1*100)
+ let nc_pend_percent=parseInt(total_nc_pendientes>0?total_nc_res_ult_mes/total_nc_pendientes:1*100)
 
 
  return {
