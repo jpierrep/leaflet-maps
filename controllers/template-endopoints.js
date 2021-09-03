@@ -76,7 +76,7 @@ async function getMatrices(idMatriz,parameter){
       ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
       ,{id:4, nombre:"acreditacion",paneles:['OPERPRINC'+parameter.apertura+'P4-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-4?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-5?'+baseFilter]}
       ,{id:5, nombre:"% visitas",paneles:['OPERPRINC'+parameter.apertura+'P5-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-4?'+baseFilter]}
-      ,{id:6, nombre:"% visitas",paneles:['OPERPRINC'+parameter.apertura+'P6-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-4?'+baseFilter]}
+      ,{id:6, nombre:"% visitas",paneles:['OPERPRINC'+parameter.apertura+'P6-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-4?'+baseFilter,,'OPERPRINC'+parameter.apertura+'P6-5?'+baseFilter]}
     //   ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
     ,{id:7, nombre:"visitas y auditorias cumplimiento",paneles:['OPERPRINC'+parameter.apertura+'P7-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P7-2?'+baseFilter]}
       ,{id:8, nombre:"No conformidades",paneles:['OPERPRINC'+parameter.apertura+'P8-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P8-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P8-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P8-4?'+baseFilter]}
@@ -116,7 +116,7 @@ parameter.apertura=parameter.apertura.toUpperCase()
   ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
 
   
-  ,{id:4, nombre:"acreditacion",paneles:['OPER'+parameter.apertura+'2?'+baseFilter]}
+  ,{id:4, nombre:"acreditacion",paneles:['OPER'+parameter.apertura+'2?'+baseFilter,'OPER'+parameter.apertura+'2-2?'+baseFilter]}
   ,{id:5, nombre:"% visitas",paneles:['OPER'+parameter.apertura+'3?'+baseFilter]}
   ,{id:6, nombre:"% auditorias",paneles:['OPER'+parameter.apertura+'6?'+baseFilter]}
 //   ,{id:6, nombre:"mapa",paneles:mapasVisitasPendientes}
