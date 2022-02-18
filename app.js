@@ -9,6 +9,7 @@ var path=require('path');
 var sql = require("mssql");
 var stringify = require('json-stringify');
 const plantilla_websites = require('./controllers/template-endopoints');
+const data_asistencias = require('./controllers/asistencias');
 const fs = require('fs');
 const moment=require('moment')
 
@@ -157,8 +158,11 @@ app.get("/testViewMatriz", async function (req, res) {
 console.log(zonas,'zonas')
 //console.log(supervisores)
 
+let data_asistencias_personal=await data_asistencias.getPersonalVigente()
 
-  res.render("control-matriz-reportes.ejs", { CLIENTES: clientes,SUPERVISORES:supervisores,JEFES_OPERACIONES:jefesOperaciones,ZONAS:zonas });
+
+  res.render("control-matriz-reportes.ejs", { CLIENTES: clientes,SUPERVISORES:supervisores,JEFES_OPERACIONES:jefesOperaciones,ZONAS:zonas
+  ,PERSONAL_ASISTENCIAS:data_asistencias_personal });
 })
 
 
@@ -516,6 +520,17 @@ app.get("/pantalla/:id",async  function (req, res) {
   let plantilla
 
   plantilla= await plantilla_websites.getTemplateEndpointsTargit(req.params.id)
+  console.log("plantilla",plantilla)
+
+
+res.status(200).send(plantilla);
+})
+
+
+app.get("/todasPantallas",async  function (req, res) {
+  let plantilla
+
+  plantilla= await plantilla_websites.getTemplateEndpointsTargitTodasTest()
   console.log("plantilla",plantilla)
 
 

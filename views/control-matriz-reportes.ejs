@@ -8,8 +8,9 @@
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="/css/bootstrap.min.css" 
+  
     crossorigin="anonymous">
-
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
   <title>Procesos</title>
 
 
@@ -293,6 +294,50 @@
       </div>
 
 
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Guardia
+             
+            </h5>
+
+            <p class="card-text">Genera matriz reportes por Guardia</p>
+            <div class="row">
+
+              
+
+                <div class="col-6"> 
+                  <input id="tags" class="custom-select custom-select-lg mb-3">
+                   
+          
+                </input>
+                </div>
+
+              
+              <div class="col-1">
+                <button type="button" id="zonas-button" class="btn btn-primary">Ejecutar</button>
+              </div>
+              
+            </div>
+
+            <div class="row"> 
+              <div class="col-2">
+                    <input type="radio" name="radio-apertura-zonas" value="instalacion" aria-label="Checkbox for following text input"> Instalación
+              </div>
+              <div class="col-2">
+                <input type="radio"  name="radio-apertura-zonas" value="cliente" aria-label="Checkbox for following text input"> Cliente
+          </div>
+          <div class="col-2">
+            <input type="radio"  name="radio-apertura-zonas" value="supervisor" aria-label="Checkbox for following text input"> Supervisor
+      </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+
 
     </div>
 
@@ -311,6 +356,7 @@
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   
     <script src="/js/jquery.min.js"></script> 
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
   <!--<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
     crossorigin="anonymous"></script>-->
   <script src="/js/popper.min.js" 
@@ -328,7 +374,44 @@ $(document).ready(function () {
   let supervisores=JSON.parse('<%-JSON.stringify(SUPERVISORES)%>')
   let jefesOperaciones=JSON.parse('<%-JSON.stringify(JEFES_OPERACIONES)%>')
   let zonas=JSON.parse('<%-JSON.stringify(ZONAS)%>')
+  let personalAsistencias=JSON.parse('<%-JSON.stringify( PERSONAL_ASISTENCIAS)%>')
+ 
+console.log(personalAsistencias)
 console.log(zonas)
+
+
+$( function() {
+    var availableTags = [
+      "ActionScript",
+      "AppleScript",
+      "Asp",
+      "BASIC",
+      "C",
+      "C++",
+      "Clojure",
+      "COBOL",
+      "ColdFusion",
+      "Erlang",
+      "Fortran",
+      "Groovy",
+      "Haskell",
+      "Java",
+      "JavaScript",
+      "Lisp",
+      "Perl",
+      "PHP",
+      "Python",
+      "Ruby",
+      "Scala",
+      "Scheme",
+	  "JUAN PEREZ"
+	  
+    ];
+    let dataPersona=personalAsistencias.map(x=>x.PersonalNombre)
+    $( "#tags" ).autocomplete({
+      source: dataPersona
+    });
+  } );
 
 
 
@@ -565,6 +648,8 @@ $.get( url, function(data) {
   })
 
 }
+
+
 
 
 
