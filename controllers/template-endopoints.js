@@ -19,7 +19,7 @@ let plantilla={
 	"autoStart": true,
 	"websites" : [
 		{
-			"url" : "http://192.168.100.16/TouchServer/embed.html#vfs://Personal/Paneles%20CIC/G1/Rango%20vencimiento-proximos%20vencimientos%20detalle.xview",
+			"url" : "http://192.168.100.127/TouchServer/embed.html#vfs://Personal/Paneles%20CIC/G1/Rango%20vencimiento-proximos%20vencimientos%20detalle.xview",
 			"duration" : 60,
 			"tabReloadIntervalSeconds": 900
 		}
@@ -67,8 +67,8 @@ async function getMatrices(idMatriz,parameter){
 
 
     
-    //urlBase="http://192.168.100.16/TouchServer/embed.html##OPER1?cenco1codi=962-000"
-    urlBase="http://192.168.100.16/TouchServer/embed.html##" 
+    //urlBase="http://192.168.100.127/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+    urlBase="http://192.168.100.127/TouchServer/embed.html##" 
     
      base=[
       {id:1, nombre:"kpi",paneles:['OPERPRINC'+parameter.apertura+'P1-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P1-2?'+baseFilter]}
@@ -106,8 +106,8 @@ console.log("paramenter",parameter)
 
 
 
-//urlBase="http://192.168.100.16/TouchServer/embed.html##OPER1?cenco1codi=962-000"
-urlBase="http://192.168.100.16/TouchServer/embed.html##" 
+//urlBase="http://192.168.100.127/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+urlBase="http://192.168.100.127/TouchServer/embed.html##" 
 parameter.apertura=parameter.apertura.toUpperCase()
 
  base=[
@@ -144,8 +144,8 @@ console.log("paramenter",parameter)
 
 
 
-//urlBase="http://192.168.100.16/TouchServer/embed.html##OPER1?cenco1codi=962-000"
-urlBase="http://192.168.100.16/TouchServer/embed.html##" 
+//urlBase="http://192.168.100.127/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+urlBase="http://192.168.100.127/TouchServer/embed.html##" 
 
 //parameter.apertura=parameter.apertura.toUpperCase()
 
@@ -183,8 +183,8 @@ console.log("paramenter",parameter)
 
 
 
-//urlBase="http://192.168.100.16/TouchServer/embed.html##OPER1?cenco1codi=962-000"
-urlBase="http://192.168.100.16/TouchServer/embed.html##" 
+//urlBase="http://192.168.100.127/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+urlBase="http://192.168.100.127/TouchServer/embed.html##" 
 
 //parameter.apertura=parameter.apertura.toUpperCase()
 
@@ -220,7 +220,7 @@ urlBase="http://192.168.100.16/TouchServer/embed.html##"
     let mapasNCPendientes=getTemplateEndpoints("nc-pendientes","supervisor",distinctSupervisores)
     let mapasVisitasPendientes=getTemplateEndpoints("visitas-pendientes","supervisor",distinctSupervisores)
 
-    urlBase="http://192.168.100.16/TouchServer/embed.html#vfs://Global/Auditorias/"
+    urlBase="http://192.168.100.127/TouchServer/embed.html#vfs://Global/Auditorias/"
 
      base=    [
       {id:1, nombre:"kpi",paneles:['Paneles%20CIC/G7/Panel%20global-vista-General%20ponderado%20mes%20actual.xview','Paneles%20CIC/G7/Panel%20global-vista-General%20ponderado%20mes%20anterior.xview']}
@@ -259,8 +259,8 @@ let typeFilter='cenco1codi'
 
 
 
-//urlBase="http://192.168.100.16/TouchServer/embed.html##OPER1?cenco1codi=962-000"
-urlBase="http://192.168.100.16/TouchServer/embed.html##" 
+//urlBase="http://192.168.100.127/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+urlBase="http://192.168.100.127/TouchServer/embed.html##" 
 
  base=[
   {id:1, nombre:"kpi",paneles:['OPER'+parameter.apertura+'1?'+baseFilter,'OPER'+parameter.apertura+'1-2?'+baseFilter]}
@@ -294,7 +294,7 @@ urlBase="http://192.168.100.16/TouchServer/embed.html##"
 
    //"Cortes%20Jara%20Alfredo"
 
-    urlBase="http://192.168.100.16/TouchServer/embed.html##" 
+    urlBase="http://192.168.100.127/TouchServer/embed.html##" 
     base=[
       {id:1, nombre:"kpi",paneles:['OPER'+parameter.apertura+'1?'+baseFilter,'OPER'+parameter.apertura+'1-2?'+baseFilter]}
       ,{id:2, nombre:"mapa",paneles:['tiempo-planta/supervisor/'+parameterFilter]}
@@ -328,7 +328,7 @@ urlBase="http://192.168.100.16/TouchServer/embed.html##"
   
     
 
-  urlBase="http://192.168.100.16/TouchServer/embed.html#vfs://Global/Auditorias/"
+  urlBase="http://192.168.100.127/TouchServer/embed.html#vfs://Global/Auditorias/"
    base=[
     {id:1, nombre:"kpi",paneles:['Paneles%20CIC/ACCION-INMEDIATA/Cert%20Vencidos%20Ranking.xview']}
     ,{id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
@@ -367,7 +367,7 @@ urlBase="http://192.168.100.16/TouchServer/embed.html##"
         let mapasNCPendientes=getTemplateEndpoints("nc-pendientes","supervisor",distinctSupervisores)
         let mapasVisitasPendientes=getTemplateEndpoints("visitas-pendientes","supervisor",distinctSupervisores)
 
-  urlBase="http://192.168.100.16/TouchServer/embed.html##" 
+  urlBase="http://192.168.100.127/TouchServer/embed.html##" 
    
   base=[
     {id:1, nombre:"kpi",paneles:['OPER'+parameter.apertura+'1?'+baseFilter,'OPER'+parameter.apertura+'1-2?'+baseFilter]}
@@ -413,7 +413,7 @@ async function getTemplateEndpointsTargit(id){
    console.log("el id buscado es ",id)
 
   /*
-let urlBase="http://192.168.100.16/TouchServer/embed.html#vfs://Global/Auditorias/"
+let urlBase="http://192.168.100.127/TouchServer/embed.html#vfs://Global/Auditorias/"
 //partir desde 3 luego actualizar endpoint para que todo se maneje desde aca
 
 //Acreditacion
@@ -443,8 +443,8 @@ let panelesTargit=[
 /*
 
 let parameter='165-000'
-//urlBase="http://192.168.100.16/TouchServer/embed.html##OPER1?cenco1codi=962-000"
-let urlBase="http://192.168.100.16/TouchServer/embed.html##" 
+//urlBase="http://192.168.100.127/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+let urlBase="http://192.168.100.127/TouchServer/embed.html##" 
 let panelesTargit=[
   {id:1, nombre:"kpi",paneles:['OPERCLIENTE1?cenco1codi='+parameter]}
   ,{id:4, nombre:"acreditacion",paneles:['OPERCLIENTE2?cenco1codi='+parameter]}
@@ -464,8 +464,8 @@ let panelesTargit=[
 //let parameter='Fernandez%20%20%20Cristian'
 let parameter='Quintriqueo%20Valdenegro%20Lorenzo'
 
-//urlBase="http://192.168.100.16/TouchServer/embed.html##OPER1?cenco1codi=962-000"
-let urlBase="http://192.168.100.16/TouchServer/embed.html##" 
+//urlBase="http://192.168.100.127/TouchServer/embed.html##OPER1?cenco1codi=962-000"
+let urlBase="http://192.168.100.127/TouchServer/embed.html##" 
 let panelesTargit=[
   {id:1, nombre:"kpi",paneles:['OPERSUPERVISOR1?supervisor='+parameter]}
   ,{id:4, nombre:"acreditacion",paneles:['OPERSUPERVISOR2?supervisor='+parameter]}
