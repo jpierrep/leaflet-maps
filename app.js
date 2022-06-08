@@ -65,7 +65,9 @@ let unique = (value, index, self) => {
 
    console.log("el result superv",resultSupervisor)
      resultSupervisor.filter(x=>x.ADMINISTRATIVO_ID).map(supervisor=>{
-     supervisor.COLOR=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID).color
+      let sup=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID)
+      if (sup){supervisor.COLOR=sup.color} else supervisor.COLOR='#FF0000'
+    // supervisor.COLOR=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID).color
      //supervisor.COLOR='#FF0000'
      //supervisor.DOT_VENDIDA= supervisor.DOT_VENDIDA.toFixed(2)
         return  supervisor
@@ -110,8 +112,8 @@ function getPlantas(){
         on ci.CENCO2_CODI=cc.cencos_codigo and ci.EMP_CODI=cc.empresa_id
       left join [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] as dot
        on dot.CENCO2_CODI=ci.CENCO2_CODI and dot.EMP_CODI=ci.EMP_CODI and dot.ULT_ACTUALIZACION_DATOS=(select MAX(ULT_ACTUALIZACION_DATOS) from [SISTEMA_CENTRAL].[dbo].[bi_dotaciones] )
-        where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0 
-        and dot.PERSONAL_VIGENTE_ERP>0 and administrativo_id is not null
+        where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0  
+        and dot.PERSONAL_VIGENTE_ERP>0 and administrativo_id is not null and ci.CENCO2_CODI<>'956-001'
         order by ci.CENCO1_DESC asc
     `;
     
@@ -288,7 +290,7 @@ template["cenco2_codi"]='000-000'
     template["cotiza_dot_vendida"]=0
     template["cotiza_dot_vigente_erp"]=0
     template["cenco2_codi"]='000-000'
-    result.push(template)
+    //result.push(template)
     
       })
 
