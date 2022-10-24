@@ -11,7 +11,7 @@ var stringify = require('json-stringify');
 const plantilla_websites = require('./controllers/template-endopoints');
 const fs = require('fs');
 
-const cicURL='192.168.5.5:3800/cic_control/'
+const cicURL='192.168.5.9:3800/cic_control/'
 
 // config for your database
 var config = {
