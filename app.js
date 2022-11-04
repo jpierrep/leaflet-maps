@@ -598,7 +598,9 @@ let unique = (value, index, self) => {
 
    console.log("el result superv",resultSupervisor)
      resultSupervisor.filter(x=>x.ADMINISTRATIVO_ID).map(supervisor=>{
-     supervisor.COLOR=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID).color
+      let sup=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID)
+      if (sup){supervisor.COLOR=sup.color} else supervisor.COLOR='#FF0000'
+    // supervisor.COLOR=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID).color
      //supervisor.COLOR='#FF0000'
      //supervisor.DOT_VENDIDA= supervisor.DOT_VENDIDA.toFixed(2)
         return  supervisor
