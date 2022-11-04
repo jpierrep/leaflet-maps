@@ -73,7 +73,7 @@ async function getMatrices(idMatriz,parameter){
      base=[
       {id:1, nombre:"kpi",paneles:['OPERPRINC'+parameter.apertura+'P1-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P1-2?'+baseFilter]}
       ,{id:2, nombre:"mapa",paneles:mapasTiempoPlanta}
-      ,{id:3, nombre:"mapa",paneles:mapasNCPendientes}
+      ,{id:3, nombre:"cobertura contingencias",paneles:['OPERPRINC'+parameter.apertura+'P3-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P3-2?'+baseFilter]}
       ,{id:4, nombre:"acreditacion",paneles:['OPERPRINC'+parameter.apertura+'P4-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-4?'+baseFilter,'OPERPRINC'+parameter.apertura+'P4-5?'+baseFilter]}
       ,{id:5, nombre:"% visitas",paneles:['OPERPRINC'+parameter.apertura+'P5-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P5-4?'+baseFilter]}
       ,{id:6, nombre:"% visitas",paneles:['OPERPRINC'+parameter.apertura+'P6-1?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-2?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-3?'+baseFilter,'OPERPRINC'+parameter.apertura+'P6-4?'+baseFilter,,'OPERPRINC'+parameter.apertura+'P6-5?'+baseFilter]}
