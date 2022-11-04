@@ -1149,10 +1149,13 @@ function createGeoJSON(data){
         }
         ,"properties": {
        
-            "Group":"a","name":element.planta_nombre,"cenco2_codi":element.cencos_codigo
+            "Group":"a","name":element.nombre,"cenco2_codi":element.cenco2_codigo,"cenco1_desc":element.cenco1_desc
         ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id
         ,"CANT_AUDITORIAS":element.CANT_AUDITORIAS,"CANT_NC_PENDIENTES":element.CANT_NC_PENDIENTES  
         ,"CANT_NC_ULT_MESES":element.CANT_NC_ULT_MESES,"CANT_NC_RES_ULT_MESES":element.CANT_NC_RES_ULT_MESES  
+        ,"dotacion_vendida":element.cotiza_dot_vendida
+        ,"CANT_AUDITORIAS":element.CANT_AUDITORIAS,"CANT_NC_PENDIENTES":element.CANT_NC_PENDIENTES  
+        ,"dotacion_asignada":element.cotiza_dot_asignada,"dotacion_vigente":element.cotiza_dot_vigente_erp
       }
         };
 
