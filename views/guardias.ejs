@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<head>  
+  <meta charset="utf-8">
+  <title>ClusterPies</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+  integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+  crossorigin=""/>
+
+  <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+  integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+  crossorigin=""></script>
+      
+
+        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+
+        
+
+        <link rel="stylesheet" href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'/>
+        <script src="/js/bootstrap-3.3.2.min.js"></script>
+        <script type="text/javascript" src='/js/bootstrap-multiselect.js'></script>
+
+
+        
+        
+        
+    
+        <link rel="stylesheet" href="/css/bootstrap-multiselect.css"/>
+        <link rel="stylesheet" href="/css/mapa.css"/>
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css"/>
+     
+        <style>
+   #mymap{width:1600px;height:800px}
+        </style>
+
+    </head>  
+
+
+  
+      
+      <body>
+
+        Cliente:
+        <select id="select_filter_cenco1" multiple="multiple">
+            <option value="all">TODOS</option>
+
+            <%
+         
+            for ( var i = 0; i < distinctCenco1.length; i++ )
+            {
+                
+                %>
+                
+                <option value="<%=distinctCenco1[ i ]%>" >
+
+               
+                <%=distinctCenco1[ i ]%></option>
+                
+            <%
+            }
+            %>
+            </select>
+
+
+            Supervisor:
+            <select id="select_filter_supervisor" multiple="multiple">
+                <option value="all">TODOS</option>
+    
+                <%
+             
+                for ( var i = 0; i < distinctSupervisores.length; i++ )
+                {
+                    
+                    %>
+                    
+                    <option value="<%=distinctSupervisores[ i ]%>" >
+    
+                   
+                    <%=distinctSupervisores[ i ]%></option>
+                    
+                <%
+                }
+                %>
+                </select>
+
+                <div id="mymap" >  </div>
+                <div style= "text-align:center"> </div>
+
+      </body>
+
+
+      <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js'></script>
+
+      <script  >
+
+
+
+"use strict";
+            console.log("#{variable}")
+            var mymap = L.map('mymap'
+            ,{fullscreenControl: true}
+            ).setView([51.505, -0.09], 1);
+             L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+             attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+             maxZoom: 18,
+             id: 'mapbox/streets-v11',
+             accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
+            }).addTo(mymap);
+            var distinctCenco1= JSON.parse('<%-JSON.stringify(distinctCenco1)%>') ;
+            var distinctSupervisores= JSON.parse('<%-JSON.stringify(distinctSupervisores)%>') ;
+            var resultSupervisor=JSON.parse('<%-JSON.stringify(resultSupervisor)%>');
+            var supervisoresColor=JSON.parse('<%-supervisoresColor%>');
+            var dataResult=JSON.parse('<%-dataResult%>');
+            var geojsonFeature=JSON.parse('<%-geoJSON%>');
+            
+           //ex jade var resultSupervisor=JSON.parse('!{JSON.stringify(resultSupervisor)}' );
+           //var supervisoresColor=JSON.parse('!{supervisoresColor}');
+           //var dataResult=JSON.parse('!{dataResult}')
+           //var geojsonFeature=JSON.parse('!{geoJSON}');
+            /*Legend specific*/
+            var legend = L.control({ position: "bottomleft" });
+
+            legend.onAdd = function(mymap) {
+                var div = L.DomUtil.create("div", "legend");
+                div.innerHTML += "<h4>Supervisores</h4>";
+                
+                
+                let HTML=  `<table  width="100%"><tr> `   
+                  HTML +=    ` <tr>
+                    <td > </td>
+                     <td>Nombre</td> 
+                    <td>Vendida</td>
+                    <td> Asignada</td>
+                    <td>Real</td>
+                    </tr>`;
+                //resultSupervisor.forEach(supervisor=>{
+                //    div.innerHTML += ' <tr> <td style="background-color:'+supervisor.COLOR+'"> &nbsp</td>  <td>' +supervisor.ADMINISTRATIVO_NOMBRE+'</td> <td>' +supervisor.DOT_VENDIDA+'</td> <td>' +supervisor.DOT_ASIGNADA+'</td>  <td>' +supervisor.DOT_REAL+'</td>  </tr>';
+                //})
+
+                //Iterar esto con una variable aparte de texto luego añadir al div, pues la tabla no se podría mostrar correctamente, referencia https://stackoverflow.com/questions/13775519/html-draw-table-using-innerhtml
+                 resultSupervisor.forEach(supervisor=>{
+                    HTML += ` <tr>
+                    <td > <i style="background:`+supervisor.COLOR+` "></i></td>
+                    <td>` +supervisor.ADMINISTRATIVO_NOMBRE+`</td>
+                    <td>` +supervisor.DOT_VENDIDA+`</td>
+                    <td>` +supervisor.DOT_ASIGNADA+`</td>
+                    <td>` +supervisor.DOT_REAL+`</td> 
+                    </tr>`;
+                })
+                    HTML += "</table>";
+                    
+                    div.innerHTML +=HTML 
+                  
+               /* div.innerHTML += '<i style="background: #477AC2"></i><span>Water</span><br>';
+                div.innerHTML += '<i style="background: #448D40"></i><span>Forest</span><br>';
+                div.innerHTML += '<i class="icon" style="background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/194515-200.png);background-repeat: no-repeat;"></i><span>Grænse</span><br>';
+                */
+                console.log("resultSupervisor",resultSupervisor)
+             //   resultSupervisor.forEach(supervisor=>{
+               //     div.innerHTML += '<i style="background:'+supervisor.COLOR+' "></i><span>'+supervisor.ADMINISTRATIVO_NOMBRE+'</span><br>';
+               // })
+              
+            
+
+                return div;
+            };
+
+            legend.addTo(mymap);
+ 
+
+             
+           
+          
+            console.log("supervisores Color",supervisoresColor)
+        
+
+            var valor;
+            var valores;
+
+            //Actions Selector Cenco 1
+            $(document).ready(function() {
+            $('#select_filter_cenco1').multiselect({
+
+            onChange: function(option, checked, select) {
+              //  console.log($('#example-filter-placeholder option:selected').val())
+              //  console.log($('#example-filter-placeholder option:selected').map(function(a, item){return item.value;}));
+                valores=$('#select_filter_cenco1 option:selected').map(function(a, item){return item.value;});
+
+               valores=valores.toArray();
+               console.log('Valores',valores);
+
+                //reset selector de cenco1 
+                $('#select_filter_supervisor option:selected').each(function() {
+                $(this).prop('selected', false);
+                });
+                $('#select_filter_supervisor').multiselect('refresh');
+
+                cambia2('cenco1')
+            },filterPlaceholder: 'Busqueda...'
+            ,enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            maxHeight: 400
+            });
+
+            //Actions Selector Supervisor
+            $('#select_filter_supervisor').multiselect({
+
+            onChange: function(option, checked, select) {
+              //  console.log($('#example-filter-placeholder option:selected').val())
+              //  console.log($('#example-filter-placeholder option:selected').map(function(a, item){return item.value;}));
+                valores=$('#select_filter_supervisor option:selected').map(function(a, item){return item.value;});
+
+               valores=valores.toArray();
+               console.log(valores);
+                //reset selector de cenco1 
+                $('#select_filter_cenco1 option:selected').each(function() {
+                $(this).prop('selected', false);
+                });
+                $('#select_filter_cenco1').multiselect('refresh');
+
+
+                //pinta datos en el mapa
+                cambia2('supervisor')
+            },filterPlaceholder: 'Busqueda...'
+            ,enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            maxHeight: 400
+            });
+
+
+
+            });
+
+            function cambia2(tipo){
+        
+                console.log("supervisores Color",supervisoresColor);
+                var cantDotVigenteTotal=0;
+                var cantDotVigenteParcial=0;
+                var cantPlantas=0;
+
+
+
+                /*var sum = [1, 2, 3].reduce((a, b) => a + b, 0);
+                console.log(sum); // 6
+
+                var arr = [{x:1},{x:2},{x:4}];
+
+                arr.reduce(function (a, b) {
+                return {x: a.x + b.x};
+                });*/
+                
+                
+                //cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        
+                         //a trae el valor acumulado y b trae el objeto actual
+                //    return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
+                //});
+
+                //funcionando trae suma de un objeto
+                //var sum= dataResult.reduce((a,b)=>{
+                //    return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp}
+                //});
+                //console.log(sum);
+                //console.log(dataResult);
+                var valor;
+                if (tipo=='supervisor'){
+                   //  valor = document.getElementById("supervisor_select").value;
+                   //  document.getElementById("cenco1_select").value="all";
+
+                   // console.log(valores2);
+
+                    //si es distinto all se obtiene la cantidad de personal en base al filtro, pero si es all se debe sumar todo                  
+                     console.log("Hola");
+                     console.log(valores);
+                     if(!valores.includes('all')){
+                            console.log("no contiene all")
+                         //cantidad total vigente del filtro
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        
+                         //a trae el valor acumulado y b trae el objeto actual
+                        if( b.administrativo_nombre &&  valores.includes(b.administrativo_nombre) )
+                            return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
+                        else 
+                            return{cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp};
+                        });
+
+                        console.log(cantDotVigenteTotal);
+
+                     }else{
+                    //funcionando trae suma de un objeto
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp}
+                        });
+                     }
+
+
+                    
+                    
+                 }
+                if(tipo=='cenco1'){
+                   // valor = document.getElementById("cenco1_select").value;
+
+                   //   document.getElementById("supervisor_select").value="all"
+                                          //si es distinto all se obtiene la cantidad de personal en base al filtro, pero si es all se debe sumar todo                  
+                     if(!valores.includes('all')){
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        
+                         //a trae el valor acumulado y b trae el objeto actual
+                        if( b.cenco1_desc && valores.includes(b.cenco1_desc))
+                            return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
+                        else 
+                            return{cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp};
+                        });
+
+                     }else{
+                    //funcionando trae suma de un objeto
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp}
+                        });
+                     }
+
+                      
+                }
+
+
+  
+             mymap.eachLayer(function (layer) {
+            mymap.removeLayer(layer)
+            }) ; 
+ 
+            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
+            }).addTo(mymap);
+            /*
+            var geojsonFeature = [{
+            "type": "Feature",
+            "properties": {
+            "name": "Coors Field",
+            "amenity": "Baseball Stadium",
+            "popupContent": "This is where the Rockies play!",
+            "Group":"a"
+            },
+            "geometry": {
+            "type": "Point",
+            "coordinates": [-71.99404, 39.75621]
+            }
+            },
+            {
+            "type": "Feature",
+            "properties": {
+            "name": "Coors Field",
+            "amenity": "Baseball Stadium",
+            "popupContent": "This is where the Rockies play!",
+            "Group":"a"
+            },
+            "geometry": {
+            "type": "Point",
+            "coordinates": [41.69861,-72.724141]
+            }
+            }]; */
+
+           
+
+            // console.log(omnivore.csv('file:///C:/Users/jpierre/Documents/Leaflet-maps/leaflet-maps/views/data.csv', null, customLayer))
+            //var csv='a,Trinity College,https://www.edx.org/sites/default/files/trinity1.jpg,"Not in the link <a href=""http://www.trincoll.edu"" target=""_blank"">view website</a> more not in the link","300 Summit St, Hartford CT 06106",0.0,0.0,"300 SUMMIT ST, HARTFORD, CT, 06106",Exact,US Census';
+            
+            var customLayer = L.geoJson(geojsonFeature, {
+                pointToLayer : function(feature,latlng){
+                console.log("holaa")   
+                console.log(feature)
+
+                let featureDotacion=0;
+                //si tiene dotacion vigente se captura el dato para luego hacer la funcion 
+                // de calculo del radio en base al valor total
+                if (feature.properties && feature.properties.dotacion_vigente) 
+                    featureDotacion=feature.properties.dotacion_vigente;
+                let valorRadio=0;
+                //para no obtener 0/0 y nos de error
+                if  (featureDotacion!=0&&cantDotVigenteTotal.cotiza_dot_vigente_erp!=0)
+                    valorRadio=featureDotacion/cantDotVigenteTotal.cotiza_dot_vigente_erp
+                //para evitar que se escalen demasiado los circulos //no es posible ya que se deben considerar la cantidad de plantas no de personas
+                if(cantDotVigenteTotal.cotiza_dot_vigente_erp==1)
+                    valorRadio=0; 
+
+                let colorRadio="#ff7800";
+                if(featureDotacion==0)
+                    colorRadio="#C83414";
+
+                     
+
+
+                console.log(featureDotacion)
+                console.log(cantDotVigenteTotal.cotiza_dot_vigente_erp)
+                let geojsonMarkerOptions = {
+                radius: 8+(20*(valorRadio)),
+             //   fillColor: colorRadio,
+                  fillColor:supervisoresColor.find(x=>x.administrativo_id==feature.properties.administrativo_id)['color'],
+                color: "#000",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+                };
+
+                //COLOR DE FISCALIAS
+                if (feature.properties.cenco1_desc=='COCA-COLA TEST'){
+                    geojsonMarkerOptions.fillColor='#FF0000'
+               // return L.circleMarker(latlng, geojsonMarkerOptions);
+               //se añade un marcador para destacar y mostrar diferencias
+                 return L.marker(latlng, null);
+                }
+
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+                },
+                filter:function(feature,layer){
+                if(!valores.includes('all') &&tipo=='cenco1'){
+                    
+                return valores.includes(feature.properties.cenco1_desc);
+
+                }else if(!valores.includes('all')&&tipo=='supervisor'){
+                    
+                return valores.includes(feature.properties.administrativo_nombre);                
+                
+                }else{
+                    return true;
+                }
+                },onEachFeature:function(feature,layer){
+                if (feature.properties && feature.properties.name) {
+                    let dot_vendida=0;
+                    let dot_asignada=0;
+                    let dot_vigente=0;
+                    if(feature.properties.dotacion_vendida)
+                        dot_vendida=feature.properties.dotacion_vendida
+                    if(feature.properties.dotacion_asignada)
+                        dot_asignada=feature.properties.dotacion_asignada
+                    if(feature.properties.dotacion_vigente)
+                        dot_vigente=feature.properties.dotacion_vigente
+
+                    var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> Dotación vendida: `+dot_vendida+`<br>  Dotación asignada: `+dot_asignada+`<br>  Dotación vigente: `+dot_vigente+`<br> Supervisor: `   +feature.properties.administrativo_nombre+`</p>`
+                layer.bindPopup(label).openPopup();
+                }   
+                }
+                }).addTo(mymap);
+            if(!valores.length==0){
+                console.log(valores);
+            mymap.fitBounds(customLayer.getBounds());
+            }
+
+            }
+
+
+             
+            function cambia(tipo){
+                console.log("supervisores Color",supervisoresColor);
+                var cantDotVigenteTotal=0;
+                var cantDotVigenteParcial=0;
+                var cantPlantas=0;
+
+
+
+                /*var sum = [1, 2, 3].reduce((a, b) => a + b, 0);
+                console.log(sum); // 6
+
+                var arr = [{x:1},{x:2},{x:4}];
+
+                arr.reduce(function (a, b) {
+                return {x: a.x + b.x};
+                });*/
+                
+                var dataResult=JSON.parse('!{dataResult}');
+                //cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        
+                         //a trae el valor acumulado y b trae el objeto actual
+                //    return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
+                //});
+
+                //funcionando trae suma de un objeto
+                //var sum= dataResult.reduce((a,b)=>{
+                //    return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp}
+                //});
+                //console.log(sum);
+                //console.log(dataResult);
+                var valor;
+                if (tipo=='supervisor'){
+                     valor = document.getElementById("supervisor_select").value;
+                     document.getElementById("cenco1_select").value="all"
+
+                    //si es distinto all se obtiene la cantidad de personal en base al filtro, pero si es all se debe sumar todo                  
+                     if(valor!='all'){
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        
+                         //a trae el valor acumulado y b trae el objeto actual
+                        if( b.administrativo_nombre && b.administrativo_nombre==valor )
+                            return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
+                        else 
+                            return{cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp};
+                        });
+
+                     }else{
+                    //funcionando trae suma de un objeto
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp}
+                        });
+                     }
+
+
+                    
+                    
+                 }
+                if(tipo=='cenco1'){
+                     valor = document.getElementById("cenco1_select").value;
+                      document.getElementById("supervisor_select").value="all"
+                                          //si es distinto all se obtiene la cantidad de personal en base al filtro, pero si es all se debe sumar todo                  
+                     if(valor!='all'){
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        
+                         //a trae el valor acumulado y b trae el objeto actual
+                        if( b.cenco1_desc && b.cenco1_desc==valor )
+                            return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp};
+                        else 
+                            return{cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp};
+                        });
+
+                     }else{
+                    //funcionando trae suma de un objeto
+                        cantDotVigenteTotal= dataResult.reduce((a,b)=>{
+                        return {cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp+b.cotiza_dot_vigente_erp}
+                        });
+                     }
+
+                      
+                }
+                console.log(tipo);
+                console.log(valor);
+
+                
+                console.log(valor)
+                console.log("el valor");
+
+               
+
+  
+             mymap.eachLayer(function (layer) {
+            mymap.removeLayer(layer)
+            }) ; 
+ 
+            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            accessToken: 'pk.eyJ1IjoianBpZXJyZXAiLCJhIjoiY2pkcWZxZzh1MHF2YjJ3cWxweWxtOTJ0NyJ9.0Yu1-taeeVUfHfSXBGE-Tg'
+            }).addTo(mymap);
+            /*
+            var geojsonFeature = [{
+            "type": "Feature",
+            "properties": {
+            "name": "Coors Field",
+            "amenity": "Baseball Stadium",
+            "popupContent": "This is where the Rockies play!",
+            "Group":"a"
+            },
+            "geometry": {
+            "type": "Point",
+            "coordinates": [-71.99404, 39.75621]
+            }
+            },
+            {
+            "type": "Feature",
+            "properties": {
+            "name": "Coors Field",
+            "amenity": "Baseball Stadium",
+            "popupContent": "This is where the Rockies play!",
+            "Group":"a"
+            },
+            "geometry": {
+            "type": "Point",
+            "coordinates": [41.69861,-72.724141]
+            }
+            }]; */
+
+            var geojsonFeature=JSON.parse('!{geoJSON}');
+
+            // console.log(omnivore.csv('file:///C:/Users/jpierre/Documents/Leaflet-maps/leaflet-maps/views/data.csv', null, customLayer))
+            //var csv='a,Trinity College,https://www.edx.org/sites/default/files/trinity1.jpg,"Not in the link <a href=""http://www.trincoll.edu"" target=""_blank"">view website</a> more not in the link","300 Summit St, Hartford CT 06106",0.0,0.0,"300 SUMMIT ST, HARTFORD, CT, 06106",Exact,US Census';
+            
+            var customLayer = L.geoJson(geojsonFeature, {
+                pointToLayer : function(feature,latlng){
+                console.log("holaa")   
+                console.log(feature)
+
+                let featureDotacion=0;
+                //si tiene dotacion vigente se captura el dato para luego hacer la funcion 
+                // de calculo del radio en base al valor total
+                if (feature.properties && feature.properties.dotacion_vigente) 
+                    featureDotacion=feature.properties.dotacion_vigente;
+                let valorRadio=0;
+                //para no obtener 0/0 y nos de error
+                if  (featureDotacion!=0&&cantDotVigenteTotal.cotiza_dot_vigente_erp!=0)
+                    valorRadio=featureDotacion/cantDotVigenteTotal.cotiza_dot_vigente_erp
+                //para evitar que se escalen demasiado los circulos //no es posible ya que se deben considerar la cantidad de plantas no de personas
+                if(cantDotVigenteTotal.cotiza_dot_vigente_erp==1)
+                    valorRadio=0;              
+
+                console.log(featureDotacion)
+                console.log(cantDotVigenteTotal.cotiza_dot_vigente_erp)
+                let geojsonMarkerOptions = {
+                radius: 8+(20*(valorRadio)),
+              //  fillColor: "#ff7800",
+               fillColor:supervisoresColor.find(x=>x.administrativo_id==feature.properties.administrativo_id)['color'],
+                color: "#000",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+                };
+
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+                },
+                filter:function(feature,layer){
+                if(valor!='all' &&tipo=='cenco1'){
+                    
+                return feature.properties.cenco1_desc==valor;
+
+                }else if(valor!='all' &&tipo=='supervisor'){
+                    
+                return feature.properties.administrativo_nombre==valor;                
+                
+                }else{
+                    return true;
+                }
+                },onEachFeature:function(feature,layer){
+                if (feature.properties && feature.properties.name) {
+                    let dot_vendida=0;
+                    let dot_asignada=0;
+                    let dot_vigente=0;
+                    if(feature.properties.dotacion_vendida)
+                        dot_vendida=feature.properties.dotacion_vendida
+                    if(feature.properties.dotacion_asignada)
+                        dot_asignada=feature.properties.dotacion_asignada
+                    if(feature.properties.dotacion_vigente)
+                        dot_vigente=feature.properties.dotacion_vigente
+
+                    var label=`<p style='font-weight: bold;'>`+feature.properties.cenco2_codi+" "+feature.properties.name+`</p> <p> Dotación vendida: `+dot_vendida+`<br>  Dotación asignada: `+dot_asignada+`<br>  Dotación vigente: `+dot_vigente+`<br> Supervisor: `   +feature.properties.administrativo_nombre+`</p>`
+                layer.bindPopup(label).openPopup();
+                }   
+                }
+                }).addTo(mymap);
+
+            mymap.fitBounds(customLayer.getBounds());
+             
+             
+             /*var runLayer = omnivore.csv(csv, null, customLayer)
+            .on('ready', function() {
+            // http://leafletjs.com/reference.html#map-fitbounds
+            mymap.fitBounds(runLayer.getBounds());
+            }).addTo(mymap);
+            console.log("Listo");*/
+            
+            }
+
+      </script>
+
