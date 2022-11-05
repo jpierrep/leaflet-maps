@@ -625,13 +625,16 @@ let unique = (value, index, self) => {
 });
 
 
-app.get("/getGuardias",function(req,res){
+app.get("/getGuardias",async function(req,res){
  
   var variable="variableeeee";
   var options=["a","b","c","d"];
 
   
+var guardias=await getGuardias()
+var geoJSONGuardias= JSON.stringify(createGeoJSONGuardias(guardias))
 
+console.log(guardias)
 
   var plantas=getPlantas().then(result=>{
   //console.log(result);
@@ -684,7 +687,9 @@ let distinctSupervisoresId = result.map(x =>  {return x['administrativo_id'] }).
 
   res.render("guardias.ejs",{variable:variable,opciones:options,dataResult:dataResult
       ,geoJSON:geoJSON,distinctCenco1:distinctCenco1,distinctSupervisores:distinctSupervisores,supervisoresColor:JSON.stringify(supervisoresColor)
-     ,resumenSupervisor:supervisoresColor,resultSupervisor:resultSupervisor});
+     ,resumenSupervisor:supervisoresColor,resultSupervisor:resultSupervisor
+    ,geoJSONGuardias:geoJSONGuardias
+    });
 
  })
 
@@ -748,6 +753,23 @@ async function getPlantas(){
         });
 
     });
+
+}
+
+async function getGuardias(){
+  let query=`select  * from openquery([bi-server-01],'select * FROM [Inteligencias].[dbo].[RRHH_PERSONAL_DIRECCION]')
+  `;
+  
+  return new Promise(resolve=>{
+
+      entrega_resultDB(query).then(result=>{
+
+    
+        resolve(result);
+
+      });
+
+  });
 
 }
 
@@ -1235,6 +1257,45 @@ function createGeoJSON(data){
 
     });
     return nuevoData;
+
+}
+
+function createGeoJSONGuardias(data){
+  /*
+  {
+    DIRECCION_FORMAT: null,
+    DIRECCION: 'ALBERTO BLEST GANA N° 730',
+    COMUNA: 'El Bosque',
+    NOMBRES: 'SEPULVEDA JOFRE ELISEO SEGUNDO',
+    RUT_ID: 4632206,
+    FICHA: '13INDAL10',
+    EMP_CODI: 0,
+    Latitude: '-33.5632352',
+    Longitude: '-70.6729175'
+  }
+  */
+ 
+  
+
+  let nuevoData=  data.map(element=>{
+     return {"type":"Feature",
+ 
+     "geometry": {
+     "type": "Point",
+     "coordinates": [element.Longitude,element.Latitude],
+ 
+   
+     }
+     ,"properties": {
+    
+         "Group":"a","ficha":element.FICHA,"RUT":element.RUT_ID
+         //,"nombre":element.NOMBRES da error el json
+  
+   }
+     };
+
+ });
+ return nuevoData;
 
 }
 
