@@ -757,7 +757,22 @@ async function getPlantas(){
 }
 
 async function getGuardias(){
-  let query=`select  * from openquery([bi-server-01],'select * FROM [Inteligencias].[dbo].[RRHH_PERSONAL_DIRECCION]')
+  let query=`
+  --distinct por si hay fichas repeidas en las diirecciones
+  select distinct dir_per.*
+  ,per.NOMBRES,per.ESTADO
+  ,per.FECHA_INGRESO
+  ,per.FECHA_TERM_CONTRATO
+  ,per.FINIQUITO_GLOSA
+  ,per.TELEFONO1
+  ,per.EDAD
+  FROM
+   [bi-server-01].[Inteligencias].[dbo].[RRHH_PERSONAL_DIRECCION] as dir_per
+    left join 
+    (select * from [bi-server-01].Inteligencias.dbo.RRHH_PERSONAL_SOFT where ES_ULTIMO_MES=1 ) as per
+    on dir_per.EMP_CODI=per.EMP_CODI and dir_per.FICHA=per.FICHA collate SQL_Latin1_General_CP1_CI_AI
+    where es_ultima_ficha=1 and edad<=65
+  
   `;
   
   return new Promise(resolve=>{
@@ -1288,7 +1303,16 @@ function createGeoJSONGuardias(data){
      }
      ,"properties": {
     
-         "Group":"a","ficha":element.FICHA,"RUT":element.RUT_ID
+         "Group":"a","FICHA":element.FICHA
+         ,"RUT_ID":element.RUT_ID
+        // ,"NOMBRES":element.NOMBRES
+       ,"ESTADO":element.ESTADO
+         ,"FECHA_INGRESO":element.FECHA_INGRESO
+         ,"FECHA_TERM_CONTRATO":element.FECHA_TERM_CONTRATO
+        //,"FINIQUITO_GLOSA":element.FINIQUITO_GLOSA
+         ,"TELEFONO1":element.TELEFONO1
+         ,"EDAD":element.EDAD
+
          //,"nombre":element.NOMBRES da error el json
   
    }
