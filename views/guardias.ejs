@@ -131,6 +131,7 @@
             var supervisoresColor=JSON.parse('<%-supervisoresColor%>');
             var dataResult=JSON.parse('<%-dataResult%>');
             var geojsonFeature=JSON.parse('<%-geoJSON%>');
+           // var geojsonFeature=JSON.parse('<%-JSON.stringify(geoJSONGuardias)%>');
             var geojsonFeatureGuardias=JSON.parse('<%-geoJSONGuardias%>');
             
            //ex jade var resultSupervisor=JSON.parse('!{JSON.stringify(resultSupervisor)}' );
@@ -403,7 +404,7 @@
 
             var geoJsonLayer = L.geoJson(geojsonFeatureGuardias, {
     onEachFeature: function (feature, layer) {
-        var label=`<p style='font-weight: bold;'>`+feature.properties.RUT_ID+`</p> <p> ESTADO ACTUAL: `+feature.properties.ESTADO+`<br>  FECHA INGRESO: `+feature.properties.FECHA_INGRESO+`<br>  EDAD: `+feature.properties.EDAD+`<br>  FECHA TERM. CONTR.: `+feature.properties.FECHA_TERM_CONTRATO+`<br>  ULT. INSTALACION: `+feature.properties.CENCO2_DESC+`<br> TELEFONO: `   +feature.properties.TELEFONO1+`</p>`
+        var label=`<p style='font-weight: bold;'>`+feature.properties.RUT_ID+`-`+feature.properties.NOMBRES+`</p> <p> ESTADO ACTUAL: `+feature.properties.ESTADO+`<br>  FECHA INGRESO: `+feature.properties.FECHA_INGRESO+`<br>  EDAD: `+feature.properties.EDAD+`<br>  CAUSAL ULT. TERM. CONTR: `+feature.properties.FINIQUITO_GLOSA+`<br>  FECHA TERM. CONTR.: `+feature.properties.FECHA_TERM_CONTRATO+`<br>  ULT. INSTALACION: `+feature.properties.CENCO2_DESC+`<br> TELEFONO: `   +feature.properties.TELEFONO1+`</p>`
 
        layer.bindPopup(label);
        // layer.bindPopup("test");

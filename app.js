@@ -740,6 +740,7 @@ async function getPlantas(){
         where cc.deleted_at is null  and p.deleted_at is null and cc.empresa_id=0 
         and dot.PERSONAL_VIGENTE_ERP>0 and administrativo_id is not null
         and administrativo_id not in (16750473,6757887) --excluye patricio peñaloza y zona testing
+        and ci.cenco2_codi not in ('956-001')
         order by ci.CENCO1_DESC asc
     `;
     
@@ -760,11 +761,11 @@ async function getGuardias(){
   let query=`
   --distinct por si hay fichas repeidas en las diirecciones
   select distinct dir_per.*
-  ,per.NOMBRES,per.ESTADO
+  ,per.NOMBRES,case  per.ESTADO when 'V' then 'VIGENTE' when 'F' then 'FINIQUITADO'  WHEN 'I' then 'INACTIVO' else '' end as ESTADO
   ,per.FECHA_INGRESO
   ,per.FECHA_TERM_CONTRATO
-  ,per.FINIQUITO_GLOSA
-  ,per.TELEFONO1
+  ,case when per.FINIQUITO_GLOSA='' then ' ' else per.FINIQUITO_GLOSA end as FINIQUITO_GLOSA
+  ,isnull(per.CELULAR_OS10 collate Modern_Spanish_CI_AS,'-')+','+isnull(per.TELEFONO1,'-')+','+isnull(per.TELEFONO2,'-') as TELEFONO1
   ,per.EDAD,cc.CENCO2_DESC
   FROM
    [bi-server-01].[Inteligencias].[dbo].[RRHH_PERSONAL_DIRECCION] as dir_per
@@ -774,7 +775,7 @@ async function getGuardias(){
     left join [bi-server-01].[Inteligencias].dbo.centros_costo as cc
 	on cc.cenco2_codi=per.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI and cc.emp_codi=per.EMP_CODI
 	where es_ultima_ficha=1 and edad<=65
-
+and per.rut_id not in (13544332)
   
   `;
   
@@ -1263,7 +1264,7 @@ function createGeoJSON(data){
         }
         ,"properties": {
        
-            "Group":"a","name":element.nombre,"cenco2_codi":element.cenco2_codigo,"cenco1_desc":element.cenco1_desc
+            "Group":"a","name":element.nombre,"cenco2_codi":element.cenco2_codi,"cenco1_desc":element.cenco1_desc
         ,"administrativo_nombre":element.administrativo_nombre,"administrativo_id":element.administrativo_id
         ,"CANT_AUDITORIAS":element.CANT_AUDITORIAS,"CANT_NC_PENDIENTES":element.CANT_NC_PENDIENTES  
         ,"CANT_NC_ULT_MESES":element.CANT_NC_ULT_MESES,"CANT_NC_RES_ULT_MESES":element.CANT_NC_RES_ULT_MESES  
@@ -1296,6 +1297,15 @@ function createGeoJSONGuardias(data){
   
 
   let nuevoData=  data.map(element=>{
+
+  let finiquitoGlosa=""
+  
+  //salta caracteres especiales que dan error en el ejs https://stackoverflow.com/questions/19573525/bad-control-character-error-in-json-parse
+  if (  element.FINIQUITO_GLOSA)
+  finiquitoGlosa= element.FINIQUITO_GLOSA.replace(/\s+/g,"")
+
+  
+
      return {"type":"Feature",
  
      "geometry": {
@@ -1308,11 +1318,11 @@ function createGeoJSONGuardias(data){
     
          "Group":"a","FICHA":element.FICHA
          ,"RUT_ID":element.RUT_ID
-        // ,"NOMBRES":element.NOMBRES
+         ,"NOMBRES":element.NOMBRES[0] //puede haber mas de un nombre por rut entonces el result la mete en un array
        ,"ESTADO":element.ESTADO
          ,"FECHA_INGRESO":element.FECHA_INGRESO
          ,"FECHA_TERM_CONTRATO":element.FECHA_TERM_CONTRATO
-        //,"FINIQUITO_GLOSA":element.FINIQUITO_GLOSA
+        ,"FINIQUITO_GLOSA":finiquitoGlosa
          ,"TELEFONO1":element.TELEFONO1
          ,"EDAD":element.EDAD
          ,"CENCO2_DESC":element.CENCO2_DESC
