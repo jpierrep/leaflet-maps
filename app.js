@@ -765,13 +765,16 @@ async function getGuardias(){
   ,per.FECHA_TERM_CONTRATO
   ,per.FINIQUITO_GLOSA
   ,per.TELEFONO1
-  ,per.EDAD
+  ,per.EDAD,cc.CENCO2_DESC
   FROM
    [bi-server-01].[Inteligencias].[dbo].[RRHH_PERSONAL_DIRECCION] as dir_per
     left join 
     (select * from [bi-server-01].Inteligencias.dbo.RRHH_PERSONAL_SOFT where ES_ULTIMO_MES=1 ) as per
-    on dir_per.EMP_CODI=per.EMP_CODI and dir_per.FICHA=per.FICHA collate SQL_Latin1_General_CP1_CI_AI
-    where es_ultima_ficha=1 and edad<=65
+	on dir_per.EMP_CODI=per.EMP_CODI and dir_per.FICHA=per.FICHA collate SQL_Latin1_General_CP1_CI_AI
+    left join [bi-server-01].[Inteligencias].dbo.centros_costo as cc
+	on cc.cenco2_codi=per.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI and cc.emp_codi=per.EMP_CODI
+	where es_ultima_ficha=1 and edad<=65
+
   
   `;
   
@@ -1312,6 +1315,7 @@ function createGeoJSONGuardias(data){
         //,"FINIQUITO_GLOSA":element.FINIQUITO_GLOSA
          ,"TELEFONO1":element.TELEFONO1
          ,"EDAD":element.EDAD
+         ,"CENCO2_DESC":element.CENCO2_DESC
 
          //,"nombre":element.NOMBRES da error el json
   
