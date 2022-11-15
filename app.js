@@ -776,6 +776,14 @@ async function getGuardias(){
 	on cc.cenco2_codi=per.CENCO2_CODI collate SQL_Latin1_General_CP1_CI_AI and cc.emp_codi=per.EMP_CODI
 	where es_ultima_ficha=1 and edad<=65
 and per.rut_id not in (13544332)
+
+and ESTADO_ACTUAL_FICHA='F'
+and ((CELULAR_OS10 is not null or CELULAR_OS10<>'') or (TELEFONO1 is not null or TELEFONO1<>'') or (TELEFONO2 is not null or TELEFONO2<>'') or (TELEFONO3 is not null or TELEFONO3<>'') )
+and CARGO_DESC like '%guard%'
+
+and FINIQUITO_GLOSA not like '%160-%'
+and FINIQUITO_FECHA not like '%159-3%'
+
   
   `;
   
