@@ -115,7 +115,7 @@
 
 
 "use strict";
-            console.log("#{variable}")
+            //console.log("#{variable}")
             var mymap = L.map('mymap'
             ,{fullscreenControl: true}
             ).setView([51.505, -0.09], 1);
@@ -176,7 +176,7 @@
                 div.innerHTML += '<i style="background: #448D40"></i><span>Forest</span><br>';
                 div.innerHTML += '<i class="icon" style="background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/194515-200.png);background-repeat: no-repeat;"></i><span>Grænse</span><br>';
                 */
-                console.log("resultSupervisor",resultSupervisor)
+                //console.log("resultSupervisor",resultSupervisor)
              //   resultSupervisor.forEach(supervisor=>{
                //     div.innerHTML += '<i style="background:'+supervisor.COLOR+' "></i><span>'+supervisor.ADMINISTRATIVO_NOMBRE+'</span><br>';
                // })
@@ -192,7 +192,7 @@
              
            
           
-            console.log("supervisores Color",supervisoresColor)
+            //console.log("supervisores Color",supervisoresColor)
         
 
             var valor;
@@ -208,7 +208,7 @@
                 valores=$('#select_filter_cenco1 option:selected').map(function(a, item){return item.value;});
 
                valores=valores.toArray();
-               console.log('Valores',valores);
+               //console.log('Valores',valores);
 
                 //reset selector de cenco1 
                 $('#select_filter_supervisor option:selected').each(function() {
@@ -232,7 +232,7 @@
                 valores=$('#select_filter_supervisor option:selected').map(function(a, item){return item.value;});
 
                valores=valores.toArray();
-               console.log(valores);
+               //console.log(valores);
                 //reset selector de cenco1 
                 $('#select_filter_cenco1 option:selected').each(function() {
                 $(this).prop('selected', false);
@@ -254,7 +254,7 @@
 
             function cambia2(tipo){
         
-                console.log("supervisores Color",supervisoresColor);
+                //console.log("supervisores Color",supervisoresColor);
                 var cantDotVigenteTotal=0;
                 var cantDotVigenteParcial=0;
                 var cantPlantas=0;
@@ -291,8 +291,8 @@
                    // console.log(valores2);
 
                     //si es distinto all se obtiene la cantidad de personal en base al filtro, pero si es all se debe sumar todo                  
-                     console.log("Hola");
-                     console.log(valores);
+                     //console.log("Hola");
+                     //console.log(valores);
                      if(!valores.includes('all')){
                             console.log("no contiene all")
                          //cantidad total vigente del filtro
@@ -305,7 +305,7 @@
                             return{cotiza_dot_vigente_erp: a.cotiza_dot_vigente_erp};
                         });
 
-                        console.log(cantDotVigenteTotal);
+                        //console.log(cantDotVigenteTotal);
 
                      }else{
                     //funcionando trae suma de un objeto
@@ -418,8 +418,8 @@ mymap.addLayer(markers);
 
             var customLayer = L.geoJson(geojsonFeature, {
                 pointToLayer : function(feature,latlng){
-                console.log("holaa")   
-                console.log(feature)
+                //console.log("holaa")   
+                //console.log(feature)
 
                 let featureDotacion=0;
                 //si tiene dotacion vigente se captura el dato para luego hacer la funcion 
@@ -441,8 +441,8 @@ mymap.addLayer(markers);
                      
 
 
-                console.log(featureDotacion)
-                console.log(cantDotVigenteTotal.cotiza_dot_vigente_erp)
+                //console.log(featureDotacion)
+                //console.log(cantDotVigenteTotal.cotiza_dot_vigente_erp)
                 let geojsonMarkerOptions = {
                 radius: 8+(20*(valorRadio)),
              //   fillColor: colorRadio,
@@ -493,7 +493,7 @@ mymap.addLayer(markers);
                 }
                 }).addTo(mymap);
             if(!valores.length==0){
-                console.log(valores);
+                //console.log(valores);
             mymap.fitBounds(customLayer.getBounds());
             }
 

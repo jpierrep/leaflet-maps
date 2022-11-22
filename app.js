@@ -51,7 +51,7 @@ let matriz=req.body.matrizConfig
 //{"matrizConfig":{"id":2,"parameter":"165-000"}}
 
 //let matriz={"id":2,"parameter":"090-000"}
-console.log (matriz)
+//console.log (matriz)
 let data=JSON.stringify(matriz)
 
 
@@ -87,7 +87,7 @@ app.get("/cicStop", async function (req, res) {
     //http://192.168.5.5:3800/cic_control/cicStop
     try {
       const resp = await axios.get('http://'+cicURL+'/cicStop',);
-      console.log(resp.data);
+      //console.log(resp.data);
     return  res.status(200).send({status:"ok"});
   } catch (err) {
       // Handle Error Here
@@ -106,7 +106,7 @@ app.get("/cicStop", async function (req, res) {
       //http://192.168.5.5:3800/cic_control/cicStop
       try {
         const resp = await axios.get('http://'+cicURL+'/cicRestart',);
-        console.log(resp.data);
+        //console.log(resp.data);
       return  res.status(200).send({status:"ok"});
     } catch (err) {
         // Handle Error Here
@@ -175,7 +175,7 @@ let infoSupervisor={supervisor_zona:supervisor_zona,supervisor_nombre:supervisor
 
 //console.log(dataMap)
 var geoJSON= createGeoJSON(dataMap);
-console.log(geoJSON)
+//console.log(geoJSON)
 
   res.render("no-conformidades.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor });
 })
@@ -234,7 +234,7 @@ let geoJSON= dataMap.map(element=>{
   };
 
 });
-console.log(geoJSON)
+//console.log(geoJSON)
 
   res.render("visitas-pendientes.ejs", { geoJSON:geoJSON,infoSupervisor:infoSupervisor,plantasGeoJSON:plantasGeoJSON });
 })
@@ -382,7 +382,7 @@ let metricasPasado=getMetricasNCPendientes(dataNCSupervisorPasado)
 //data de todas las plantas para añadir pin e info si fuese necesario
 
 let dataPlantas=(await getPlantas()).filter(x=>x[filterName]==id)
-console.log(dataPlantas,'todas')
+//console.log(dataPlantas,'todas')
 
 let supervisor_nombre=getUniqueProp(dataPlantas,'administrativo_nombre')
 let supervisor_zona=getUniqueProp(dataPlantas,'zona_nombre').join(', ');
@@ -506,7 +506,7 @@ app.get("/plantilla-websites/:tipo",async  function (req, res) {
     return value.administrativo_id;
   });
   var distinctSupervisores=getUnique(id_supervisores);
-  console.log(distinctSupervisores)
+  //console.log(distinctSupervisores)
   let plantilla=plantilla_websites.getTemplateEndpoints(tipoMapa,distinctSupervisores)
 res.status(200).send(plantilla);
 })
@@ -516,7 +516,7 @@ app.get("/pantalla/:id",async  function (req, res) {
   let plantilla
 
   plantilla= await plantilla_websites.getTemplateEndpointsTargit(req.params.id)
-  console.log("plantilla",plantilla)
+  //console.log("plantilla",plantilla)
 
 
 res.status(200).send(plantilla);
@@ -573,10 +573,10 @@ app.get("/",function(req,res){
   });
 
   var distinctCenco1=getUnique(cenco1);
-  console.log(distinctCenco1);
+  //console.log(distinctCenco1);
 
   var distinctSupervisores=getUnique(supervisores);
-  console.log(distinctSupervisores)
+  //console.log(distinctSupervisores)
 
    //var geoJSON=createGeoJSON(result);
 
@@ -588,15 +588,15 @@ let unique = (value, index, self) => {
   }
 
   let distinctSupervisoresId = result.map(x =>  {return x['administrativo_id'] }).filter(unique)
-   console.log('supervisores',distinctSupervisoresId)
+   //console.log('supervisores',distinctSupervisoresId)
    
    var supervisoresColor=distinctSupervisoresId.map((supervisor,index)=>{return {administrativo_id:supervisor,color:colorArray[index]}})
-   console.log("sup coloooorr",supervisoresColor)
+   //console.log("sup coloooorr",supervisoresColor)
 
   
    getResumenSupervisor().then(resultSupervisor=>{
 
-   console.log("el result superv",resultSupervisor)
+   //console.log("el result superv",resultSupervisor)
      resultSupervisor.filter(x=>x.ADMINISTRATIVO_ID).map(supervisor=>{
       let sup=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID)
       if (sup){supervisor.COLOR=sup.color} else supervisor.COLOR='#FF0000'
@@ -606,7 +606,7 @@ let unique = (value, index, self) => {
         return  supervisor
 
      })
-     console.log("el sup",resultSupervisor[0])
+     //console.log("el sup",resultSupervisor[0])
 
     res.render("index",{variable:variable,opciones:options,dataResult:dataResult
         ,geoJSON:geoJSON,distinctCenco1:distinctCenco1,distinctSupervisores:distinctSupervisores,supervisoresColor:JSON.stringify(supervisoresColor)
@@ -626,6 +626,13 @@ let unique = (value, index, self) => {
 
 
 app.get("/getGuardias",async function(req,res){
+
+  
+  
+  //añade log sistema
+  fs.appendFileSync("log-request.txt", "'getGuardias','"+req.socket.remoteAddress+"','"+ moment().format("YYYY-MM-DD HH:mm")+"'\r\n");
+  console.log( req.headers['x-forwarded-for'] || req.socket.remoteAddress )
+  //console.log(  req.socket)
  
   var variable="variableeeee";
   var options=["a","b","c","d"];
@@ -634,7 +641,7 @@ app.get("/getGuardias",async function(req,res){
 var guardias=await getGuardias()
 var geoJSONGuardias= JSON.stringify(createGeoJSONGuardias(guardias))
 
-console.log(guardias)
+//console.log(guardias)
 
   var plantas=getPlantas().then(result=>{
   //console.log(result);
@@ -650,10 +657,10 @@ var  supervisores=  result.map(value=>{
 });
 
 var distinctCenco1=getUnique(cenco1);
-console.log(distinctCenco1);
+//console.log(distinctCenco1);
 
 var distinctSupervisores=getUnique(supervisores);
-console.log(distinctSupervisores)
+//console.log(distinctSupervisores)
 
  //var geoJSON=createGeoJSON(result);
 
@@ -665,15 +672,15 @@ let unique = (value, index, self) => {
 }
 
 let distinctSupervisoresId = result.map(x =>  {return x['administrativo_id'] }).filter(unique)
- console.log('supervisores',distinctSupervisoresId)
+ //console.log('supervisores',distinctSupervisoresId)
  
  var supervisoresColor=distinctSupervisoresId.map((supervisor,index)=>{return {administrativo_id:supervisor,color:colorArray[index]}})
- console.log("sup coloooorr",supervisoresColor)
+ //console.log("sup coloooorr",supervisoresColor)
 
 
  getResumenSupervisor().then(resultSupervisor=>{
 
- console.log("el result superv",resultSupervisor)
+ //console.log("el result superv",resultSupervisor)
    resultSupervisor.filter(x=>x.ADMINISTRATIVO_ID).map(supervisor=>{
     let sup=supervisoresColor.find(x=>x.administrativo_id==supervisor.ADMINISTRATIVO_ID)
     if (sup){supervisor.COLOR=sup.color} else supervisor.COLOR='#FF0000'
@@ -683,7 +690,7 @@ let distinctSupervisoresId = result.map(x =>  {return x['administrativo_id'] }).
       return  supervisor
 
    })
-   console.log("el sup",resultSupervisor[0])
+   //console.log("el sup",resultSupervisor[0])
 
   res.render("guardias.ejs",{variable:variable,opciones:options,dataResult:dataResult
       ,geoJSON:geoJSON,distinctCenco1:distinctCenco1,distinctSupervisores:distinctSupervisores,supervisoresColor:JSON.stringify(supervisoresColor)
@@ -1187,7 +1194,7 @@ async function cicRestart(){
   //http://192.168.5.5:3800/cic_control/cicStop
   try {
     const resp = await axios.get('http://'+cicURL+'/cicRestart',);
-    console.log(resp.data);
+    //console.log(resp.data);
   return {status:"ok"} ;
 } catch (err) {
     // Handle Error Here

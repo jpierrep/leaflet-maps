@@ -6,3 +6,4 @@ testData.json
 public/*
 !public/clusterpies/
 .vscode/launch.json
+log-request.txt
