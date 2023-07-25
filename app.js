@@ -12,7 +12,7 @@ const plantilla_websites = require('./controllers/template-endopoints');
 const fs = require('fs');
 const moment=require('moment')
 
-const cicURL='192.168.5.12:3800/cic_control/'
+const cicURL='192.168.5.30:3800/cic_control/'
 
 // config for your database
 var config = {
